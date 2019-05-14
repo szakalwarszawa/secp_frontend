@@ -6,14 +6,17 @@ import './App.css';
 import {PrivateRoute} from '../_components';
 import {Home} from '../Pages/Home';
 import {Login} from '../Pages/Login';
+import { withStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
 
 class App extends React.Component {
     render() {
         // const { alert } = this.props;
+        const { classes } = this.props;
         return (
-            <div className="jumbotron">
-                <div className="container">
-                    <div className="col-sm-8 col-sm-offset-2">
+            <Grid container className={classes.root} alignItems="center" spacing={8}>
+                <Grid item xs={12}>
+                    <Grid container className={classes.demo} justify="center">
                         <Router history={history}>
                             <div>
                                 <PrivateRoute exact path="/" component={Home}/>
@@ -21,9 +24,9 @@ class App extends React.Component {
                                 {/*<Route path="/register" component={RegisterPage} />*/}
                             </div>
                         </Router>
-                    </div>
-                </div>
-            </div>
+                    </Grid>
+                </Grid>
+            </Grid>
         );
     }
 }
@@ -35,5 +38,18 @@ function mapStateToProps(state) {
     };
 }
 
-const connectedApp = connect(mapStateToProps)(App);
+const styles = theme => ({
+    root: {
+        flexGrow: 1,
+    },
+    paper: {
+        height: 140,
+        width: 100,
+    },
+    control: {
+        padding: theme.spacing.unit * 2,
+    },
+});
+
+const connectedApp = connect(mapStateToProps)(withStyles(styles)(App));
 export {connectedApp as App};

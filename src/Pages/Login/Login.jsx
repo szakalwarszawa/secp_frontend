@@ -1,12 +1,15 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
+import { userActions } from '../../_actions';
+
 import {withStyles} from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 // import { userActions } from '../_actions';
 
@@ -15,7 +18,7 @@ class Login extends React.Component {
         super(props);
 
         // reset login status
-        // this.props.dispatch(userActions.logout());
+        this.props.dispatch(userActions.logout());
 
         this.state = {
             username: '',
@@ -39,7 +42,7 @@ class Login extends React.Component {
         const { username, password } = this.state;
         const { dispatch } = this.props;
         if (username && password) {
-            // dispatch(userActions.login(username, password));
+            dispatch(userActions.login(username, password));
         }
     };
 
@@ -48,56 +51,88 @@ class Login extends React.Component {
         const { classes } = this.props;
         const { username, password, submitted } = this.state;
         return (
-            <div>
-                <Card className={classes.card}>
-                    <CardContent>
-                        <Typography variant="title" color="inherit">
-                            Login
-                        </Typography>
-                        <form name="form" onSubmit={this.handleSubmit}>
-                            <div className={'form-group' + (submitted && !username ? ' has-error' : '')}>
-                                <label htmlFor="username">Username</label>
-                                <input type="text" className="form-control" name="username" value={username}
-                                       onChange={this.handleChange}/>
-                                {submitted && !username &&
-                                <div className="help-block">Username is required</div>
+            <div className={classes.main}>
+                <CssBaseline/>
+                <Paper className={classes.paper} elevation={8}>
+                    <Typography component="h1" variant="h5">
+                        SECP Login
+                    </Typography>
+                    <form className={classes.form} noValidate name="form" onSubmit={this.handleSubmit}>
+                        <FormControl margin="normal" required fullWidth>
+                            <TextField
+                                className={classes.textField}
+                                value={username}
+                                name={'username'}
+                                label="Login"
+                                margin="normal"
+                                variant="standard"
+                                onChange={this.handleChange}
+                                error={submitted && !username}
+                                helperText={submitted && !username &&
+                                <FormHelperText error={true}>Podanie loginu jest
+                                    wymagne</FormHelperText>
                                 }
-                            </div>
-                            <div className={'form-group' + (submitted && !password ? ' has-error' : '')}>
-                                <label htmlFor="password">Password</label>
-                                <input type="password" className="form-control" name="password" value={password}
-                                       onChange={this.handleChange}/>
-                                {submitted && !password &&
-                                <div className="help-block">Password is required</div>
+                                autoFocus
+                            />
+                        </FormControl>
+                        <FormControl margin="normal" required fullWidth>
+                            <TextField
+                                className={classes.textField}
+                                value={password}
+                                name={'password'}
+                                label="Hasło"
+                                margin="normal"
+                                variant="standard"
+                                type="password"
+                                onChange={this.handleChange}
+                                error={submitted && !password}
+                                helperText={submitted && !password &&
+                                <FormHelperText error={true}>Podanie hasła jest
+                                    wymagne</FormHelperText>
                                 }
-                            </div>
-                            <CardActions className="form-group">
-                                <Button size="medium">Login</Button>
-                            </CardActions>
-                        </form>
-                    </CardContent>
-                </Card>
+                            />
+                        </FormControl>
+                        <Button
+                            className={classes.submit}
+                            color={'primary'}
+                            type={'submit'}
+                            fullWidth
+                            // disabled={submitted}
+                        >Login</Button>
+                    </form>
+                </Paper>
             </div>
         );
     }
 }
 
-const styles = {
-    card: {
-        minWidth: 275
+const styles = theme => ({
+    main: {
+        width: 'auto',
+        display: 'block', // Fix IE 11 issue.
+        marginLeft: theme.spacing.unit * 3,
+        marginRight: theme.spacing.unit * 3,
+        [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
+            width: 400,
+            marginLeft: 'auto',
+            marginRight: 'auto'
+        }
     },
-    bullet: {
-        display: 'inline-block',
-        margin: '0 2px',
-        transform: 'scale(0.8)'
+    paper: {
+        marginTop: theme.spacing.unit * 8,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`
     },
-    title: {
-        fontSize: 14
+    form: {
+        width: '100%', // Fix IE 11 issue.
+        marginTop: theme.spacing.unit
     },
-    pos: {
-        marginBottom: 12
+    submit: {
+        marginTop: theme.spacing.unit * 3
     }
-};
+});
 
 function mapStateToProps(state) {
     const { loggingIn } = state.authentication;
@@ -106,5 +141,7 @@ function mapStateToProps(state) {
     };
 }
 
-const connectedLoginPage = connect(mapStateToProps)(withStyles(styles)(Login));
+const connectedLoginPage = connect(mapStateToProps)(
+    withStyles(styles)(Login)
+);
 export {connectedLoginPage as Login};
