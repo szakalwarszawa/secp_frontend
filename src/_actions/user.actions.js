@@ -1,6 +1,6 @@
 import {userConstants} from '../_constants';
 import {userService} from '../_services';
-import {alertActions} from './';
+import {alertActions} from './alert.actions';
 import {history} from '../_helpers';
 
 export const userActions = {
@@ -10,6 +10,7 @@ export const userActions = {
 
 function login(username, password) {
     return dispatch => {
+        dispatch(alertActions.clear());
         dispatch(request({ username }));
 
         userService.login(username, password)

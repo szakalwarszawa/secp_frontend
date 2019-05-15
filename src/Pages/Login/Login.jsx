@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import { userActions } from '../../_actions';
+import {userActions} from '../../_actions';
 
 import {withStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,6 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 // import { userActions } from '../_actions';
 
@@ -68,12 +69,12 @@ class Login extends React.Component {
                                 variant="standard"
                                 onChange={this.handleChange}
                                 error={submitted && !username}
-                                helperText={submitted && !username &&
-                                <FormHelperText error={true}>Podanie loginu jest
-                                    wymagne</FormHelperText>
-                                }
                                 autoFocus
                             />
+                            {submitted && !username &&
+                            <FormHelperText error={true}>Podanie loginu jest
+                                wymagne</FormHelperText>
+                            }
                         </FormControl>
                         <FormControl margin="normal" required fullWidth>
                             <TextField
@@ -86,19 +87,22 @@ class Login extends React.Component {
                                 type="password"
                                 onChange={this.handleChange}
                                 error={submitted && !password}
-                                helperText={submitted && !password &&
-                                <FormHelperText error={true}>Podanie hasła jest
-                                    wymagne</FormHelperText>
-                                }
                             />
+                            {submitted && !password &&
+                            <FormHelperText error={true}>Podanie hasła jest
+                                wymagne</FormHelperText>
+                            }
                         </FormControl>
-                        <Button
-                            className={classes.submit}
-                            color={'primary'}
-                            type={'submit'}
-                            fullWidth
-                            // disabled={submitted}
-                        >Login</Button>
+                            <Button
+                                className={classes.submit}
+                                color={'primary'}
+                                type={'submit'}
+                                fullWidth
+                                disabled={loggingIn}
+                            >Login</Button>
+                        <div className={classes.buttonWrapper}>
+                            {loggingIn && <LinearProgress />}
+                        </div>
                     </form>
                 </Paper>
             </div>
@@ -124,6 +128,17 @@ const styles = theme => ({
         flexDirection: 'column',
         alignItems: 'center',
         padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`
+    },
+    buttonWrapper: {
+        margin: theme.spacing.unit,
+        position: 'relative'
+    },
+    buttonProgress: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginTop: -12,
+        marginLeft: -12,
     },
     form: {
         width: '100%', // Fix IE 11 issue.
