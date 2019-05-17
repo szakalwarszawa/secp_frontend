@@ -7,7 +7,7 @@ import { alert } from './alert.reducer';
 const rootReducer = combineReducers({
   authentication,
   // users,
-  alert
+  alert,
 });
 
 export default rootReducer;

@@ -5,35 +5,40 @@ import { connect } from 'react-redux';
 // import { userActions } from '../_actions';
 
 class Home extends React.Component {
-    componentDidMount() {
-        // this.props.dispatch(userActions.getAll());
-    }
+  constructor(props) {
+    super(props);
 
-    handleDeleteUser(id) {
-        // return (e) => this.props.dispatch(userActions.delete(id));
-    }
+    this.state = {
+      username: 'Fake user',
+    };
+  }
 
-    render() {
-        const { user } = this.props;
-        return (
-            <div className="col-md-6 col-md-offset-3">
-                <h1>Hi {user.firstName}!</h1>
-                <p>You're logged in with React!!</p>
-                <p>
-                    <Link to="/login">Logout</Link>
-                </p>
-            </div>
-        );
-    }
+  render() {
+    const { username } = this.state;
+
+    return (
+      <div className="col-md-6 col-md-offset-3">
+        <h1>
+          Hi
+          {` ${username} `}
+          !
+        </h1>
+        <p>You&apos;re logged in with React!!</p>
+        <p>
+          <Link to="/login">Logout</Link>
+        </p>
+      </div>
+    );
+  }
 }
 
 function mapStateToProps(state) {
-    const { users, authentication } = state;
-    const { user } = authentication;
-    return {
-        user,
-        users
-    };
+  const { users, authentication } = state;
+  const { user } = authentication;
+  return {
+    user,
+    users,
+  };
 }
 
 const connectedHomePage = connect(mapStateToProps)(Home);
