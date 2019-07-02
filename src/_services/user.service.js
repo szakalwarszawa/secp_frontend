@@ -29,7 +29,7 @@ function login(username, password) {
     body: JSON.stringify({ username, password }),
   };
 
-  return fetch(`${process.env.REACT_APP_API_URL}/login_check`, requestOptions)
+  return fetch(`${process.env.REACT_APP_API_URL}/authentication_token`, requestOptions)
     .then(handleResponse)
     .then((user) => {
       // store user details and jwt token in local storage to keep user logged

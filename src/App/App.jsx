@@ -17,6 +17,8 @@ import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
 import { Login } from '../Pages/Login';
 import { Home } from '../Pages/Home';
+import { TimesheetList } from '../Pages/Timesheet';
+import { UserList } from '../Pages/User';
 
 class App extends React.Component {
   handlCloseSnackBar = () => {
@@ -25,21 +27,18 @@ class App extends React.Component {
   };
 
   render() {
-    const { alert } = this.props;
-    const { classes } = this.props;
+    const { alert, classes } = this.props;
+
     return (
-      <Grid container className={classes.root} alignItems="center" spacing={8}>
-        <Grid item xs={12}>
-          <Grid container justify="center">
-            <Router history={history}>
-              <div>
-                <PrivateRoute exact path="/" component={Home} />
-                <Route path="/login" component={Login} />
-                {/* <Route path="/register" component={RegisterPage} /> */}
-              </div>
-            </Router>
-          </Grid>
-        </Grid>
+      <Grid container className={classes.root} alignItems="center" spacing={4}>
+        <Router history={history}>
+          <PrivateRoute exact path="/" component={Home} />
+          <Route path="/login" component={Login} />
+          <Route path="/addTimesheetDayReport" component={Home} />
+          <Route path="/timesheetList" component={TimesheetList} />
+          <Route path="/timesheetListToAccept" component={Home} />
+          <Route path="/users" component={UserList} />
+        </Router>
         <Snackbar
           open={alert.message && alert.message !== ''}
           autoHideDuration={4000}
@@ -80,7 +79,7 @@ const styles = theme => ({
     width: 100,
   },
   control: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
   },
   snackBarInfo: {
     backgroundColor: theme.palette.primary.dark,

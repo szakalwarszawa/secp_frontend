@@ -97,6 +97,7 @@ class Login extends React.Component {
               className={classes.submit}
               color="primary"
               type="submit"
+              variant="contained"
               fullWidth
               disabled={loggingIn}
             >
