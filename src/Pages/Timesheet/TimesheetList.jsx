@@ -21,6 +21,8 @@ import Edit from '@material-ui/icons/Edit';
 import SortArrow from '@material-ui/icons/ArrowUpward';
 import Delete from '@material-ui/icons/DeleteOutline';
 import { Home } from '../Home';
+import { apiService } from '../../_services';
+import { IconProps } from '@material-ui/core/Icon';
 
 class TimesheetList extends React.Component {
   constructor(props) {
@@ -68,7 +70,7 @@ class TimesheetList extends React.Component {
               { title: 'Czas pracy', field: 'workingTime' },
             ]}
             data={query => new Promise((resolve, reject) => {
-              let url = `${process.env.REACT_APP_API_URL}/api/user_timesheet_days?`;
+              let url = 'user_timesheet_days?';
               url += `itemsPerPage=${query.pageSize}`;
               url += `&page=${query.page + 1}`;
 
@@ -82,10 +84,8 @@ class TimesheetList extends React.Component {
                 });
               }
 
-              fetch(url)
-                .then(response => response.json())
+              apiService.get(url)
                 .then((result) => {
-                  // console.log(result);
                   resolve({
                     data: result['hydra:member'],
                     page: query.page || 0,
@@ -96,9 +96,10 @@ class TimesheetList extends React.Component {
             }
             actions={[
               {
-                tooltip: 'Refresh Data',
-                isFreeAction: true,
+                disabled: false,
                 icon: Refresh,
+                isFreeAction: true,
+                tooltip: 'Refresh Data',
                 onClick: () => this.tableRef.current && this.tableRef.current.onQueryChange(),
               },
             ]}

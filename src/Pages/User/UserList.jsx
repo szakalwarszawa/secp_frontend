@@ -20,6 +20,7 @@ import Refresh from '@material-ui/icons/Refresh';
 import Edit from '@material-ui/icons/Edit';
 import SortArrow from '@material-ui/icons/ArrowUpward';
 import Delete from '@material-ui/icons/DeleteOutline';
+import { apiService } from '../../_services';
 import { Home } from '../Home';
 
 class UserList extends React.Component {
@@ -78,7 +79,7 @@ class UserList extends React.Component {
               },
             ]}
             data={query => new Promise((resolve, reject) => {
-              let url = `${process.env.REACT_APP_API_URL}/api/users?`;
+              let url = 'users?';
               url += `itemsPerPage=${query.pageSize}`;
               url += `&page=${query.page + 1}`;
 
@@ -92,8 +93,7 @@ class UserList extends React.Component {
                 });
               }
 
-              fetch(url)
-                .then(response => response.json())
+              apiService.get(url)
                 .then((result) => {
                   resolve({
                     data: result['hydra:member'],
