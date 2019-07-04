@@ -19,6 +19,7 @@ import { Login } from '../Pages/Login';
 import { Home } from '../Pages/Home';
 import { TimesheetList } from '../Pages/Timesheet';
 import { UserList } from '../Pages/User';
+import AppHeader from '../_components/AppHeader';
 
 class App extends React.Component {
   handlCloseSnackBar = () => {
@@ -27,45 +28,48 @@ class App extends React.Component {
   };
 
   render() {
-    const { alert, classes } = this.props;
+    const { alert, classes, loggedIn } = this.props;
 
     return (
-      <Grid container className={classes.root} alignItems="center" spacing={4}>
-        <Router history={history}>
-          <PrivateRoute exact path="/" component={Home} />
-          <Route path="/login" component={Login} />
-          <Route path="/addTimesheetDayReport" component={Home} />
-          <Route path="/timesheetList" component={TimesheetList} />
-          <Route path="/timesheetListToAccept" component={Home} />
-          <Route path="/users" component={UserList} />
-        </Router>
-        <Snackbar
-          open={alert.message && alert.message !== ''}
-          autoHideDuration={4000}
-          className={classes.snackBarInfo}
-        >
-          <SnackbarContent
+      <div>
+        {loggedIn ? <AppHeader appBarTitle="APP" loggedIn={loggedIn} /> : null}
+        <Grid container className={classes.root} alignItems="center" spacing={4} style={{ margin: '5px', marginTop: '70px' }}>
+          <Router history={history}>
+            <PrivateRoute exact path="/" component={Home} />
+            <Route path="/login" component={Login} />
+            <PrivateRoute path="/addTimesheetDayReport" component={Home} />
+            <PrivateRoute path="/timesheetList" component={TimesheetList} />
+            <PrivateRoute path="/timesheetListToAccept" component={Home} />
+            <PrivateRoute path="/users" component={UserList} />
+          </Router>
+          <Snackbar
+            open={alert.message && alert.message !== ''}
+            autoHideDuration={4000}
             className={classes.snackBarInfo}
-            message={(
-              <span className={classes.message}>
-                <InfoIcon className={classes.icon} />
-                {alert.message}
-              </span>
-            )}
-            action={(
-              <IconButton
-                key="close"
-                aria-label="Close"
-                color="inherit"
-                className={classes.close}
-                onClick={this.handlCloseSnackBar}
-              >
-                <CloseIcon className={classes.icon} />
-              </IconButton>
-            )}
-          />
-        </Snackbar>
-      </Grid>
+          >
+            <SnackbarContent
+              className={classes.snackBarInfo}
+              message={(
+                <span className={classes.message}>
+                  <InfoIcon className={classes.icon} />
+                  {alert.message}
+                </span>
+              )}
+              action={(
+                <IconButton
+                  key="close"
+                  aria-label="Close"
+                  color="inherit"
+                  className={classes.close}
+                  onClick={this.handlCloseSnackBar}
+                >
+                  <CloseIcon className={classes.icon} />
+                </IconButton>
+              )}
+            />
+          </Snackbar>
+        </Grid>
+      </div>
     );
   }
 }
@@ -73,6 +77,7 @@ class App extends React.Component {
 const styles = theme => ({
   root: {
     flexGrow: 1,
+    margin: theme.spacing(),
   },
   paper: {
     height: 140,
@@ -100,6 +105,7 @@ App.propTypes = {
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
   classes: PropTypes.instanceOf(Object),
+  loggedIn: PropTypes.bool,
 };
 
 App.defaultProps = {
@@ -107,9 +113,11 @@ App.defaultProps = {
 };
 
 function mapStateToProps(state) {
+  const { loggedIn } = state.authentication;
   const { alert } = state;
   return {
     alert,
+    loggedIn,
   };
 }
 
