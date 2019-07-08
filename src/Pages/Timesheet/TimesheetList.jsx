@@ -15,6 +15,8 @@ class TimesheetList extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
       <MaterialTable
         title="Listy obecności"
@@ -72,20 +74,21 @@ class TimesheetList extends React.Component {
   }
 }
 
-// const styles = theme => ({});
-//
-// TimesheetList.propTypes = {
-//   classes: PropTypes.instanceOf(Object),
-// };
-//
-// TimesheetList.defaultProps = {
-//   classes: {},
-// };
-//
-// function mapStateToProps(state) {
-//   return {};
-// }
+const styles = theme => ({});
 
-// const styledTimesheetListPage = withStyles(styles)(TimesheetList);
-// const connectedTimesheetListPage = connect(mapStateToProps)(styledTimesheetListPage);
-export { TimesheetList };
+TimesheetList.propTypes = {
+  classes: PropTypes.instanceOf(Object),
+};
+
+TimesheetList.defaultProps = {
+  classes: {},
+};
+
+function mapStateToProps(state) {
+  return {};
+}
+
+//
+const styledTimesheetListPage = withStyles(styles)(TimesheetList);
+const connectedTimesheetListPage = connect(mapStateToProps)(styledTimesheetListPage);
+export { connectedTimesheetListPage as TimesheetList };

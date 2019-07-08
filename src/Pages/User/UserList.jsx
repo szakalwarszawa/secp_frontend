@@ -15,14 +15,14 @@ class UserList extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
       <MaterialTable
         title="Lista użytkowników"
         tableRef={this.tableRef}
         icons={getTableIcons()}
         columns={[
-          // { title: 'Id', field: 'id' },
-          // { title: 'Username', field: 'username' },
           { title: 'Imię', field: 'firstName' },
           { title: 'Nazwisko', field: 'lastName' },
           { title: 'Email', field: 'email' },
@@ -82,20 +82,20 @@ class UserList extends React.Component {
   }
 }
 
-// const styles = theme => ({});
-//
-// TimesheetList.propTypes = {
-//   classes: PropTypes.instanceOf(Object),
-// };
-//
-// TimesheetList.defaultProps = {
-//   classes: {},
-// };
-//
-// function mapStateToProps(state) {
-//   return {};
-// }
+const styles = theme => ({});
 
-// const styledTimesheetListPage = withStyles(styles)(TimesheetList);
-// const connectedTimesheetListPage = connect(mapStateToProps)(styledTimesheetListPage);
-export { UserList };
+UserList.propTypes = {
+  classes: PropTypes.instanceOf(Object),
+};
+
+UserList.defaultProps = {
+  classes: {},
+};
+
+function mapStateToProps(state) {
+  return {};
+}
+
+const styledUserListPage = withStyles(styles)(UserList);
+const connectedUserListPage = connect(mapStateToProps)(styledUserListPage);
+export { connectedUserListPage as UserList };

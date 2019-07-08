@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
@@ -14,9 +14,13 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
-import IconAccountClock from '@material-ui/icons/AccountCircle';
+import IconAccountCircle from '@material-ui/icons/AccountCircle';
 import IconAlarmCheck from '@material-ui/icons/Alarm';
 import IconCheck from '@material-ui/icons/Check';
+import Badge from '@material-ui/core/Badge';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
 
 const useStyles = makeStyles(theme => ({
   menuButton: {
@@ -31,12 +35,56 @@ const useStyles = makeStyles(theme => ({
   fullList: {
     // width: 'auto',
   },
+  userLoaded: {
+    display: 'flex',
+  },
+  userNotLoaded: {
+    display: 'none',
+  },
 }));
 
 function AppHeader(props) {
   const classes = useStyles();
   const [drawerOpened, setDrawerOpened] = useState(false);
-  const { appBarTitle, loggedIn } = props;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { appBarTitle, user } = props;
+
+  const isMenuOpen = Boolean(anchorEl);
+
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleProfileMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const renderUserMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      id="user-account-menu"
+      keepMounted
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      open={isMenuOpen}
+      onClose={handleProfileMenuClose}
+    >
+      <MenuItem component="span" button={false}>
+        {`${user.lastName} ${user.firstName}`}
+      </MenuItem>
+      <Divider component="hr" />
+      <MenuItem component="li" button onClick={handleProfileMenuClose}>Profil</MenuItem>
+      <MenuItem component="li" button onClick={handleProfileMenuClose}>Moje konto</MenuItem>
+      <Divider component="hr" />
+      <MenuItem
+        component="a"
+        button
+        href="/login/"
+      >
+        Logout
+      </MenuItem>
+    </Menu>
+  );
 
   return (
     <AppBar position="fixed">
@@ -53,21 +101,21 @@ function AppHeader(props) {
           <MenuIcon />
         </IconButton>
         <Drawer open={drawerOpened} onClose={() => setDrawerOpened(false)}>
-          <List>
-            <ListItem button component="Link" href="/addTimesheetDayReport/">
+          <List component="ul">
+            <ListItem button component="a" href="/addTimesheetDayReport/">
               <ListItemIcon><IconAlarmCheck /></ListItemIcon>
               <ListItemText primary="Wprowadź obecność" />
             </ListItem>
-            <ListItem button component="Link" href="/timesheetList/">
-              <ListItemIcon><IconAccountClock /></ListItemIcon>
+            <ListItem button component="a" href="/timesheetList/">
+              <ListItemIcon><IconAccountCircle /></ListItemIcon>
               <ListItemText primary="Lista obecności" />
             </ListItem>
-            <ListItem button component="Link" href="/timesheetListToAccept/">
+            <ListItem button component="a" href="/timesheetListToAccept/">
               <ListItemIcon><IconCheck /></ListItemIcon>
               <ListItemText primary="Lista obecności do akceptacji" />
             </ListItem>
-            <Divider />
-            <ListItem button component="Link" href="/users/">
+            <Divider component="hr" />
+            <ListItem button component="a" href="/users/">
               <ListItemText primary="Lista użytkowników" />
             </ListItem>
           </List>
@@ -75,20 +123,44 @@ function AppHeader(props) {
         <Typography variant="h6" className={classes.title}>
           {appBarTitle}
         </Typography>
-        <Button color="inherit" variant="text" href="/login/">Logout</Button>
+        <div className={user.username !== undefined ? classes.userLoaded : classes.userNotLoaded}>
+          <IconButton aria-label="Pokaz wszystkie przypomnienia" color="inherit">
+            <Badge badgeContent={3} color="secondary">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+          <IconButton
+            edge="end"
+            aria-label="Account of current user"
+            aria-haspopup="true"
+            aria-controls="user-account-menu"
+            color="inherit"
+            onClick={handleProfileMenuOpen}
+          >
+            <IconAccountCircle />
+          </IconButton>
+        </div>
       </Toolbar>
+      {renderUserMenu}
     </AppBar>
   );
 }
 
 AppHeader.propTypes = {
   appBarTitle: PropTypes.string,
-  loggedIn: PropTypes.bool,
+  user: PropTypes.instanceOf(Object),
 };
 
 AppHeader.defaultProps = {
   appBarTitle: 'Home',
-  loggedIn: false,
+  user: {},
 };
 
-export default AppHeader;
+function mapStateToProps(state) {
+  const { user } = state.authentication;
+  return {
+    user,
+  };
+}
+
+export default connect(mapStateToProps)(AppHeader);

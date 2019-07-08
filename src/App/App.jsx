@@ -32,43 +32,49 @@ class App extends React.Component {
 
     return (
       <div>
-        {loggedIn ? <AppHeader appBarTitle="APP" loggedIn={loggedIn} /> : null}
-        <Grid container className={classes.root} alignItems="center" spacing={4} style={{ margin: '5px', marginTop: '70px' }}>
-          <Router history={history}>
+        <Router history={history}>
+          {loggedIn ? <AppHeader appBarTitle="APP" /> : null}
+          <Grid
+            container
+            className={classes.root}
+            alignItems="center"
+            spacing={4}
+            style={{ margin: '5px', marginTop: '70px' }}
+          >
             <PrivateRoute exact path="/" component={Home} />
             <Route path="/login" component={Login} />
             <PrivateRoute path="/addTimesheetDayReport" component={Home} />
             <PrivateRoute path="/timesheetList" component={TimesheetList} />
             <PrivateRoute path="/timesheetListToAccept" component={Home} />
             <PrivateRoute path="/users" component={UserList} />
-          </Router>
-          <Snackbar
-            open={alert.message && alert.message !== ''}
-            autoHideDuration={4000}
-            className={classes.snackBarInfo}
-          >
-            <SnackbarContent
+            <Snackbar
+              open={alert.message && alert.message !== ''}
+              autoHideDuration={4000}
               className={classes.snackBarInfo}
-              message={(
-                <span className={classes.message}>
+            >
+              <SnackbarContent
+                className={classes.snackBarInfo}
+                message={(
+                  <span className={classes.message}>
                   <InfoIcon className={classes.icon} />
-                  {alert.message}
+                    {alert.message}
                 </span>
-              )}
-              action={(
-                <IconButton
-                  key="close"
-                  aria-label="Close"
-                  color="inherit"
-                  className={classes.close}
-                  onClick={this.handlCloseSnackBar}
-                >
-                  <CloseIcon className={classes.icon} />
-                </IconButton>
-              )}
-            />
-          </Snackbar>
-        </Grid>
+                )}
+                action={(
+                  <IconButton
+                    key="close"
+                    aria-label="Close"
+                    color="inherit"
+                    className={classes.close}
+                    onClick={this.handlCloseSnackBar}
+                  >
+                    <CloseIcon className={classes.icon} />
+                  </IconButton>
+                )}
+              />
+            </Snackbar>
+          </Grid>
+        </Router>
       </div>
     );
   }
