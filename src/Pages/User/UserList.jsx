@@ -1,26 +1,32 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import MaterialTable from 'material-table';
-import { apiService } from '../../_services';
-import { getTableIcons } from '../../_helpers/tableIcons';
+import { Typography } from '@material-ui/core';
+import { getQuery } from '../../_services';
+import getTableIcons from '../../_helpers/tableIcons';
 
-class UserList extends React.Component {
-  constructor(props) {
-    super(props);
+const useStyles = makeStyles(theme => ({
+  mainTable: {
+    width: '100%',
+    marginRight: '45px',
+  },
+}));
 
-    this.tableRef = React.createRef();
-  }
+function UserListComp(props) {
+  const classes = useStyles();
+  const tableRef = useRef();
 
-  render() {
-    const { classes } = this.props;
-
-    return (
+  return (
+    <div className={classes.mainTable}>
       <MaterialTable
-        title="Lista użytkowników"
-        tableRef={this.tableRef}
+        title={(
+          <Typography variant="inherit">
+            Lista użytkowników
+          </Typography>
+        )}
+        tableRef={tableRef}
         icons={getTableIcons()}
         columns={[
           { title: 'Imię', field: 'firstName' },
@@ -40,62 +46,28 @@ class UserList extends React.Component {
             },
           },
         ]}
-        data={query => new Promise((resolve, reject) => {
-          let url = 'users?';
-          url += `itemsPerPage=${query.pageSize}`;
-          url += `&page=${query.page + 1}`;
-
-          if (query.orderBy && query.orderBy.field) {
-            url += `&_order[${query.orderBy.field}]=${query.orderDirection}`;
-          }
-
-          if (!!query.filters && query.filters.length > 0) {
-            query.filters.forEach((filter) => {
-              url += `&${filter.column.field}[]=${filter.value}`;
-            });
-          }
-
-          apiService.get(url)
-            .then((result) => {
-              resolve({
-                data: result['hydra:member'],
-                page: query.page || 0,
-                totalCount: result['hydra:totalItems'],
-              });
-            });
-        })
-        }
+        data={query => getQuery(query, 'users')}
         actions={[
           {
             tooltip: 'Odśwież',
             isFreeAction: true,
             icon: getTableIcons().Refresh,
-            onClick: () => this.tableRef.current && this.tableRef.current.onQueryChange(),
+            onClick: () => tableRef.current && tableRef.current.onQueryChange(),
           },
         ]}
         options={{
           search: false,
           filtering: true,
+          maxBodyHeight: '500px',
         }}
       />
-    );
-  }
+    </div>
+  );
 }
-
-const styles = theme => ({});
-
-UserList.propTypes = {
-  classes: PropTypes.instanceOf(Object),
-};
-
-UserList.defaultProps = {
-  classes: {},
-};
 
 function mapStateToProps(state) {
   return {};
 }
 
-const styledUserListPage = withStyles(styles)(UserList);
-const connectedUserListPage = connect(mapStateToProps)(styledUserListPage);
-export { connectedUserListPage as UserList };
+const connectedUserList = connect(mapStateToProps)(UserListComp);
+export { connectedUserList as UserList };

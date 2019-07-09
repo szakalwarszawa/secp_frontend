@@ -1,26 +1,32 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import MaterialTable from 'material-table';
-import { apiService } from '../../_services';
-import { getTableIcons } from '../../_helpers/tableIcons';
+import { Typography } from '@material-ui/core';
+import { getQuery } from '../../_services';
+import getTableIcons from '../../_helpers/tableIcons';
 
-class TimesheetList extends React.Component {
-  constructor(props) {
-    super(props);
+const useStyles = makeStyles(theme => ({
+  mainTable: {
+    width: '100%',
+    marginRight: '45px',
+  },
+}));
 
-    this.tableRef = React.createRef();
-  }
+function TimesheetListComp(prop) {
+  const classes = useStyles();
+  const tableRef = useRef();
 
-  render() {
-    const { classes } = this.props;
-
-    return (
+  return (
+    <div className={classes.mainTable}>
       <MaterialTable
-        title="Listy obecności"
-        tableRef={this.tableRef}
+        title={(
+          <Typography variant="inherit">
+            Listy obecności
+          </Typography>
+        )}
+        tableRef={tableRef}
         icons={getTableIcons()}
         columns={[
           { title: 'Okres', field: 'userTimesheet.period' },
@@ -32,63 +38,28 @@ class TimesheetList extends React.Component {
           { title: 'Zakończenie dnia', field: 'dayEndTime' },
           { title: 'Czas pracy', field: 'workingTime' },
         ]}
-        data={query => new Promise((resolve, reject) => {
-          let url = 'user_timesheet_days?';
-          url += `itemsPerPage=${query.pageSize}`;
-          url += `&page=${query.page + 1}`;
-
-          if (query.orderBy && query.orderBy.field) {
-            url += `&_order[${query.orderBy.field}]=${query.orderDirection}`;
-          }
-
-          if (!!query.filters && query.filters.length > 0) {
-            query.filters.forEach((filter) => {
-              url += `&${filter.column.field}[]=${filter.value}`;
-            });
-          }
-
-          apiService.get(url)
-            .then((result) => {
-              resolve({
-                data: result['hydra:member'],
-                page: query.page || 0,
-                totalCount: result['hydra:totalItems'],
-              });
-            });
-        })
-        }
+        data={query => getQuery(query, 'user_timesheet_days')}
         actions={[
           {
             disabled: false,
             icon: getTableIcons().Refresh,
             isFreeAction: true,
             tooltip: 'Refresh Data',
-            onClick: () => this.tableRef.current && this.tableRef.current.onQueryChange(),
+            onClick: () => tableRef.current && tableRef.current.onQueryChange(),
           },
         ]}
         options={{
           search: false,
+          maxBodyHeight: '500px',
         }}
       />
-    );
-  }
+    </div>
+  );
 }
-
-const styles = theme => ({});
-
-TimesheetList.propTypes = {
-  classes: PropTypes.instanceOf(Object),
-};
-
-TimesheetList.defaultProps = {
-  classes: {},
-};
 
 function mapStateToProps(state) {
   return {};
 }
 
-//
-const styledTimesheetListPage = withStyles(styles)(TimesheetList);
-const connectedTimesheetListPage = connect(mapStateToProps)(styledTimesheetListPage);
-export { connectedTimesheetListPage as TimesheetList };
+const connectedTimesheetList = connect(mapStateToProps)(TimesheetListComp);
+export { connectedTimesheetList as TimesheetList };

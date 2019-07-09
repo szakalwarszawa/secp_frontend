@@ -15,7 +15,7 @@ import Edit from '@material-ui/icons/Edit';
 import SortArrow from '@material-ui/icons/ArrowUpward';
 import Delete from '@material-ui/icons/DeleteOutline';
 
-export function getTableIcons() {
+export default function getTableIcons() {
   return {
     Add,
     Check,
