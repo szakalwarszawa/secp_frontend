@@ -11,6 +11,10 @@ import SnackbarContent from '@material-ui/core/SnackbarContent';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import InfoIcon from '@material-ui/icons/Info';
+import DateFnsUtils from '@date-io/date-fns';
+import DateFnsUtilsLocalePl from 'date-fns/locale/pl';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+
 
 import { alertActions } from '../_actions';
 import { PrivateRoute } from '../_components';
@@ -32,49 +36,51 @@ class App extends React.Component {
 
     return (
       <div>
-        <Router history={history}>
-          {loggedIn ? <AppHeader appBarTitle="APP" /> : null}
-          <Grid
-            container
-            className={classes.root}
-            alignItems="center"
-            spacing={4}
-            style={{ margin: '5px', marginTop: '70px' }}
-          >
-            <PrivateRoute exact path="/" component={Home} />
-            <Route path="/login" component={Login} />
-            <PrivateRoute path="/addTimesheetDayReport" component={Home} />
-            <PrivateRoute path="/timesheetList" component={TimesheetList} />
-            <PrivateRoute path="/timesheetListToAccept" component={Home} />
-            <PrivateRoute path="/users" component={UserList} />
-            <Snackbar
-              open={alert.message && alert.message !== ''}
-              autoHideDuration={4000}
-              className={classes.snackBarInfo}
+        <MuiPickersUtilsProvider utils={DateFnsUtils} locale={DateFnsUtilsLocalePl}>
+          <Router history={history}>
+            {loggedIn ? <AppHeader appBarTitle="APP" /> : null}
+            <Grid
+              container
+              className={classes.root}
+              alignItems="center"
+              spacing={4}
+              style={{ margin: '5px', marginTop: '70px' }}
             >
-              <SnackbarContent
+              <PrivateRoute exact path="/" component={Home} />
+              <Route path="/login" component={Login} />
+              <PrivateRoute path="/addTimesheetDayReport" component={Home} />
+              <PrivateRoute path="/timesheetList" component={TimesheetList} />
+              <PrivateRoute path="/timesheetListToAccept" component={Home} />
+              <PrivateRoute path="/users" component={UserList} />
+              <Snackbar
+                open={alert.message && alert.message !== ''}
+                autoHideDuration={4000}
                 className={classes.snackBarInfo}
-                message={(
-                  <span className={classes.message}>
-                  <InfoIcon className={classes.icon} />
-                    {alert.message}
-                </span>
-                )}
-                action={(
-                  <IconButton
-                    key="close"
-                    aria-label="Close"
-                    color="inherit"
-                    className={classes.close}
-                    onClick={this.handlCloseSnackBar}
-                  >
-                    <CloseIcon className={classes.icon} />
-                  </IconButton>
-                )}
-              />
-            </Snackbar>
-          </Grid>
-        </Router>
+              >
+                <SnackbarContent
+                  className={classes.snackBarInfo}
+                  message={(
+                    <span className={classes.message}>
+                    <InfoIcon className={classes.icon} />
+                      {alert.message}
+                  </span>
+                  )}
+                  action={(
+                    <IconButton
+                      key="close"
+                      aria-label="Close"
+                      color="inherit"
+                      className={classes.close}
+                      onClick={this.handlCloseSnackBar}
+                    >
+                      <CloseIcon className={classes.icon} />
+                    </IconButton>
+                  )}
+                />
+              </Snackbar>
+            </Grid>
+          </Router>
+        </MuiPickersUtilsProvider>
       </div>
     );
   }

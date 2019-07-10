@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { connect } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -6,6 +6,8 @@ import MaterialTable from 'material-table';
 import { Typography } from '@material-ui/core';
 import { getQuery } from '../../_services';
 import getTableIcons from '../../_helpers/tableIcons';
+import getTableLocalization from '../../_helpers/tableLocalization';
+import { EditUser } from '../../Dialogs/User';
 
 const useStyles = makeStyles(theme => ({
   mainTable: {
@@ -17,6 +19,17 @@ const useStyles = makeStyles(theme => ({
 function UserListComp(props) {
   const classes = useStyles();
   const tableRef = useRef();
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [userId, setUserId] = useState(0);
+
+  const handleCloseDialog = (reload) => {
+    setOpenEditDialog(false);
+    setUserId(0);
+
+    if (reload) {
+      tableRef.current.onQueryChange();
+    }
+  };
 
   return (
     <div className={classes.mainTable}>
@@ -49,6 +62,14 @@ function UserListComp(props) {
         data={query => getQuery(query, 'users')}
         actions={[
           {
+            icon: getTableIcons().Edit,
+            tooltip: 'Edycja użytkownika',
+            onClick: (event, rowData) => {
+              setUserId(rowData.id);
+              setOpenEditDialog(true);
+            },
+          },
+          {
             tooltip: 'Odśwież',
             isFreeAction: true,
             icon: getTableIcons().Refresh,
@@ -59,8 +80,12 @@ function UserListComp(props) {
           search: false,
           filtering: true,
           maxBodyHeight: '500px',
+          actionsColumnIndex: -1,
         }}
+        localization={getTableLocalization}
       />
+      {openEditDialog
+      && <EditUser userId={userId} open={openEditDialog} onClose={handleCloseDialog} />}
     </div>
   );
 }

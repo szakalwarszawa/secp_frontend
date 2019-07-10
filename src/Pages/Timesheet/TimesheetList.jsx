@@ -6,6 +6,7 @@ import MaterialTable from 'material-table';
 import { Typography } from '@material-ui/core';
 import { getQuery } from '../../_services';
 import getTableIcons from '../../_helpers/tableIcons';
+import getTableLocalization from '../../_helpers/tableLocalization';
 
 const useStyles = makeStyles(theme => ({
   mainTable: {
@@ -52,6 +53,7 @@ function TimesheetListComp(prop) {
           search: false,
           maxBodyHeight: '500px',
         }}
+        localization={getTableLocalization}
       />
     </div>
   );
