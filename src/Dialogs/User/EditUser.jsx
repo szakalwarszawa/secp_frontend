@@ -3,16 +3,13 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
+import ImputLabel from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import Slider from '@material-ui/core/Slider';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -23,7 +20,6 @@ import {
   KeyboardTimePicker,
 } from '@material-ui/pickers';
 
-import { userActions } from '../../_actions';
 import { apiService } from '../../_services';
 
 function EditUserComp(props) {
@@ -34,127 +30,130 @@ function EditUserComp(props) {
     onClose,
   } = props;
 
-  const [state, setState] = useState({});
-  const [workScheduleProfiles, setWorkScheduleProfiles] = useState([]);
+  const [state, setState] = useState({
+    loaderWorkerCount: 0,
+  });
   const [userData, setUserData] = useState({});
+  const [workScheduleProfiles, setWorkScheduleProfiles] = useState([]);
+  const isLoading = Boolean(state.loaderWorkerCount > 0);
 
   useEffect(
     () => {
+      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
       apiService.get('work_schedule_profiles')
         .then((result) => {
           setWorkScheduleProfiles(result['hydra:member']);
+          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+        });
+
+      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+      apiService.get(`users/${userId}`)
+        .then((result) => {
+          setUserData({
+            ...result,
+            defaultWorkScheduleProfileId: result.defaultWorkScheduleProfile.id,
+            dayStartTimeFromDate: new Date(`2000-01-01T${result.dayStartTimeFrom}:00`),
+            dayStartTimeToDate: new Date(`2000-01-01T${result.dayStartTimeTo}:00`),
+            dayEndTimeFromDate: new Date(`2000-01-01T${result.dayEndTimeFrom}:00`),
+            dayEndTimeToDate: new Date(`2000-01-01T${result.dayEndTimeTo}:00`),
+          });
+          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
         });
     },
     [userId],
   );
+
+  const handleDateTimeChange = (field, date) => {
+    setUserData({ ...userData, [field]: date });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
   };
 
-  const handleDateTimeChange = (field, date) => {
-    setUserData({ ...userData, [field]: date });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    setState({ submitted: true });
-    const { username, password } = state;
-    const { dispatch } = props;
-    if (username && password) {
-      dispatch(userActions.login(username, password));
-    }
-  };
-
   const closeDialogHandler = () => onClose(false);
-  const saveDialogHandler = () => onClose(true);
+  const saveDialogHandler = () => {
+    const payload = {
+      defaultWorkScheduleProfile: `/api/work_schedule_profiles/${userData.defaultWorkScheduleProfileId}`,
+    };
+
+    setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+    apiService.put(`users/${userId}`, payload)
+      .then(() => {
+        setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+        onClose(true);
+      });
+  };
+
+  function getTimePicker(label, fieldName) {
+    return (
+      <KeyboardTimePicker
+        label={label}
+        margin="normal"
+        id={fieldName}
+        ampm={false}
+        cancelLabel="Anuluj"
+        okLabel="Ustaw"
+        invalidDateMessage="Nieprawidłowy format czasu"
+        value={userData[fieldName]}
+        onChange={date => handleDateTimeChange(fieldName, date)}
+        KeyboardButtonProps={{
+          'aria-label': 'change time',
+        }}
+      />
+    );
+  }
 
   return (
     <div className={classes.main}>
       <Dialog open={open} onClose={closeDialogHandler} aria-labelledby="form-dialog-title" maxWidth="xs" fullWidth>
         <DialogTitle id="form-dialog-title">Edycja użytkownika</DialogTitle>
-        <DialogContent>
+        <DialogContent hidden={isLoading}>
+          <DialogContentText>
+            <div>{`${userData.lastName} ${userData.firstName}`}</div>
+            <div>
+              {userData.department ? userData.department.name : ''}
+              {userData.section ? (` / ${userData.section.name}`) : ''}
+            </div>
+          </DialogContentText>
           <FormControl component="div" className={classes.formControl}>
             <InputLabel htmlFor="default-work-schedule-profile">Domyślny profil harmonogramu</InputLabel>
             <Select
-              value={userData.defaultWorkScheduleProfile}
+              value={userData.defaultWorkScheduleProfileId || -1}
               onChange={handleChange}
               inputProps={{
-                name: 'defaultWorkScheduleProfile',
+                name: 'defaultWorkScheduleProfileId',
                 id: 'default-work-schedule-profile',
               }}
             >
               {workScheduleProfiles.map(workScheduleProfile => (
-                <MenuItem componet="li" button key={workScheduleProfile.name} value={workScheduleProfile.id}>
+                <MenuItem button componet="li" key={workScheduleProfile.name} value={workScheduleProfile.id}>
                   {workScheduleProfile.name}
                 </MenuItem>
               ))}
             </Select>
-            <KeyboardTimePicker
-              label="Rozpoczęcie pracy od"
-              margin="normal"
-              id="dayStartTimeFrom"
-              ampm={false}
-              cancelLabel="Anuluj"
-              okLabel="Ustaw"
-              invalidDateMessage="Nieprawidłowy format czasu"
-              value={userData.dayStartTimeFrom}
-              onChange={date => handleDateTimeChange('dayStartTimeFrom', date)}
-              KeyboardButtonProps={{
-                'aria-label': 'change time',
-              }}
-            />
-            <KeyboardTimePicker
-              label="Rozpoczęcie pracy do"
-              margin="normal"
-              id="dayStartTimeTo"
-              ampm={false}
-              cancelLabel="Anuluj"
-              okLabel="Ustaw"
-              invalidDateMessage="Nieprawidłowy format czasu"
-              value={userData.dayStartTimeTo}
-              onChange={date => handleDateTimeChange('dayStartTimeTo', date)}
-              KeyboardButtonProps={{
-                'aria-label': 'change time',
-              }}
-            />
-            <KeyboardTimePicker
-              label="Rozpoczęcie pracy od"
-              margin="normal"
-              id="dayEndTimeFrom"
-              ampm={false}
-              cancelLabel="Anuluj"
-              okLabel="Ustaw"
-              invalidDateMessage="Nieprawidłowy format czasu"
-              value={userData.dayEndTimeFrom}
-              onChange={date => handleDateTimeChange('dayEndTimeFrom', date)}
-              KeyboardButtonProps={{
-                'aria-label': 'change time',
-              }}
-            />
-            <KeyboardTimePicker
-              label="Rozpoczęcie pracy do"
-              margin="normal"
-              id="dayEndTimeTo"
-              ampm={false}
-              cancelLabel="Anuluj"
-              okLabel="Ustaw"
-              invalidDateMessage="Nieprawidłowy format czasu"
-              value={userData.dayEndTimeTo}
-              onChange={date => handleDateTimeChange('dayEndTimeTo', date)}
-              KeyboardButtonProps={{
-                'aria-label': 'change time',
-              }}
+            {getTimePicker('Rozpoczęcie pracy od', 'dayStartTimeFromDate')}
+            {getTimePicker('Rozpoczęcie pracy do', 'dayStartTimeToDate')}
+            {getTimePicker('Zakończenie pracy od', 'dayEndTimeFromDate')}
+            {getTimePicker('Zakończenie pracy od', 'dayEndTimeToDate')}
+            <ImputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} g.`}</ImputLabel>
+            <Slider
+              value={userData.dailyWorkingTime * 100}
+              onChange={(event, newValue) => handleDateTimeChange('dailyWorkingTime', newValue / 100)}
+              aria-labelledby="input-working-time"
+              step={50}
+              min={0}
+              max={2400}
             />
           </FormControl>
+          {isLoading && <LinearProgress />}
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeDialogHandler} color="primary">
+          <Button href="" onClick={closeDialogHandler} color="primary">
             Anuluj
           </Button>
-          <Button onClick={saveDialogHandler} color="primary">
+          <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
             Zapisz
           </Button>
         </DialogActions>
@@ -209,7 +208,6 @@ EditUserComp.propTypes = {
   open: PropTypes.bool.isRequired,
   userId: PropTypes.number.isRequired,
   onClose: PropTypes.func.isRequired,
-  dispatch: PropTypes.func.isRequired,
   classes: PropTypes.instanceOf(Object),
 };
 

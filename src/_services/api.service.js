@@ -34,7 +34,7 @@ export const apiService = {
   post: (apiMethod, body = null, secured = true) => {
     const requestOptions = {
       method: 'POST',
-      headers: authHeader(secured),
+      headers: { ...authHeader(secured), 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     };
 
@@ -45,7 +45,7 @@ export const apiService = {
   put: (apiMethod, body = null, secured = true) => {
     const requestOptions = {
       method: 'PUT',
-      headers: authHeader(secured),
+      headers: { ...authHeader(secured), 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     };
 
