@@ -63,19 +63,20 @@ function EditUserComp(props) {
     [userId],
   );
 
-  const handleDateTimeChange = (field, date) => {
+  const handleInputChange = (field, date) => {
     setUserData({ ...userData, [field]: date });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
-  };
-
   const closeDialogHandler = () => onClose(false);
+
   const saveDialogHandler = () => {
     const payload = {
       defaultWorkScheduleProfile: `/api/work_schedule_profiles/${userData.defaultWorkScheduleProfileId}`,
+      dayStartTimeFrom: userData.dayStartTimeFromDate.toLocaleTimeString().slice(0, 5),
+      dayStartTimeTo: userData.dayStartTimeToDate.toLocaleTimeString().slice(0, 5),
+      dayEndTimeFrom: userData.dayEndTimeFromDate.toLocaleTimeString().slice(0, 5),
+      dayEndTimeTo: userData.dayEndTimeToDate.toLocaleTimeString().slice(0, 5),
+      dailyWorkingTime: userData.dailyWorkingTime.toString(),
     };
 
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
@@ -97,7 +98,7 @@ function EditUserComp(props) {
         okLabel="Ustaw"
         invalidDateMessage="Nieprawidłowy format czasu"
         value={userData[fieldName]}
-        onChange={date => handleDateTimeChange(fieldName, date)}
+        onChange={date => handleInputChange(fieldName, date)}
         KeyboardButtonProps={{
           'aria-label': 'change time',
         }}
@@ -110,7 +111,7 @@ function EditUserComp(props) {
       <Dialog open={open} onClose={closeDialogHandler} aria-labelledby="form-dialog-title" maxWidth="xs" fullWidth>
         <DialogTitle id="form-dialog-title">Edycja użytkownika</DialogTitle>
         <DialogContent hidden={isLoading}>
-          <DialogContentText>
+          <DialogContentText component="div">
             <div>{`${userData.lastName} ${userData.firstName}`}</div>
             <div>
               {userData.department ? userData.department.name : ''}
@@ -121,7 +122,7 @@ function EditUserComp(props) {
             <InputLabel htmlFor="default-work-schedule-profile">Domyślny profil harmonogramu</InputLabel>
             <Select
               value={userData.defaultWorkScheduleProfileId || -1}
-              onChange={handleChange}
+              onChange={event => handleInputChange(event.target.name, event.target.value)}
               inputProps={{
                 name: 'defaultWorkScheduleProfileId',
                 id: 'default-work-schedule-profile',
@@ -137,17 +138,16 @@ function EditUserComp(props) {
             {getTimePicker('Rozpoczęcie pracy do', 'dayStartTimeToDate')}
             {getTimePicker('Zakończenie pracy od', 'dayEndTimeFromDate')}
             {getTimePicker('Zakończenie pracy od', 'dayEndTimeToDate')}
-            <ImputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} g.`}</ImputLabel>
+            <ImputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</ImputLabel>
             <Slider
               value={userData.dailyWorkingTime * 100}
-              onChange={(event, newValue) => handleDateTimeChange('dailyWorkingTime', newValue / 100)}
+              onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
               aria-labelledby="input-working-time"
               step={50}
               min={0}
               max={2400}
             />
           </FormControl>
-          {isLoading && <LinearProgress />}
         </DialogContent>
         <DialogActions>
           <Button href="" onClick={closeDialogHandler} color="primary">
@@ -156,6 +156,9 @@ function EditUserComp(props) {
           <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
             Zapisz
           </Button>
+          <div className={classes.progressBarWrapper}>
+            {isLoading && <LinearProgress />}
+          </div>
         </DialogActions>
       </Dialog>
     </div>
@@ -176,31 +179,13 @@ const styles = theme => ({
       marginRight: 'auto',
     },
   },
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: `${theme.spacing(2)}px ${theme.spacing(3)}px ${theme.spacing(3)}px`,
-  },
-  buttonWrapper: {
-    margin: theme.spacing(),
-    position: 'relative',
-  },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-  textField: {},
   formControl: {
     width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(),
   },
-  submit: {
-    marginTop: theme.spacing(3),
+  progressBarWrapper: {
+    margin: theme.spacing(),
+    position: 'relative',
   },
 });
 
