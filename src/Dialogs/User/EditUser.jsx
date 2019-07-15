@@ -161,6 +161,9 @@ function EditUserComp(props) {
             />
           </FormControl>
         </DialogContent>
+        <div className={classes.progressBarWrapper}>
+          {isLoading && <LinearProgress />}
+        </div>
         <DialogActions>
           <Button href="" onClick={closeDialogHandler} color="primary">
             Anuluj
@@ -168,9 +171,6 @@ function EditUserComp(props) {
           <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
             Zapisz
           </Button>
-          <div className={classes.progressBarWrapper}>
-            {isLoading && <LinearProgress />}
-          </div>
         </DialogActions>
       </Dialog>
     </div>
@@ -196,7 +196,7 @@ const styles = theme => ({
     marginTop: theme.spacing(),
   },
   progressBarWrapper: {
-    margin: theme.spacing(),
+    margin: 0,
     position: 'relative',
   },
 });

@@ -6,12 +6,14 @@ const getQuery = (query, endpoint) => new Promise((resolve, reject) => {
   url += `&page=${(query.page || 0) + 1}`;
 
   if (query.orderBy && query.orderBy.field) {
-    url += `&_order[${query.orderBy.field}]=${query.orderDirection}`;
+    url += `&_order[${query.orderBy.sortField || query.orderBy.field}]=${query.orderDirection}`;
   }
 
-  if (!!query.filters && query.filters.length > 0) {
+  if (query.filters && query.filters.length > 0) {
     query.filters.forEach((filter) => {
-      url += `&${filter.column.field}[]=${filter.value}`;
+      filter.value.forEach((value) => {
+        url += `&${filter.column.searchField || filter.column.field}[]=${value.replace(/_/gi, '')}`;
+      });
     });
   }
 
