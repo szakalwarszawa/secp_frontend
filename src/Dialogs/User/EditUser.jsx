@@ -72,10 +72,22 @@ function EditUserComp(props) {
   const saveDialogHandler = () => {
     const payload = {
       defaultWorkScheduleProfile: `/api/work_schedule_profiles/${userData.defaultWorkScheduleProfileId}`,
-      dayStartTimeFrom: userData.dayStartTimeFromDate.toLocaleTimeString().slice(0, 5),
-      dayStartTimeTo: userData.dayStartTimeToDate.toLocaleTimeString().slice(0, 5),
-      dayEndTimeFrom: userData.dayEndTimeFromDate.toLocaleTimeString().slice(0, 5),
-      dayEndTimeTo: userData.dayEndTimeToDate.toLocaleTimeString().slice(0, 5),
+      dayStartTimeFrom: userData.dayStartTimeFromDate.toLocaleTimeString(
+        'pl-PL',
+        { hour: '2-digit', minute: '2-digit' },
+      ),
+      dayStartTimeTo: userData.dayStartTimeToDate.toLocaleTimeString(
+        'pl-PL',
+        { hour: '2-digit', minute: '2-digit' },
+      ),
+      dayEndTimeFrom: userData.dayEndTimeFromDate.toLocaleTimeString(
+        'pl-PL',
+        { hour: '2-digit', minute: '2-digit' },
+      ),
+      dayEndTimeTo: userData.dayEndTimeToDate.toLocaleTimeString(
+        'pl-PL',
+        { hour: '2-digit', minute: '2-digit' },
+      ),
       dailyWorkingTime: userData.dailyWorkingTime.toString(),
     };
 
