@@ -8,7 +8,6 @@ import { apiService, getQuery } from '../../_services';
 import getTableIcons from '../../_helpers/tableIcons';
 import getTableLocalization from '../../_helpers/tableLocalization';
 import { EditUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
-import { EditUser } from '../../Dialogs/User';
 
 const useStyles = makeStyles(theme => ({
   mainTable: {
@@ -27,20 +26,20 @@ function TimesheetListComp(prop) {
 
   useEffect(
     () => {
-      apiService.get('absence_types')
+      apiService.get('absence_types?_order[name]=asc')
         .then((result) => {
           const absenceList = {};
           result['hydra:member'].forEach((absence) => {
-            absenceList[absence.id] = absence.name;
+            absenceList[`_${absence.id}_`] = absence.name;
           });
           setAbsences(absenceList);
         });
 
-      apiService.get('presence_types')
+      apiService.get('presence_types?_order[name]=asc')
         .then((result) => {
           const presenceList = {};
           result['hydra:member'].forEach((presence) => {
-            presenceList[presence.id] = presence.name;
+            presenceList[`_${presence.id}_`] = presence.name;
           });
           setPresences(presenceList);
         });
