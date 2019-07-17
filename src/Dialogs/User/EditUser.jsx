@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import ImputLabel from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
@@ -166,7 +165,7 @@ function EditUserComp(props) {
           {getTimePicker('Zakończenie pracy od', 'dayEndTimeToDate')}
 
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-            <ImputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</ImputLabel>
+            <InputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</InputLabel>
             <Slider
               value={userData.dailyWorkingTime * 100}
               onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
