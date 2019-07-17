@@ -50,14 +50,14 @@ function EditUserTimesheetDayComp(props) {
   const [absences, setAbsences] = useState([]);
   const isLoading = Boolean(state.loaderWorkerCount > 0);
   const workingTime = !!userTimesheetDayData.dayEndTime && !!userTimesheetDayData.dayStartTime
-    ? (userTimesheetDayData.dayEndTime - userTimesheetDayData.dayStartTime) / 3600000
+    ? ((userTimesheetDayData.dayEndTime - userTimesheetDayData.dayStartTime) / 3600000).toFixed(2)
     : 0;
   const isAbsence = Boolean(userTimesheetDayData.presenceType.isAbsence);
   const isTimed = Boolean(userTimesheetDayData.presenceType.isTimed);
 
   useEffect(
     () => {
-      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`user_timesheet_days/${userTimesheetDayId}`)
         .then((result) => {
           const dayStartTimeDate = result.dayStartTime !== null
@@ -74,21 +74,21 @@ function EditUserTimesheetDayComp(props) {
             dayStartTime: dayStartTimeDate,
             dayEndTime: dayEndTimeDate,
           });
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('presence_types?_order[name]=asc&active=true')
         .then((result) => {
           setPresences(result['hydra:member']);
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
-      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
 
       apiService.get('absence_types?_order[name]=asc&active=true')
         .then((result) => {
           setAbsences(result['hydra:member']);
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
     [userTimesheetDayId],
@@ -128,7 +128,7 @@ function EditUserTimesheetDayComp(props) {
           { hour: '2-digit', minute: '2-digit' },
         )
         : null,
-      workingTime: isTimed ? workingTime.toString() : '0',
+      workingTime: isTimed && !Number.isNaN(workingTime) ? workingTime.toString() : '0',
     };
 
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
@@ -230,7 +230,8 @@ function EditUserTimesheetDayComp(props) {
           {!isAbsence && isTimed && (
             <FormControl component="div" className={classes.formControl} disabled={isLoading}>
               <ImputLabel htmlFor="input-workingTime">
-                {`Czas pracy: ${workingTime} godz.`}
+                {/*{`Czas pracy: ${workingTime} godz.`}*/}
+                {`Czas pracy: ${!Number.isNaN(workingTime) ? workingTime : 0} godz.`}
               </ImputLabel>
             </FormControl>
           )}
@@ -284,8 +285,7 @@ const styles = theme => ({
   errorBox: {
     padding: theme.spacing(),
     marginTop: theme.spacing(),
-    background: 'red',
-    // background: theme.palette.error,
+    background: theme.palette.error.main,
   },
 });
 
