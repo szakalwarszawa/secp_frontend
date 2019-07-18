@@ -162,7 +162,7 @@ function EditUserComp(props) {
           {getTimePicker('Rozpoczęcie pracy od', 'dayStartTimeFromDate')}
           {getTimePicker('Rozpoczęcie pracy do', 'dayStartTimeToDate')}
           {getTimePicker('Zakończenie pracy od', 'dayEndTimeFromDate')}
-          {getTimePicker('Zakończenie pracy od', 'dayEndTimeToDate')}
+          {getTimePicker('Zakończenie pracy do', 'dayEndTimeToDate')}
 
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
             <InputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</InputLabel>
