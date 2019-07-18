@@ -1,6 +1,5 @@
 import { userService } from '.';
-import { authHeader } from '../_helpers/authHeader';
-import { history } from '../_helpers';
+import { history, authHeader } from '../_helpers';
 
 function handleResponse(response) {
   return response.text()
