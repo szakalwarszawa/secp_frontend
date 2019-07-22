@@ -64,9 +64,9 @@ class App extends React.Component {
                   className={classes.snackBarInfo}
                   message={(
                     <span className={classes.message}>
-                    <InfoIcon className={classes.icon} />
+                      <InfoIcon className={classes.icon} />
                       {alert.message}
-                  </span>
+                    </span>
                   )}
                   action={(
                     <IconButton
