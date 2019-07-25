@@ -6,7 +6,7 @@ import { Calendar, Views, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/pl';
 import { apiService } from '../../_services';
-import { EditUser } from '../../Dialogs/User';
+import { EditUserTimesheetDay, CreateUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
 
 const useStyles = makeStyles(theme => ({
   mainCalendar: {
@@ -25,7 +25,29 @@ function UserCalendarComp(props) {
   const [activeWorkScheduleDayList, setActiveWorkScheduleDay] = useState([]);
   const [myEventsList, setMyEventsList] = useState([]);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [userId, setUserId] = useState(0);
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [userTimesheetDayId, setUserTimesheetDayId] = useState(0);
+  const [createdSelection, setCreatedSelection] = useState({ start: null, end: null });
+
+  const prepareDataEvent = (dayData) => {
+    if (dayData.dayStartTime === null) {
+      return {
+        id: dayData.id,
+        allDay: true,
+        title: dayData.presenceType.name,
+        start: moment(`${dayData.userWorkScheduleDay.dayDefinition.id}`).toDate(),
+        end: moment(`${dayData.userWorkScheduleDay.dayDefinition.id}`).toDate(),
+      };
+    }
+    return {
+      id: dayData.id,
+      title: dayData.presenceType.name,
+      start: moment(`${dayData.userWorkScheduleDay.dayDefinition.id} ${dayData.dayStartTime}:00`)
+        .toDate(),
+      end: moment(`${dayData.userWorkScheduleDay.dayDefinition.id} ${dayData.dayEndTime}:00`)
+        .toDate(),
+    };
+  };
 
   useEffect(
     () => {
@@ -33,24 +55,9 @@ function UserCalendarComp(props) {
         .then((result) => {
           const userTimesheetDayList = [];
           result['hydra:member'].forEach((userTimesheetDay) => {
-            if (userTimesheetDay.dayStartTime === null) {
-              userTimesheetDayList[userTimesheetDay.id] = {
-                id: userTimesheetDay.id,
-                allDay: true,
-                title: userTimesheetDay.presenceType.name,
-                start: moment(`${userTimesheetDay.userWorkScheduleDay.dayDefinition.id}`).toDate(),
-                end: moment(`${userTimesheetDay.userWorkScheduleDay.dayDefinition.id}`).toDate(),
-              };
-            } else {
-              userTimesheetDayList[userTimesheetDay.id] = {
-                id: userTimesheetDay.id,
-                title: userTimesheetDay.presenceType.name,
-                start: moment(`${userTimesheetDay.userWorkScheduleDay.dayDefinition.id} ${userTimesheetDay.dayStartTime}:00`)
-                  .toDate(),
-                end: moment(`${userTimesheetDay.userWorkScheduleDay.dayDefinition.id} ${userTimesheetDay.dayEndTime}:00`)
-                  .toDate(),
-              };
-            }
+            userTimesheetDayList[prepareDataEvent(userTimesheetDay).id] = prepareDataEvent(
+              userTimesheetDay,
+            );
           });
 
           setMyEventsList(userTimesheetDayList);
@@ -148,7 +155,7 @@ function UserCalendarComp(props) {
       return {
         className: 'working-day',
         style: {
-          background: '#fffec9',
+          background: '#fff1c8',
         },
       };
     }
@@ -160,12 +167,40 @@ function UserCalendarComp(props) {
     setCalendarState(s => ({ ...s, view: event }));
   };
 
-  const handleCloseDialog = (reload) => {
-    setOpenEditDialog(false);
-    setUserId(0);
+  const handleOnSelectSlot = (event) => {
+    setCreatedSelection({ start: event.start, end: event.end });
+    setOpenCreateDialog(true);
+    return;
+    const timesheetEventId = Math.round(Math.random() * 100000);
+    const timesheetEvent = {
+      id: timesheetEventId,
+      allDay: false,
+      title: 'Obecność',
+      start: event.start,
+      end: event.end,
+    };
 
-    if (reload) {
-      tableRef.current.onQueryChange();
+    // const newEventList = [...myEventsList];
+    const newEventList = myEventsList.slice(0);
+    newEventList[timesheetEventId] = timesheetEvent;
+    setMyEventsList(newEventList);
+  };
+
+  const handleOnSelectEvent = (event) => {
+    setUserTimesheetDayId(event.id);
+    setOpenEditDialog(true);
+  };
+
+  const handleCloseEditDialog = (reload, dayData) => {
+    setOpenEditDialog(false);
+    setOpenCreateDialog(false);
+    setUserTimesheetDayId(0);
+    setCreatedSelection({});
+
+    if (reload && dayData) {
+      const newEventList = myEventsList.slice(0);
+      newEventList[prepareDataEvent(dayData).id] = prepareDataEvent(dayData);
+      setMyEventsList(newEventList);
     }
   };
 
@@ -180,14 +215,29 @@ function UserCalendarComp(props) {
         endAccessor="end"
         view={calendarState.view}
         onView={handleOnView}
+        onSelectEvent={handleOnSelectEvent}
+        onSelectSlot={handleOnSelectSlot}
         dayPropGetter={customDayPropGetter}
         slotPropGetter={customSlotPropGetter}
         min={moment('2019-07-19 06:00:00').toDate()}
         max={moment('2019-07-19 20:00:00').toDate()}
         style={{ height: 'calc(100vh - 150px)' }}
       />
-      {openEditDialog
-      && <EditUser userId={userId} open={openEditDialog} onClose={handleCloseDialog} />}
+      {openEditDialog && (
+        <EditUserTimesheetDay
+          userTimesheetDayId={userTimesheetDayId}
+          open={openEditDialog}
+          onClose={handleCloseEditDialog}
+        />
+      )}
+      {openCreateDialog && (
+        <CreateUserTimesheetDay
+          timeFrom={createdSelection.start}
+          timeTo={createdSelection.end}
+          open={openCreateDialog}
+          onClose={handleCloseEditDialog}
+        />
+      )}
     </div>
   );
 }

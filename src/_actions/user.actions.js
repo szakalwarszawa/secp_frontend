@@ -20,7 +20,7 @@ function getOwnData() {
     dispatch(alertActions.clear());
     dispatch(request());
 
-    userService.getOwnUserData()
+    userService.callForOwnUserData()
       .then(
         (user) => {
           dispatch(success(user));

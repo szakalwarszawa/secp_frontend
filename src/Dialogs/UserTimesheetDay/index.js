@@ -1,3 +1,4 @@
 import { EditUserTimesheetDay } from './EditUserTimesheetDay';
+import { CreateUserTimesheetDay } from './CreateUserTimesheetDay';
 
-export { EditUserTimesheetDay };
+export { EditUserTimesheetDay, CreateUserTimesheetDay };
