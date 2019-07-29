@@ -29,6 +29,7 @@ function EditUserTimesheetDayFormComp(props) {
     onSave,
     onClose,
     requestError,
+    createMode,
   } = props;
 
   const [state, setState] = useState({
@@ -141,7 +142,7 @@ function EditUserTimesheetDayFormComp(props) {
   return (
     <div className={classes.main}>
       <Dialog open={open} onClose={closeDialogHandler} aria-labelledby="form-dialog-title" maxWidth="xs" fullWidth>
-        <DialogTitle id="form-dialog-title">Edycja dnia pracy</DialogTitle>
+        <DialogTitle id="form-dialog-title">{createMode ? 'Dodawanie dnia pracy' : 'Edycja dnia pracy'}</DialogTitle>
         <DialogContent>
           <DialogContentText component="div">
             <div>{`${userTimesheetDayData.userTimesheet.owner.lastName} ${userTimesheetDayData.userTimesheet.owner.firstName}`}</div>
@@ -265,11 +266,13 @@ EditUserTimesheetDayFormComp.propTypes = {
   onClose: PropTypes.func.isRequired,
   classes: PropTypes.instanceOf(Object),
   requestError: PropTypes.string,
+  createMode: PropTypes.bool,
 };
 
 EditUserTimesheetDayFormComp.defaultProps = {
   classes: {},
   requestError: '',
+  createMode: false,
 };
 
 function mapStateToProps(state) {

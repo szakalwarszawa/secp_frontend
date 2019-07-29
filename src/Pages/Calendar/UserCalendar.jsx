@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,7 +17,6 @@ const useStyles = makeStyles(theme => ({
 
 function UserCalendarComp(props) {
   const classes = useStyles();
-  const tableRef = useRef();
   const localizer = momentLocalizer(moment);
   const [calendarState, setCalendarState] = useState({
     view: Views.WEEK,
@@ -168,22 +167,15 @@ function UserCalendarComp(props) {
   };
 
   const handleOnSelectSlot = (event) => {
+    const selectedTimesheetDay = myEventsList.filter(f => moment(f.start).isSame(moment(event.start), 'day'));
+    if (selectedTimesheetDay[0]) {
+      setUserTimesheetDayId(selectedTimesheetDay[0].id);
+      setOpenEditDialog(true);
+      return;
+    }
+
     setCreatedSelection({ start: event.start, end: event.end });
     setOpenCreateDialog(true);
-    return;
-    const timesheetEventId = Math.round(Math.random() * 100000);
-    const timesheetEvent = {
-      id: timesheetEventId,
-      allDay: false,
-      title: 'Obecność',
-      start: event.start,
-      end: event.end,
-    };
-
-    // const newEventList = [...myEventsList];
-    const newEventList = myEventsList.slice(0);
-    newEventList[timesheetEventId] = timesheetEvent;
-    setMyEventsList(newEventList);
   };
 
   const handleOnSelectEvent = (event) => {

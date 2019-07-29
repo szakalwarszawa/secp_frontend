@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment';
 import { EditUserTimesheetDayForm } from './EditUserTimesheetDayForm';
 import { apiService, userService } from '../../_services';
 
@@ -35,11 +36,6 @@ function CreateUserTimesheetDayComp(props) {
     absenceType: {},
   });
   const isLoading = Boolean(state.loaderWorkerCount > 0);
-  const workingTime = dayData => (!!dayData.dayEndTime && !!dayData.dayStartTime
-    ? ((dayData.dayEndTime - dayData.dayStartTime) / 3600000).toFixed(2)
-    : 0);
-  const isAbsence = Boolean(userTimesheetDayData.presenceType.isAbsence);
-  const isTimed = Boolean(userTimesheetDayData.presenceType.isTimed);
 
   useEffect(
     () => {
@@ -58,6 +54,12 @@ function CreateUserTimesheetDayComp(props) {
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = (savedData) => {
+    const workingTime = dayData => (!!dayData.dayEndTime && !!dayData.dayStartTime
+      ? ((dayData.dayEndTime - dayData.dayStartTime) / 3600000).toFixed(2)
+      : 0);
+    const isAbsence = Boolean(savedData.presenceType.isAbsence);
+    const isTimed = Boolean(savedData.presenceType.isTimed);
+
     const payload = {
       owner: `/api/users/${userService.getUserData().id}`,
       presenceType: `/api/presence_types/${savedData.presenceTypeId}`,
@@ -75,10 +77,13 @@ function CreateUserTimesheetDayComp(props) {
         )
         : null,
       workingTime: isTimed && !Number.isNaN(workingTime(savedData)) ? workingTime(savedData).toString() : '0',
+      dayDate: moment(timeFrom).format('YYYY-MM-DD'),
     };
+    console.log(savedData);
+    console.log(payload);
 
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
-    apiService.post('user_timesheet_days', payload)
+    apiService.post(`user_timesheet_days/create_timesheet_day/${payload.dayDate}`, payload)
       .then(
         (result) => {
           setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
@@ -102,6 +107,7 @@ function CreateUserTimesheetDayComp(props) {
       onSave={saveDialogHandler}
       classes={classes}
       requestError={state.requestError}
+      createMode
     />
   );
 }
