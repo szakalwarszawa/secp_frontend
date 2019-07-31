@@ -15,8 +15,10 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
 import IconAccountCircle from '@material-ui/icons/AccountCircle';
-import IconAlarmCheck from '@material-ui/icons/Alarm';
-import IconCheck from '@material-ui/icons/Check';
+import IconAccessTime from '@material-ui/icons/AccessTime';
+import IconDoneAll from '@material-ui/icons/DoneAll';
+import IconList from '@material-ui/icons/List';
+import IconPeople from '@material-ui/icons/People';
 import Badge from '@material-ui/core/Badge';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -103,19 +105,20 @@ function AppHeader(props) {
         <Drawer open={drawerOpened} onClose={() => setDrawerOpened(false)}>
           <List component="ul">
             <ListItem button component="a" href="/addTimesheetDayReport/">
-              <ListItemIcon><IconAlarmCheck /></ListItemIcon>
+              <ListItemIcon><IconAccessTime /></ListItemIcon>
               <ListItemText primary="Wprowadź obecność" />
             </ListItem>
             <ListItem button component="a" href="/timesheetList/">
-              <ListItemIcon><IconAccountCircle /></ListItemIcon>
+              <ListItemIcon><IconList /></ListItemIcon>
               <ListItemText primary="Lista obecności" />
             </ListItem>
             <ListItem button component="a" href="/timesheetListToAccept/">
-              <ListItemIcon><IconCheck /></ListItemIcon>
+              <ListItemIcon><IconDoneAll /></ListItemIcon>
               <ListItemText primary="Lista obecności do akceptacji" />
             </ListItem>
             <Divider component="hr" />
             <ListItem button component="a" href="/users/">
+              <ListItemIcon><IconPeople /></ListItemIcon>
               <ListItemText primary="Lista użytkowników" />
             </ListItem>
           </List>
@@ -131,7 +134,7 @@ function AppHeader(props) {
           </IconButton>
           <IconButton
             edge="end"
-            aria-label="Account of current user"
+            aria-label="Moje konto"
             aria-haspopup="true"
             aria-controls="user-account-menu"
             color="inherit"

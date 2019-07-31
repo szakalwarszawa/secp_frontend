@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import ImputLabel from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Slider from '@material-ui/core/Slider';
@@ -16,6 +15,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Paper from '@material-ui/core/Paper';
 import {
   KeyboardTimePicker,
 } from '@material-ui/pickers';
@@ -39,14 +39,14 @@ function EditUserComp(props) {
 
   useEffect(
     () => {
-      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, requestError: null }));
       apiService.get('work_schedule_profiles')
         .then((result) => {
           setWorkScheduleProfiles(result['hydra:member']);
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`users/${userId}`)
         .then((result) => {
           setUserData({
@@ -57,7 +57,7 @@ function EditUserComp(props) {
             dayEndTimeFromDate: new Date(`2000-01-01T${result.dayEndTimeFrom}:00`),
             dayEndTimeToDate: new Date(`2000-01-01T${result.dayEndTimeTo}:00`),
           });
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
     [userId],
@@ -93,28 +93,38 @@ function EditUserComp(props) {
 
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
     apiService.put(`users/${userId}`, payload)
-      .then(() => {
-        setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
-        onClose(true);
-      });
+      .then(
+        () => {
+          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          onClose(true);
+        },
+        (error) => {
+          setState({
+            ...state,
+            requestError: error,
+          });
+        },
+      );
   };
 
   function getTimePicker(label, fieldName) {
     return (
-      <KeyboardTimePicker
-        label={label}
-        margin="normal"
-        id={fieldName}
-        ampm={false}
-        cancelLabel="Anuluj"
-        okLabel="Ustaw"
-        invalidDateMessage="Nieprawidłowy format czasu"
-        value={userData[fieldName]}
-        onChange={date => handleInputChange(fieldName, date)}
-        KeyboardButtonProps={{
-          'aria-label': 'change time',
-        }}
-      />
+      <FormControl component="div" className={classes.formControl} disabled={isLoading}>
+        <KeyboardTimePicker
+          label={label}
+          margin="normal"
+          id={fieldName}
+          ampm={false}
+          cancelLabel="Anuluj"
+          okLabel="Ustaw"
+          invalidDateMessage="Nieprawidłowy format czasu"
+          value={userData[fieldName]}
+          onChange={date => handleInputChange(fieldName, date)}
+          KeyboardButtonProps={{
+            'aria-label': 'change time',
+          }}
+        />
+      </FormControl>
     );
   }
 
@@ -122,7 +132,7 @@ function EditUserComp(props) {
     <div className={classes.main}>
       <Dialog open={open} onClose={closeDialogHandler} aria-labelledby="form-dialog-title" maxWidth="xs" fullWidth>
         <DialogTitle id="form-dialog-title">Edycja użytkownika</DialogTitle>
-        <DialogContent hidden={isLoading}>
+        <DialogContent>
           <DialogContentText component="div">
             <div>{`${userData.lastName} ${userData.firstName}`}</div>
             <div>
@@ -130,7 +140,8 @@ function EditUserComp(props) {
               {userData.section ? (` / ${userData.section.name}`) : ''}
             </div>
           </DialogContentText>
-          <FormControl component="div" className={classes.formControl}>
+
+          <FormControl component="div" className={classes.formControl} disabled={isLoading}>
             <InputLabel htmlFor="default-work-schedule-profile">Domyślny profil harmonogramu</InputLabel>
             <Select
               value={userData.defaultWorkScheduleProfileId || -1}
@@ -146,11 +157,15 @@ function EditUserComp(props) {
                 </MenuItem>
               ))}
             </Select>
-            {getTimePicker('Rozpoczęcie pracy od', 'dayStartTimeFromDate')}
-            {getTimePicker('Rozpoczęcie pracy do', 'dayStartTimeToDate')}
-            {getTimePicker('Zakończenie pracy od', 'dayEndTimeFromDate')}
-            {getTimePicker('Zakończenie pracy od', 'dayEndTimeToDate')}
-            <ImputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</ImputLabel>
+          </FormControl>
+
+          {getTimePicker('Rozpoczęcie pracy od', 'dayStartTimeFromDate')}
+          {getTimePicker('Rozpoczęcie pracy do', 'dayStartTimeToDate')}
+          {getTimePicker('Zakończenie pracy od', 'dayEndTimeFromDate')}
+          {getTimePicker('Zakończenie pracy do', 'dayEndTimeToDate')}
+
+          <FormControl component="div" className={classes.formControl} disabled={isLoading}>
+            <InputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</InputLabel>
             <Slider
               value={userData.dailyWorkingTime * 100}
               onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
@@ -160,7 +175,18 @@ function EditUserComp(props) {
               max={2400}
             />
           </FormControl>
+
+          <Paper
+            hidden={state.requestError === null || state.requestError === ''}
+            className={classes.errorBox}
+            elevation={5}
+          >
+            {state.requestError}
+          </Paper>
         </DialogContent>
+        <div className={classes.progressBarWrapper}>
+          {isLoading && <LinearProgress />}
+        </div>
         <DialogActions>
           <Button href="" onClick={closeDialogHandler} color="primary">
             Anuluj
@@ -168,9 +194,6 @@ function EditUserComp(props) {
           <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
             Zapisz
           </Button>
-          <div className={classes.progressBarWrapper}>
-            {isLoading && <LinearProgress />}
-          </div>
         </DialogActions>
       </Dialog>
     </div>
@@ -196,8 +219,13 @@ const styles = theme => ({
     marginTop: theme.spacing(),
   },
   progressBarWrapper: {
-    margin: theme.spacing(),
+    margin: 0,
     position: 'relative',
+  },
+  errorBox: {
+    padding: theme.spacing(),
+    marginTop: theme.spacing(),
+    background: theme.palette.error.main,
   },
 });
 
