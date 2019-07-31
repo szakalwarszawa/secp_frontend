@@ -79,11 +79,9 @@ function CreateUserTimesheetDayComp(props) {
       workingTime: isTimed && !Number.isNaN(workingTime(savedData)) ? workingTime(savedData).toString() : '0',
       dayDate: moment(timeFrom).format('YYYY-MM-DD'),
     };
-    console.log(savedData);
-    console.log(payload);
 
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
-    apiService.post(`user_timesheet_days/create_timesheet_day/${payload.dayDate}`, payload)
+    apiService.post(`user_timesheet_days/own/create/${payload.dayDate}`, payload)
       .then(
         (result) => {
           setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });

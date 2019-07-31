@@ -15,11 +15,38 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const calculateViewRange = (currentDate, currentView) => {
+  let start;
+  let end;
+
+  if (currentView === Views.DAY) {
+    start = moment(currentDate).startOf('day');
+    end = moment(currentDate).endOf('day');
+  } else if (currentView === Views.WEEK) {
+    start = moment(currentDate).startOf('isoWeek');
+    end = moment(currentDate).endOf('isoWeek');
+  } else if (currentView === Views.MONTH) {
+    start = moment(currentDate).startOf('month').subtract(7, 'days');
+    end = moment(currentDate).endOf('month').add(7, 'days');
+  } else if (currentView === Views.AGENDA) {
+    start = moment(currentDate).startOf('day');
+    end = moment(currentDate).endOf('day').add(1, 'month');
+  }
+
+  return {
+    viewFrom: start,
+    viewTo: end,
+  };
+};
+
 function UserCalendarComp(props) {
   const classes = useStyles();
   const localizer = momentLocalizer(moment);
   const [calendarState, setCalendarState] = useState({
-    view: Views.WEEK,
+    currentView: Views.WEEK,
+    currentDate: moment(),
+    viewFrom: calculateViewRange(moment(), Views.WEEK).viewFrom,
+    viewTo: calculateViewRange(moment(), Views.WEEK).viewTo,
   });
   const [activeWorkScheduleDayList, setActiveWorkScheduleDay] = useState([]);
   const [myEventsList, setMyEventsList] = useState([]);
@@ -62,10 +89,13 @@ function UserCalendarComp(props) {
           setMyEventsList(userTimesheetDayList);
         });
 
-      apiService.get('users/activeWorkSchedule')
+      const viewFrom = moment(calendarState.viewFrom).format('YYYY-MM-DD');
+      const viewTo = moment(calendarState.viewTo).format('YYYY-MM-DD');
+
+      apiService.get(`user_work_schedule_days/own/active/${viewFrom}/${viewTo}`)
         .then((result) => {
           const scheduleDays = {};
-          result.forEach((day) => {
+          result['hydra:member'].forEach((day) => {
             const dayId = day.dayDefinition.id;
 
             scheduleDays[dayId] = {
@@ -88,14 +118,14 @@ function UserCalendarComp(props) {
           setActiveWorkScheduleDay(scheduleDays);
         });
     },
-    [],
+    [calendarState],
   );
 
   const customDayPropGetter = (date) => {
     const dateString = `${date.getFullYear().toString()}-${(date.getMonth() + 1).toString()
       .padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
 
-    if (calendarState.view !== Views.MONTH || !activeWorkScheduleDayList[dateString]) {
+    if (calendarState.currentView !== Views.MONTH || !activeWorkScheduleDayList[dateString]) {
       return {};
     }
 
@@ -115,7 +145,7 @@ function UserCalendarComp(props) {
     const dateString = `${date.getFullYear().toString()}-${(date.getMonth() + 1).toString()
       .padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
 
-    if ((calendarState.view !== Views.WEEK && calendarState.view !== Views.DAY)
+    if ((calendarState.currentView !== Views.WEEK && calendarState.currentView !== Views.DAY)
       || !activeWorkScheduleDayList[dateString]
     ) {
       return {};
@@ -162,8 +192,18 @@ function UserCalendarComp(props) {
     return {};
   };
 
-  const handleOnView = (event) => {
-    setCalendarState(s => ({ ...s, view: event }));
+  const handleOnView = (view) => {
+    const { viewFrom, viewTo } = calculateViewRange(calendarState.currentDate, view);
+    setCalendarState(s => ({
+      ...s, viewFrom, viewTo, currentView: view,
+    }));
+  };
+
+  const handleOnNavigate = (date, view) => {
+    const { viewFrom, viewTo } = calculateViewRange(date, view);
+    setCalendarState(s => ({
+      ...s, viewFrom, viewTo, currentView: view, currentDate: date,
+    }));
   };
 
   const handleOnSelectSlot = (event) => {
@@ -205,8 +245,9 @@ function UserCalendarComp(props) {
         events={myEventsList}
         startAccessor="start"
         endAccessor="end"
-        view={calendarState.view}
+        view={calendarState.currentView}
         onView={handleOnView}
+        onNavigate={handleOnNavigate}
         onSelectEvent={handleOnSelectEvent}
         onSelectSlot={handleOnSelectSlot}
         dayPropGetter={customDayPropGetter}
