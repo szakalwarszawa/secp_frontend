@@ -15,45 +15,30 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const calculateViewRange = (currentDate, currentView) => {
-  let start;
-  let end;
-
-  if (currentView === Views.DAY) {
-    start = moment(currentDate).startOf('day');
-    end = moment(currentDate).endOf('day');
-  } else if (currentView === Views.WEEK) {
-    start = moment(currentDate).startOf('isoWeek');
-    end = moment(currentDate).endOf('isoWeek');
-  } else if (currentView === Views.MONTH) {
-    start = moment(currentDate).startOf('month').subtract(7, 'days');
-    end = moment(currentDate).endOf('month').add(7, 'days');
-  } else if (currentView === Views.AGENDA) {
-    start = moment(currentDate).startOf('day');
-    end = moment(currentDate).endOf('day').add(1, 'month');
-  }
-
-  return {
-    viewFrom: start,
-    viewTo: end,
-  };
-};
-
 function UserCalendarComp(props) {
-  const classes = useStyles();
-  const localizer = momentLocalizer(moment);
-  const [calendarState, setCalendarState] = useState({
-    currentView: Views.WEEK,
-    currentDate: moment(),
-    viewFrom: calculateViewRange(moment(), Views.WEEK).viewFrom,
-    viewTo: calculateViewRange(moment(), Views.WEEK).viewTo,
-  });
-  const [activeWorkScheduleDayList, setActiveWorkScheduleDay] = useState([]);
-  const [myEventsList, setMyEventsList] = useState([]);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  const [userTimesheetDayId, setUserTimesheetDayId] = useState(0);
-  const [createdSelection, setCreatedSelection] = useState({ start: null, end: null });
+  const calculateViewRange = (currentDate, currentView) => {
+    let start;
+    let end;
+
+    if (currentView === Views.DAY) {
+      start = moment(currentDate).startOf('day');
+      end = moment(currentDate).endOf('day');
+    } else if (currentView === Views.WEEK) {
+      start = moment(currentDate).startOf('isoWeek');
+      end = moment(currentDate).endOf('isoWeek');
+    } else if (currentView === Views.MONTH) {
+      start = moment(currentDate).startOf('month').subtract(7, 'days');
+      end = moment(currentDate).endOf('month').add(7, 'days');
+    } else if (currentView === Views.AGENDA) {
+      start = moment(currentDate).startOf('day');
+      end = moment(currentDate).endOf('day').add(1, 'month');
+    }
+
+    return {
+      viewFrom: start,
+      viewTo: end,
+    };
+  };
 
   const prepareDataEvent = (dayData) => {
     if (dayData.dayStartTime === null) {
@@ -75,9 +60,27 @@ function UserCalendarComp(props) {
     };
   };
 
+  const classes = useStyles();
+  const localizer = momentLocalizer(moment);
+  const [calendarState, setCalendarState] = useState({
+    currentView: Views.WEEK,
+    currentDate: moment(),
+    viewFrom: calculateViewRange(moment(), Views.WEEK).viewFrom,
+    viewTo: calculateViewRange(moment(), Views.WEEK).viewTo,
+  });
+  const [activeWorkScheduleDayList, setActiveWorkScheduleDay] = useState([]);
+  const [myEventsList, setMyEventsList] = useState([]);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [userTimesheetDayId, setUserTimesheetDayId] = useState(0);
+  const [createdSelection, setCreatedSelection] = useState({ start: null, end: null });
+
   useEffect(
     () => {
-      apiService.get('user_timesheet_days?_order[name]=asc&userTimesheet.owner.username=admin')
+      const viewFrom = moment(calendarState.viewFrom).format('YYYY-MM-DD');
+      const viewTo = moment(calendarState.viewTo).format('YYYY-MM-DD');
+
+      apiService.get(`user_timesheet_days/own/${viewFrom}/${viewTo}`)
         .then((result) => {
           const userTimesheetDayList = [];
           result['hydra:member'].forEach((userTimesheetDay) => {
@@ -88,9 +91,6 @@ function UserCalendarComp(props) {
 
           setMyEventsList(userTimesheetDayList);
         });
-
-      const viewFrom = moment(calendarState.viewFrom).format('YYYY-MM-DD');
-      const viewTo = moment(calendarState.viewTo).format('YYYY-MM-DD');
 
       apiService.get(`user_work_schedule_days/own/active/${viewFrom}/${viewTo}`)
         .then((result) => {
