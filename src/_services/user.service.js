@@ -1,6 +1,9 @@
+import { apiService } from './api.service';
+
 function logout() {
   // remove user from local storage to log user out
-  localStorage.removeItem('user');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('user');
 }
 
 function handleResponse(response) {
@@ -29,18 +32,28 @@ function login(username, password) {
     body: JSON.stringify({ username, password }),
   };
 
-  return fetch(`${process.env.REACT_APP_API_URL}/login_check`, requestOptions)
+  return fetch(`${process.env.REACT_APP_API_URL}/authentication_token`, requestOptions)
     .then(handleResponse)
-    .then((user) => {
-      // store user details and jwt token in local storage to keep user logged
+    .then((token) => {
+      // store user details and jwt token in session storage to keep user logged
       // in between page refreshes
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('token', JSON.stringify(token.token));
 
-      return user;
+      return token;
+    });
+}
+
+function getOwnUserData() {
+  return apiService.get('users/me')
+    .then((result) => {
+      sessionStorage.setItem('user', JSON.stringify(result));
+
+      return result;
     });
 }
 
 export const userService = {
   login,
   logout,
+  getOwnUserData,
 };

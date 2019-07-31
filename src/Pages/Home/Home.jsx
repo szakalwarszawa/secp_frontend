@@ -1,36 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-
-// import { userActions } from '../_actions';
+import { withStyles } from '@material-ui/core';
 
 class Home extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      username: 'Fake user',
-    };
-  }
-
   render() {
-    const { username } = this.state;
-
     return (
-      <div className="col-md-6 col-md-offset-3">
-        <h1>
-          Hi
-          {` ${username} `}
-          !
-        </h1>
-        <p>You&apos;re logged in with React!!</p>
-        <p>
-          <Link to="/login">Logout</Link>
-        </p>
-      </div>
+      <div>:)</div>
     );
   }
 }
+
+const styles = theme => ({
+});
 
 function mapStateToProps(state) {
   const { users, authentication } = state;
@@ -41,5 +22,6 @@ function mapStateToProps(state) {
   };
 }
 
-const connectedHomePage = connect(mapStateToProps)(Home);
+const styledHomePage = withStyles(styles)(Home);
+const connectedHomePage = connect(mapStateToProps)(styledHomePage);
 export { connectedHomePage as Home };
