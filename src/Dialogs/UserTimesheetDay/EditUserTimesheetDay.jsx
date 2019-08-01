@@ -127,10 +127,7 @@ EditUserTimesheetDayComp.defaultProps = {
   classes: {},
 };
 
-function mapStateToProps(state) {
-  // const {} = state;
-  return {};
-}
+const mapStateToProps = (state) => ({});
 
 const styledEditUserTimesheetDay = withStyles(styles)(EditUserTimesheetDayComp);
 const connectedEditUserTimesheetDay = connect(mapStateToProps)(styledEditUserTimesheetDay);

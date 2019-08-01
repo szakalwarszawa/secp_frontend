@@ -15,7 +15,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-// To tylko wpis!
 function UserCalendarComp(props) {
   const classes = useStyles();
   const localizer = momentLocalizer(moment);
@@ -104,8 +103,8 @@ function UserCalendarComp(props) {
       return {
         className: 'working-day',
         style: {
-          border: 'solid 2px #62ff6f',
-          background: '#dbffdd',
+          border: '2px solid #62ff6f',
+          backgroundColor: '#dbffdd',
         },
       };
     }
@@ -235,9 +234,7 @@ function UserCalendarComp(props) {
   );
 }
 
-function mapStateToProps(state) {
-  return {};
-}
+const mapStateToProps = (state) => ({});
 
 const connectedUserCalendar = connect(mapStateToProps)(UserCalendarComp);
 export { connectedUserCalendar as UserCalendar };

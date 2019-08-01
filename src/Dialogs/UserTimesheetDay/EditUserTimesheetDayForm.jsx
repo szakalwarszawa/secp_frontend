@@ -275,10 +275,7 @@ EditUserTimesheetDayFormComp.defaultProps = {
   createMode: false,
 };
 
-function mapStateToProps(state) {
-  // const {} = state;
-  return {};
-}
+const mapStateToProps = (state) => ({});
 
 const styledEditUserTimesheetDayForm = withStyles(styles)(EditUserTimesheetDayFormComp);
 const connectedEditUserTimesheetDayForm = connect(mapStateToProps)(styledEditUserTimesheetDayForm);

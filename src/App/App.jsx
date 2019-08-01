@@ -127,14 +127,14 @@ App.defaultProps = {
   classes: {},
 };
 
-function mapStateToProps(state) {
+const mapStateToProps = (state) => {
   const { loggedIn } = state.authentication;
   const { alert } = state;
   return {
     alert,
     loggedIn,
   };
-}
+};
 
 const connectedApp = connect(mapStateToProps)(
   withStyles(styles)(App),

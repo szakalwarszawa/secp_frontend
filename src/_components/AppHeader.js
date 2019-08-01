@@ -159,11 +159,11 @@ AppHeader.defaultProps = {
   user: {},
 };
 
-function mapStateToProps(state) {
+const mapStateToProps = (state) => {
   const { user } = state.authentication;
   return {
     user,
   };
-}
+};
 
 export default connect(mapStateToProps)(AppHeader);

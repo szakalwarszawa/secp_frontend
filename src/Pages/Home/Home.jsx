@@ -13,14 +13,14 @@ class Home extends React.Component {
 const styles = theme => ({
 });
 
-function mapStateToProps(state) {
+const mapStateToProps = (state) => {
   const { users, authentication } = state;
   const { user } = authentication;
   return {
     user,
     users,
   };
-}
+};
 
 const styledHomePage = withStyles(styles)(Home);
 const connectedHomePage = connect(mapStateToProps)(styledHomePage);
