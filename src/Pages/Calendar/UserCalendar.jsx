@@ -15,6 +15,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+// To tylko wpis!
 function UserCalendarComp(props) {
   const classes = useStyles();
   const localizer = momentLocalizer(moment);
