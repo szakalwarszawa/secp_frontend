@@ -11,9 +11,13 @@ const getQuery = (query, endpoint) => new Promise((resolve, reject) => {
 
   if (query.filters && query.filters.length > 0) {
     query.filters.forEach((filter) => {
-      filter.value.forEach((value) => {
-        url += `&${filter.column.searchField || filter.column.field}[]=${value.replace(/_/gi, '')}`;
-      });
+      if (filter.value !== null && typeof filter.value.forEach === 'function') {
+        filter.value.forEach((value) => {
+          url += `&${filter.column.searchField || filter.column.field}[]=${value.replace(/_/gi, '')}`;
+        });
+      } else {
+        url += `&${filter.column.searchField || filter.column.field}[]=${filter.value.replace(/_/gi, '')}`;
+      }
     });
   }
 

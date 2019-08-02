@@ -3,6 +3,8 @@ import { Router, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import './App.css';
+import 'react-big-calendar/lib/sass/styles.scss';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -24,6 +26,7 @@ import { Home } from '../Pages/Home';
 import { TimesheetList } from '../Pages/Timesheet';
 import { UserList } from '../Pages/User';
 import AppHeader from '../_components/AppHeader';
+import { UserCalendar } from '../Pages/Calendar';
 
 class App extends React.Component {
   handlCloseSnackBar = () => {
@@ -48,7 +51,7 @@ class App extends React.Component {
             >
               <PrivateRoute exact path="/" component={Home} />
               <Route path="/login" component={Login} />
-              <PrivateRoute path="/addTimesheetDayReport" component={Home} />
+              <PrivateRoute path="/userCalendar" component={UserCalendar} />
               <PrivateRoute path="/timesheetList" component={TimesheetList} />
               <PrivateRoute path="/timesheetListToAccept" component={Home} />
               <PrivateRoute path="/users" component={UserList} />
@@ -61,9 +64,9 @@ class App extends React.Component {
                   className={classes.snackBarInfo}
                   message={(
                     <span className={classes.message}>
-                    <InfoIcon className={classes.icon} />
+                      <InfoIcon className={classes.icon} />
                       {alert.message}
-                  </span>
+                    </span>
                   )}
                   action={(
                     <IconButton
@@ -124,14 +127,14 @@ App.defaultProps = {
   classes: {},
 };
 
-function mapStateToProps(state) {
+const mapStateToProps = (state) => {
   const { loggedIn } = state.authentication;
   const { alert } = state;
   return {
     alert,
     loggedIn,
   };
-}
+};
 
 const connectedApp = connect(mapStateToProps)(
   withStyles(styles)(App),

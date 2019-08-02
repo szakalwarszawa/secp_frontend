@@ -164,12 +164,12 @@ Login.defaultProps = {
   classes: {},
 };
 
-function mapStateToProps(state) {
+const mapStateToProps = (state) => {
   const { loggingIn } = state.authentication;
   return {
     loggingIn,
   };
-}
+};
 
 const styledLoginPage = withStyles(styles)(Login);
 const connectedLoginPage = connect(mapStateToProps)(styledLoginPage);

@@ -43,7 +43,7 @@ function login(username, password) {
     });
 }
 
-function getOwnUserData() {
+function callForOwnUserData() {
   return apiService.get('users/me')
     .then((result) => {
       sessionStorage.setItem('user', JSON.stringify(result));
@@ -52,8 +52,13 @@ function getOwnUserData() {
     });
 }
 
+function getUserData() {
+  return JSON.parse(sessionStorage.getItem('user'));
+}
+
 export const userService = {
   login,
   logout,
-  getOwnUserData,
+  callForOwnUserData,
+  getUserData,
 };

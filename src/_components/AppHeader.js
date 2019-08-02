@@ -104,9 +104,9 @@ function AppHeader(props) {
         </IconButton>
         <Drawer open={drawerOpened} onClose={() => setDrawerOpened(false)}>
           <List component="ul">
-            <ListItem button component="a" href="/addTimesheetDayReport/">
+            <ListItem button component="a" href="/userCalendar/">
               <ListItemIcon><IconAccessTime /></ListItemIcon>
-              <ListItemText primary="Wprowadź obecność" />
+              <ListItemText primary="Kalendarz" />
             </ListItem>
             <ListItem button component="a" href="/timesheetList/">
               <ListItemIcon><IconList /></ListItemIcon>
@@ -159,11 +159,11 @@ AppHeader.defaultProps = {
   user: {},
 };
 
-function mapStateToProps(state) {
+const mapStateToProps = (state) => {
   const { user } = state.authentication;
   return {
     user,
   };
-}
+};
 
 export default connect(mapStateToProps)(AppHeader);

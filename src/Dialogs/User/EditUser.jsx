@@ -240,10 +240,7 @@ EditUserComp.defaultProps = {
   classes: {},
 };
 
-function mapStateToProps(state) {
-  // const {} = state;
-  return {};
-}
+const mapStateToProps = (state) => ({});
 
 const styledEditUser = withStyles(styles)(EditUserComp);
 const connectedEditUser = connect(mapStateToProps)(styledEditUser);

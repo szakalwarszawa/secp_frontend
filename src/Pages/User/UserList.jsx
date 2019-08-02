@@ -148,9 +148,7 @@ function UserListComp(props) {
   );
 }
 
-function mapStateToProps(state) {
-  return {};
-}
+const mapStateToProps = (state) => ({});
 
 const connectedUserList = connect(mapStateToProps)(UserListComp);
 export { connectedUserList as UserList };

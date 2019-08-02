@@ -130,9 +130,7 @@ function TimesheetListComp(prop) {
   );
 }
 
-function mapStateToProps(state) {
-  return {};
-}
+const mapStateToProps = (state) => ({});
 
 const connectedTimesheetList = connect(mapStateToProps)(TimesheetListComp);
 export { connectedTimesheetList as TimesheetList };
