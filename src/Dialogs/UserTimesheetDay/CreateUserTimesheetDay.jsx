@@ -81,7 +81,7 @@ function CreateUserTimesheetDayComp(props) {
     };
 
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
-    apiService.post(`user_timesheet_days/create_timesheet_day/${payload.dayDate}`, payload)
+    apiService.post(`user_timesheet_days/own/create/${payload.dayDate}`, payload)
       .then(
         (result) => {
           setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
