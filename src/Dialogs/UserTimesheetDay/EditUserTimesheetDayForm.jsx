@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -35,6 +37,8 @@ function EditUserTimesheetDayFormComp(props) {
   const [state, setState] = useState({
     loaderWorkerCount: 0,
     requestError: null,
+    submitted: false,
+    wrongTimeOrder: false,
   });
   const [userTimesheetDayData, setUserTimesheetDayData] = useState({
     userTimesheet: {
@@ -110,11 +114,32 @@ function EditUserTimesheetDayFormComp(props) {
 
   const handleInputChange = (field, date) => {
     setUserTimesheetDayData({ ...userTimesheetDayData, [field]: date });
+    setState({ ...state, wrongTimeOrder: false });
   };
 
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = () => {
+    setState(s => ({ ...s, submitted: true, isLoading: true }));
+
+    if ((userTimesheetDayData.presenceTypeId <= 0)
+      || (isAbsence && !userTimesheetDayData.absenceTypeId)
+      || (
+        !isAbsence
+        && isTimed
+        && (!userTimesheetDayData.dayStartTime || !userTimesheetDayData.dayEndTime)
+      )
+    ) {
+      return;
+    }
+
+    if (!isAbsence && isTimed
+      && moment(userTimesheetDayData.dayStartTime).isAfter(moment(userTimesheetDayData.dayEndTime), 'minute')
+    ) {
+      setState(s => ({ ...s, wrongTimeOrder: true }));
+      return;
+    }
+
     onSave(userTimesheetDayData);
   };
 
@@ -135,6 +160,16 @@ function EditUserTimesheetDayFormComp(props) {
             'aria-label': 'change time',
           }}
         />
+        {state.submitted && !userTimesheetDayData[fieldName] && (
+          <FormHelperText error>
+            Podanie czasu jest wymagane
+          </FormHelperText>
+        )}
+        {fieldName === 'dayEndTime' && state.wrongTimeOrder && (
+          <FormHelperText error>
+            Czas zakończenia musi następować po czasie rozpoczęcia
+          </FormHelperText>
+        )}
       </FormControl>
     );
   }
@@ -173,6 +208,11 @@ function EditUserTimesheetDayFormComp(props) {
                 </MenuItem>
               ))}
             </Select>
+            {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
+              <FormHelperText error>
+                Podanie obecności jest wymagane
+              </FormHelperText>
+            )}
           </FormControl>
 
           {isAbsence && (
@@ -192,15 +232,20 @@ function EditUserTimesheetDayFormComp(props) {
                   </MenuItem>
                 ))}
               </Select>
+              {state.submitted && !userTimesheetDayData.absenceTypeId && (
+                <FormHelperText error>
+                  Podanie rodzaju nieobecności jest wymagane
+                </FormHelperText>
+              )}
             </FormControl>
           )}
 
-          {!isAbsence && isTimed && getTimePicker('Rozpoczęcie pracy od', 'dayStartTime')}
-          {!isAbsence && isTimed && getTimePicker('Zakończenie pracy do', 'dayEndTime')}
+          {!isAbsence && isTimed && getTimePicker('Rozpoczęcie pracy', 'dayStartTime')}
+          {!isAbsence && isTimed && getTimePicker('Zakończenie pracy', 'dayEndTime')}
 
           {!isAbsence && isTimed && (
-            <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-              <InputLabel htmlFor="input-workingTime">
+            <FormControl component="div" className={classes.formControl}>
+              <InputLabel>
                 {`Czas pracy: ${!Number.isNaN(workingTime) ? workingTime : 0} godz.`}
               </InputLabel>
             </FormControl>
@@ -275,7 +320,7 @@ EditUserTimesheetDayFormComp.defaultProps = {
   createMode: false,
 };
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = state => ({});
 
 const styledEditUserTimesheetDayForm = withStyles(styles)(EditUserTimesheetDayFormComp);
 const connectedEditUserTimesheetDayForm = connect(mapStateToProps)(styledEditUserTimesheetDayForm);
