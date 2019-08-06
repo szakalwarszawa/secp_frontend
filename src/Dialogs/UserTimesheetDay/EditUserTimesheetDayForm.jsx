@@ -57,6 +57,9 @@ function EditUserTimesheetDayFormComp(props) {
   });
   const [presences, setPresences] = useState([]);
   const [absences, setAbsences] = useState([]);
+  let userWorkScheduleDay = {
+    workingDay: false,
+  };
   const isLoading = Boolean(state.loaderWorkerCount > 0);
   const workingTime = !!userTimesheetDayData.dayEndTime && !!userTimesheetDayData.dayStartTime
     ? ((userTimesheetDayData.dayEndTime - userTimesheetDayData.dayStartTime) / 3600000).toFixed(2)
@@ -76,6 +79,10 @@ function EditUserTimesheetDayFormComp(props) {
           : null,
       });
 
+      if (!userTimesheetDay.timesheetDayDate) {
+        return;
+      }
+
       setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('presence_types?_order[name]=asc&active=true')
         .then((result) => {
@@ -89,6 +96,41 @@ function EditUserTimesheetDayFormComp(props) {
           setAbsences(result['hydra:member']);
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
+
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      apiService.get(`user_work_schedule_days/own/active/${userTimesheetDay.timesheetDayDate}/${userTimesheetDay.timesheetDayDate}`)
+        .then(
+          (result) => {
+            const day = result['hydra:member'][0];
+            const dayId = day.dayDefinition.id;
+
+            userWorkScheduleDay = {
+              ...day,
+              dayStartTimeFromDate: day.dayStartTimeFrom !== null
+                ? new Date(`${dayId}T${day.dayStartTimeFrom}:00`)
+                : null,
+              dayStartTimeToDate: day.dayStartTimeTo !== null
+                ? new Date(`${dayId}T${day.dayStartTimeTo}:00`)
+                : null,
+              dayEndTimeFromDate: day.dayEndTimeFrom !== null
+                ? new Date(`${dayId}T${day.dayEndTimeFrom}:00`)
+                : null,
+              dayEndTimeToDate: day.dayEndTimeTo !== null
+                ? new Date(`${dayId}T${day.dayEndTimeTo}:00`)
+                : null,
+            };
+            console.log(userWorkScheduleDay);
+
+            setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          },
+          (error) => {
+            setState(s => ({
+              ...s,
+              loaderWorkerCount: s.loaderWorkerCount - 1,
+              requestError: error,
+            }));
+          },
+        );
     },
     [userTimesheetDay],
   );
@@ -129,7 +171,9 @@ function EditUserTimesheetDayFormComp(props) {
         && isTimed
         && (!userTimesheetDayData.dayStartTime || !userTimesheetDayData.dayEndTime)
       )
+      || !userWorkScheduleDay.workingDay
     ) {
+      console.log(userWorkScheduleDay);
       return;
     }
 
@@ -189,7 +233,7 @@ function EditUserTimesheetDayFormComp(props) {
                 ? (` / ${userTimesheetDayData.userTimesheet.owner.section.name}`)
                 : ''}
             </div>
-            <div>{userTimesheetDayData.userWorkScheduleDay.dayDefinition.id}</div>
+            <div>{userTimesheetDayData.timesheetDayDate}</div>
           </DialogContentText>
 
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
@@ -211,6 +255,11 @@ function EditUserTimesheetDayFormComp(props) {
             {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
               <FormHelperText error>
                 Podanie obecności jest wymagane
+              </FormHelperText>
+            )}
+            {state.submitted && !userWorkScheduleDay.workingDay && (
+              <FormHelperText error>
+                Dzień nie jest oznaczony jako pracujący
               </FormHelperText>
             )}
           </FormControl>

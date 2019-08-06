@@ -46,6 +46,7 @@ function CreateUserTimesheetDayComp(props) {
         dayStartTime: timeFrom,
         dayEndTime: timeTo,
         workingTime: 0,
+        timesheetDayDate: moment(timeFrom).format('YYYY-MM-DD'),
       }));
     },
     [timeFrom, timeTo],

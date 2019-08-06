@@ -4,7 +4,13 @@ import { history, authHeader } from '../_helpers';
 function handleResponse(response) {
   return response.text()
     .then((text) => {
-      const data = text && JSON.parse(text);
+      let data = null;
+      try {
+        data = text && JSON.parse(text);
+      } catch (e) {
+        console.log(e);
+      }
+
       if (!response.ok) {
         if (response.status === 401) {
           // auto logout if 401 response returned from api
@@ -12,7 +18,7 @@ function handleResponse(response) {
           history.push('/login/');
         }
 
-        const error = (data && data['hydra:description']) || response.statusText;
+        const error = `ERROR: ${(data && data['hydra:description']) || response.statusText}`;
         return Promise.reject(error);
       }
 

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { EditUserTimesheetDayForm } from './EditUserTimesheetDayForm';
 import { apiService } from '../../_services';
+import moment from 'moment';
 
 function EditUserTimesheetDayComp(props) {
   const {
@@ -40,10 +41,10 @@ function EditUserTimesheetDayComp(props) {
       apiService.get(`user_timesheet_days/${userTimesheetDayId}`)
         .then((result) => {
           const dayStartTimeDate = result.dayStartTime !== null
-            ? new Date(`2000-01-01T${result.dayStartTime}:00`)
+            ? new Date(`${result.userWorkScheduleDay.dayDefinition.id}T${result.dayStartTime}:00`)
             : null;
           const dayEndTimeDate = result.dayEndTime !== null
-            ? new Date(`2000-01-01T${result.dayEndTime}:00`)
+            ? new Date(`${result.userWorkScheduleDay.dayDefinition.id}T${result.dayEndTime}:00`)
             : null;
 
           setUserTimesheetDayData({
@@ -52,6 +53,7 @@ function EditUserTimesheetDayComp(props) {
             absenceTypeId: result.absenceType !== null ? result.absenceType.id : null,
             dayStartTime: dayStartTimeDate,
             dayEndTime: dayEndTimeDate,
+            timesheetDayDate: moment(result.userWorkScheduleDay.dayDefinition.id).format('YYYY-MM-DD'),
           });
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
