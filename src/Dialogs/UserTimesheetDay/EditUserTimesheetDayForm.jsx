@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -57,9 +57,9 @@ function EditUserTimesheetDayFormComp(props) {
   });
   const [presences, setPresences] = useState([]);
   const [absences, setAbsences] = useState([]);
-  let userWorkScheduleDay = {
+  const userWorkScheduleDay = useRef({
     workingDay: false,
-  };
+  });
   const isLoading = Boolean(state.loaderWorkerCount > 0);
   const workingTime = !!userTimesheetDayData.dayEndTime && !!userTimesheetDayData.dayStartTime
     ? ((userTimesheetDayData.dayEndTime - userTimesheetDayData.dayStartTime) / 3600000).toFixed(2)
@@ -104,7 +104,7 @@ function EditUserTimesheetDayFormComp(props) {
             const day = result['hydra:member'][0];
             const dayId = day.dayDefinition.id;
 
-            userWorkScheduleDay = {
+            userWorkScheduleDay.current = {
               ...day,
               dayStartTimeFromDate: day.dayStartTimeFrom !== null
                 ? new Date(`${dayId}T${day.dayStartTimeFrom}:00`)
@@ -119,7 +119,6 @@ function EditUserTimesheetDayFormComp(props) {
                 ? new Date(`${dayId}T${day.dayEndTimeTo}:00`)
                 : null,
             };
-            console.log(userWorkScheduleDay);
 
             setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
           },
@@ -171,9 +170,8 @@ function EditUserTimesheetDayFormComp(props) {
         && isTimed
         && (!userTimesheetDayData.dayStartTime || !userTimesheetDayData.dayEndTime)
       )
-      || !userWorkScheduleDay.workingDay
+      || !userWorkScheduleDay.current.workingDay
     ) {
-      console.log(userWorkScheduleDay);
       return;
     }
 
@@ -257,7 +255,7 @@ function EditUserTimesheetDayFormComp(props) {
                 Podanie obecności jest wymagane
               </FormHelperText>
             )}
-            {state.submitted && !userWorkScheduleDay.workingDay && (
+            {state.submitted && !userWorkScheduleDay.current.workingDay && (
               <FormHelperText error>
                 Dzień nie jest oznaczony jako pracujący
               </FormHelperText>
