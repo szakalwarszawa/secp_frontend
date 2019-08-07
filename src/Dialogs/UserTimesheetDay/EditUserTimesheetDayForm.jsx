@@ -38,7 +38,12 @@ function EditUserTimesheetDayFormComp(props) {
     loaderWorkerCount: 0,
     requestError: null,
     submitted: false,
-    wrongTimeOrder: false,
+    error: {
+      wrongTimeOrder: false,
+      wrongDayStartSlot: false,
+      wrongDayEndSlot: false,
+      wrongWorkingTime: false,
+    },
   });
   const [userTimesheetDayData, setUserTimesheetDayData] = useState({
     userTimesheet: {
@@ -59,6 +64,7 @@ function EditUserTimesheetDayFormComp(props) {
   const [absences, setAbsences] = useState([]);
   const userWorkScheduleDay = useRef({
     workingDay: false,
+    timeAdjust: false,
   });
   const isLoading = Boolean(state.loaderWorkerCount > 0);
   const workingTime = !!userTimesheetDayData.dayEndTime && !!userTimesheetDayData.dayStartTime
@@ -103,21 +109,36 @@ function EditUserTimesheetDayFormComp(props) {
           (result) => {
             const day = result['hydra:member'][0];
             const dayId = day.dayDefinition.id;
+            const dayStartTimeFromDate = day.dayStartTimeFrom !== null
+              ? new Date(`${dayId}T${day.dayStartTimeFrom}:00`)
+              : null;
+            const dayStartTimeToDate = day.dayStartTimeTo !== null
+              ? new Date(`${dayId}T${day.dayStartTimeTo}:00`)
+              : null;
+            const dayEndTimeFromDate = day.dayEndTimeFrom !== null
+              ? new Date(`${dayId}T${day.dayEndTimeFrom}:00`)
+              : null;
+            const dayEndTimeToDate = day.dayEndTimeTo !== null
+              ? new Date(`${dayId}T${day.dayEndTimeTo}:00`)
+              : null;
+            const timeAdjust = !moment(dayStartTimeFromDate).isSame(dayStartTimeToDate, 'minute')
+              || !moment(dayEndTimeFromDate).isSame(dayEndTimeToDate, 'minute');
+
+            if (!timeAdjust) {
+              setUserTimesheetDayData(s => ({
+                ...s,
+                dayStartTime: dayStartTimeFromDate,
+                dayEndTime: dayEndTimeFromDate,
+              }));
+            }
 
             userWorkScheduleDay.current = {
               ...day,
-              dayStartTimeFromDate: day.dayStartTimeFrom !== null
-                ? new Date(`${dayId}T${day.dayStartTimeFrom}:00`)
-                : null,
-              dayStartTimeToDate: day.dayStartTimeTo !== null
-                ? new Date(`${dayId}T${day.dayStartTimeTo}:00`)
-                : null,
-              dayEndTimeFromDate: day.dayEndTimeFrom !== null
-                ? new Date(`${dayId}T${day.dayEndTimeFrom}:00`)
-                : null,
-              dayEndTimeToDate: day.dayEndTimeTo !== null
-                ? new Date(`${dayId}T${day.dayEndTimeTo}:00`)
-                : null,
+              dayStartTimeFromDate,
+              dayStartTimeToDate,
+              dayEndTimeFromDate,
+              dayEndTimeToDate,
+              timeAdjust,
             };
 
             setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
@@ -160,9 +181,7 @@ function EditUserTimesheetDayFormComp(props) {
 
   const closeDialogHandler = () => onClose(false);
 
-  const saveDialogHandler = () => {
-    setState(s => ({ ...s, submitted: true, isLoading: true }));
-
+  const validateForm = () => {
     if ((userTimesheetDayData.presenceTypeId <= 0)
       || (isAbsence && !userTimesheetDayData.absenceTypeId)
       || (
@@ -172,13 +191,54 @@ function EditUserTimesheetDayFormComp(props) {
       )
       || !userWorkScheduleDay.current.workingDay
     ) {
-      return;
+      return false;
     }
 
     if (!isAbsence && isTimed
       && moment(userTimesheetDayData.dayStartTime).isAfter(moment(userTimesheetDayData.dayEndTime), 'minute')
     ) {
-      setState(s => ({ ...s, wrongTimeOrder: true }));
+      setState(s => ({ ...s, error: { wrongTimeOrder: true } }));
+      return false;
+    }
+
+    if (!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust
+      && !moment(userTimesheetDayData.dayStartTime)
+        .isBetween(
+          userWorkScheduleDay.current.dayStartTimeFromDate,
+          userWorkScheduleDay.current.dayStartTimeToDate,
+          'minute',
+        )
+    ) {
+      setState(s => ({ ...s, error: { wrongDayStartSlot: true } }));
+      return false;
+    }
+
+    if (!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust
+      && !moment(userTimesheetDayData.dayEndTime)
+        .isBetween(
+          userWorkScheduleDay.current.dayEndTimeFromDate,
+          userWorkScheduleDay.current.dayEndTimeToDate,
+          'minute',
+        )
+    ) {
+      setState(s => ({ ...s, error: { wrongDayEndSlot: true } }));
+      return false;
+    }
+
+    if (!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust
+      && parseFloat(workingTime) !== parseFloat(userWorkScheduleDay.current.dailyWorkingTime)
+    ) {
+      setState(s => ({ ...s, error: { wrongWorkingTime: true } }));
+      return false;
+    }
+
+    return true;
+  };
+
+  const saveDialogHandler = () => {
+    setState(s => ({ ...s, submitted: true, isLoading: true }));
+
+    if (!validateForm()) {
       return;
     }
 
@@ -207,9 +267,24 @@ function EditUserTimesheetDayFormComp(props) {
             Podanie czasu jest wymagane
           </FormHelperText>
         )}
-        {fieldName === 'dayEndTime' && state.wrongTimeOrder && (
+        {fieldName === 'dayEndTime' && state.error.wrongTimeOrder && (
           <FormHelperText error>
             Czas zakończenia musi następować po czasie rozpoczęcia
+          </FormHelperText>
+        )}
+        {fieldName === 'dayStartTime' && state.error.wrongDayStartSlot && (
+          <FormHelperText error>
+            Czas rozpoczęcia musi wystąpić w ustalonym przedziale
+          </FormHelperText>
+        )}
+        {fieldName === 'dayEndTime' && state.error.wrongDayEndSlot && (
+          <FormHelperText error>
+            Czas zakończenia musi wystąpić w ustalonym przedziale
+          </FormHelperText>
+        )}
+        {fieldName === 'dayEndTime' && state.error.wrongWorkingTime && (
+          <FormHelperText error>
+            Długość czasu pracy musi być zgodna z ustalonym harmonogramem
           </FormHelperText>
         )}
       </FormControl>
@@ -287,8 +362,14 @@ function EditUserTimesheetDayFormComp(props) {
             </FormControl>
           )}
 
-          {!isAbsence && isTimed && getTimePicker('Rozpoczęcie pracy', 'dayStartTime')}
-          {!isAbsence && isTimed && getTimePicker('Zakończenie pracy', 'dayEndTime')}
+          {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
+            'Rozpoczęcie pracy',
+            'dayStartTime',
+          )}
+          {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
+            'Zakończenie pracy',
+            'dayEndTime',
+          )}
 
           {!isAbsence && isTimed && (
             <FormControl component="div" className={classes.formControl}>
