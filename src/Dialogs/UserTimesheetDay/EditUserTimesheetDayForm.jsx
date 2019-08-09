@@ -158,6 +158,19 @@ function EditUserTimesheetDayFormComp(props) {
     setState({ ...state, wrongTimeOrder: false });
   };
 
+  const handleTimeInputChange = (field, date) => {
+    let validDateTime = date;
+    if (moment(date).isValid()) {
+      validDateTime = moment(date)
+        .set('year', moment(userTimesheetDayData.timesheetDayDate).get('year'))
+        .set('month', moment(userTimesheetDayData.timesheetDayDate).get('month'))
+        .set('day', moment(userTimesheetDayData.timesheetDayDate).get('day'))
+        .toDate();
+    }
+    setUserTimesheetDayData({ ...userTimesheetDayData, [field]: validDateTime });
+    setState({ ...state, wrongTimeOrder: false });
+  };
+
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = () => {
@@ -197,7 +210,7 @@ function EditUserTimesheetDayFormComp(props) {
           okLabel="Ustaw"
           invalidDateMessage="Nieprawidłowy format czasu"
           value={userTimesheetDayData[fieldName]}
-          onChange={date => handleInputChange(fieldName, date)}
+          onChange={date => handleTimeInputChange(fieldName, date)}
           KeyboardButtonProps={{
             'aria-label': 'change time',
           }}
