@@ -72,6 +72,14 @@ function EditUserTimesheetDayFormComp(props) {
     : 0;
   const isAbsence = Boolean(userTimesheetDayData.presenceType.isAbsence);
   const isTimed = Boolean(userTimesheetDayData.presenceType.isTimed);
+  const editRestrictions = {
+    EDIT_RESTRICTION_ALL: 0,
+    EDIT_RESTRICTION_TODAY: 1,
+    EDIT_RESTRICTION_BEFORE_TODAY: 2,
+    EDIT_RESTRICTION_AFTER_TODAY: 3,
+    EDIT_RESTRICTION_BEFORE_AND_TODAY: 4,
+    EDIT_RESTRICTION_AFTER_AND_TODAY: 5,
+  };
 
   useEffect(
     () => {
@@ -92,7 +100,36 @@ function EditUserTimesheetDayFormComp(props) {
       setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('presence_types?_order[name]=asc&active=true')
         .then((result) => {
-          setPresences(result['hydra:member']);
+          let presenceTypes = result['hydra:member'];
+
+          presenceTypes = presenceTypes.filter((presence) => {
+            const presenceRestriction = createMode
+              ? presence.createRestriction
+              : presence.editRestriction;
+
+            if (!createMode && userTimesheetDay.presenceTypeId === presence.id) {
+              return true;
+            }
+
+            switch (presenceRestriction) {
+              case editRestrictions.EDIT_RESTRICTION_ALL:
+                return true;
+              case editRestrictions.EDIT_RESTRICTION_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isSame(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_AFTER_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isAfter(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_BEFORE_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isBefore(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_AFTER_AND_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isSameOrAfter(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_BEFORE_AND_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isSameOrBefore(moment(), 'day');
+              default:
+                return false;
+            }
+          });
+
+          setPresences(presenceTypes);
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
