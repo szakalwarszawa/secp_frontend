@@ -424,7 +424,7 @@ function EditUserTimesheetDayFormComp(props) {
           {!isAbsence && isTimed && (
             <FormControl component="div" className={classes.formControl}>
               <InputLabel>
-                {`Czas pracy: ${!Number.isNaN(workingTime) ? workingTime : 0} godz.`}
+                {`Czas pracy: ${!Number.isNaN(workingTime) && workingTime !== 'NaN' ? workingTime : 0} godz.`}
               </InputLabel>
             </FormControl>
           )}
