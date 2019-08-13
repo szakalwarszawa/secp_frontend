@@ -222,7 +222,7 @@ function EditUserTimesheetDayFormComp(props) {
       validDateTime = moment(date)
         .set('year', moment(userTimesheetDayData.timesheetDayDate).get('year'))
         .set('month', moment(userTimesheetDayData.timesheetDayDate).get('month'))
-        .set('day', moment(userTimesheetDayData.timesheetDayDate).get('day'))
+        .set('date', moment(userTimesheetDayData.timesheetDayDate).get('date'))
         .toDate();
     }
     setUserTimesheetDayData({ ...userTimesheetDayData, [field]: validDateTime });
