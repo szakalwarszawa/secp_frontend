@@ -257,7 +257,7 @@ function EditUserTimesheetDayFormComp(props) {
           userWorkScheduleDay.current.dayStartTimeFromDate,
           userWorkScheduleDay.current.dayStartTimeToDate,
           'minute',
-          '['
+          '[]'
         )
     ) {
       setState(s => ({ ...s, error: { wrongDayStartSlot: true } }));
@@ -270,7 +270,7 @@ function EditUserTimesheetDayFormComp(props) {
           userWorkScheduleDay.current.dayEndTimeFromDate,
           userWorkScheduleDay.current.dayEndTimeToDate,
           'minute',
-          ']'
+          '[]'
         )
     ) {
       setState(s => ({ ...s, error: { wrongDayEndSlot: true } }));
