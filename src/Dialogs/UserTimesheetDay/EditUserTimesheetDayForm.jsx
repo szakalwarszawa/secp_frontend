@@ -156,58 +156,60 @@ function EditUserTimesheetDayFormComp(props) {
               requestError: error,
             }));
           },
-        );
+        ).then(
+          async => {
+            setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+            apiService.get('presence_types?_order[name]=asc&active=true')
+              .then((result) => {
+                let presenceTypes = result['hydra:member'];
+                let isWorkingDay = userWorkScheduleDay.current.workingDay;
 
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
-      apiService.get('presence_types?_order[name]=asc&active=true')
-        .then((result) => {
-          let presenceTypes = result['hydra:member'];
-          let isWorkingDay = userWorkScheduleDay.current.workingDay;
+                presenceTypes = presenceTypes.filter((presence) => {
+                  const presenceRestriction = createMode
+                    ? presence.createRestriction
+                    : presence.editRestriction;
 
-          presenceTypes = presenceTypes.filter((presence) => {
-            const presenceRestriction = createMode
-              ? presence.createRestriction
-              : presence.editRestriction;
+                  if (!createMode && userTimesheetDay.presenceTypeId === presence.id) {
+                    return true;
+                  }
 
-            if (!createMode && userTimesheetDay.presenceTypeId === presence.id) {
-              return true;
-            }
+                  if (
+                    presence.workingDayRestriction === workingDayRestrictions.WORKING_DAY
+                    && isWorkingDay !== true
+                  ) {
+                    return false;
+                  }
 
-            if (
-              presence.workingDayRestriction === workingDayRestrictions.WORKING_DAY
-              && isWorkingDay !== true
-            ) {
-              return false;
-            }
+                  if (
+                    presence.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
+                    && isWorkingDay !== false
+                  ) {
+                    return false;
+                  }
 
-            if (
-              presence.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
-              && isWorkingDay !== false
-            ) {
-              return false;
-            }
+                  switch (presenceRestriction) {
+                    case editRestrictions.EDIT_RESTRICTION_ALL:
+                      return true;
+                    case editRestrictions.EDIT_RESTRICTION_TODAY:
+                      return moment(userTimesheetDay.timesheetDayDate).isSame(moment(), 'day');
+                    case editRestrictions.EDIT_RESTRICTION_AFTER_TODAY:
+                      return moment(userTimesheetDay.timesheetDayDate).isAfter(moment(), 'day');
+                    case editRestrictions.EDIT_RESTRICTION_BEFORE_TODAY:
+                      return moment(userTimesheetDay.timesheetDayDate).isBefore(moment(), 'day');
+                    case editRestrictions.EDIT_RESTRICTION_AFTER_AND_TODAY:
+                      return moment(userTimesheetDay.timesheetDayDate).isSameOrAfter(moment(), 'day');
+                    case editRestrictions.EDIT_RESTRICTION_BEFORE_AND_TODAY:
+                      return moment(userTimesheetDay.timesheetDayDate).isSameOrBefore(moment(), 'day');
+                    default:
+                      return false;
+                  }
+                });
 
-            switch (presenceRestriction) {
-              case editRestrictions.EDIT_RESTRICTION_ALL:
-                return true;
-              case editRestrictions.EDIT_RESTRICTION_TODAY:
-                return moment(userTimesheetDay.timesheetDayDate).isSame(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_AFTER_TODAY:
-                return moment(userTimesheetDay.timesheetDayDate).isAfter(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_BEFORE_TODAY:
-                return moment(userTimesheetDay.timesheetDayDate).isBefore(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_AFTER_AND_TODAY:
-                return moment(userTimesheetDay.timesheetDayDate).isSameOrAfter(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_BEFORE_AND_TODAY:
-                return moment(userTimesheetDay.timesheetDayDate).isSameOrBefore(moment(), 'day');
-              default:
-                return false;
-            }
-          });
-
-          setPresences(presenceTypes);
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-        });
+                setPresences(presenceTypes);
+                setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+              });
+          }
+        )
     },
     [userTimesheetDay],
   );
