@@ -157,7 +157,7 @@ function EditUserTimesheetDayFormComp(props) {
             }));
           },
         ).then(
-          function () {
+          () => {
             setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
             apiService.get('presence_types?_order[name]=asc&active=true')
               .then((result) => {
