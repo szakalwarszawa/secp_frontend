@@ -82,7 +82,7 @@ function EditUserTimesheetDayFormComp(props) {
   };
   const workingDayRestrictions = {
     WORKING_AND_NON_WORKING_DAY: 0,
-    WORKING_DAY:1,
+    WORKING_DAY: 1,
     NON_WORKING_DAY: 2,
   };
 
@@ -162,7 +162,7 @@ function EditUserTimesheetDayFormComp(props) {
             apiService.get('presence_types?_order[name]=asc&active=true')
               .then((result) => {
                 let presenceTypes = result['hydra:member'];
-                let isWorkingDay = userWorkScheduleDay.current.workingDay;
+                const isWorkingDay = userWorkScheduleDay.current.workingDay;
 
                 presenceTypes = presenceTypes.filter((presence) => {
                   const presenceRestriction = createMode
@@ -208,8 +208,8 @@ function EditUserTimesheetDayFormComp(props) {
                 setPresences(presenceTypes);
                 setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
               });
-          }
-        )
+          },
+        );
     },
     [userTimesheetDay],
   );
