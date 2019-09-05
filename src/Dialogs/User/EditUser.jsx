@@ -6,6 +6,11 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -14,13 +19,18 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper from '@material-ui/core/Paper';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import { Divider, FormLabel } from '@material-ui/core';
 import {
   KeyboardTimePicker,
 } from '@material-ui/pickers';
 
-import { apiService } from '../../_services';
+import { apiService, userService } from '../../_services';
+import { userConstants } from '../../_constants';
 
 function EditUserComp(props) {
   const {
@@ -33,20 +43,24 @@ function EditUserComp(props) {
   const [state, setState] = useState({
     loaderWorkerCount: 0,
   });
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({
+    roles: [],
+  });
   const [workScheduleProfiles, setWorkScheduleProfiles] = useState([]);
+  const [availableRoles, setAvailalbleRoles] = useState([]);
   const isLoading = Boolean(state.loaderWorkerCount > 0);
+  const isCurrentUserAdmin = userService.isAdmin();
 
   useEffect(
     () => {
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, requestError: null }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, requestError: null }));
       apiService.get('work_schedule_profiles')
         .then((result) => {
           setWorkScheduleProfiles(result['hydra:member']);
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`users/${userId}`)
         .then((result) => {
           setUserData({
@@ -57,7 +71,14 @@ function EditUserComp(props) {
             dayEndTimeFromDate: new Date(`2000-01-01T${result.dayEndTimeFrom}:00`),
             dayEndTimeToDate: new Date(`2000-01-01T${result.dayEndTimeTo}:00`),
           });
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+        });
+
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      apiService.get('roles')
+        .then((result) => {
+          setAvailalbleRoles(result['hydra:member']);
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
     [userId],
@@ -66,6 +87,18 @@ function EditUserComp(props) {
   const handleInputChange = (field, date) => {
     setUserData({ ...userData, [field]: date });
   };
+
+  const handleCheck = (target) => {
+    const currentElements = userData[target.name];
+    if (target.checked) {
+      currentElements.push(target.value);
+    } else {
+      currentElements.splice(currentElements.indexOf(target.value), 1);
+    }
+
+    setUserData({ ...userData, [target.name]: currentElements });
+  };
+
 
   const closeDialogHandler = () => onClose(false);
 
@@ -89,6 +122,7 @@ function EditUserComp(props) {
         { hour: '2-digit', minute: '2-digit' },
       ),
       dailyWorkingTime: userData.dailyWorkingTime.toString(),
+      roles: userData.roles,
     };
 
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
@@ -96,6 +130,7 @@ function EditUserComp(props) {
       .then(
         () => {
           setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          userService.refresh();
           onClose(true);
         },
         (error) => {
@@ -119,7 +154,7 @@ function EditUserComp(props) {
           okLabel="Ustaw"
           invalidDateMessage="Nieprawidłowy format czasu"
           value={userData[fieldName]}
-          onChange={date => handleInputChange(fieldName, date)}
+          onChange={(date) => handleInputChange(fieldName, date)}
           KeyboardButtonProps={{
             'aria-label': 'change time',
           }}
@@ -128,9 +163,57 @@ function EditUserComp(props) {
     );
   }
 
+  function getAdminComponents() {
+    if (isCurrentUserAdmin) {
+      return (
+        <>
+          <Divider />
+          <FormControl component="div" className={classes.formControl} disabled={isLoading}>
+            <ExpansionPanel>
+              <ExpansionPanelSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography className={classes.heading}>Role użytkownika</Typography>
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails>
+                <FormGroup>
+                  {availableRoles.map((role) => (
+                    <FormControlLabel
+                      control={(
+                        <Checkbox
+                          onChange={(event) => handleCheck(event.target)}
+                          checked={userData.roles.includes(role.name)}
+                          value={role.name}
+                          color={userConstants.ADMIN_ROLES.includes(role.name) ? 'secondary' : 'primary'}
+                          disabled={userConstants.STATIC_ROLES.includes(role.name)}
+                          inputProps={{
+                            name: 'roles',
+                          }}
+                        />
+)}
+                      label={role.name}
+                    />
+                  ))}
+                </FormGroup>
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
+          </FormControl>
+        </>
+      );
+    }
+  }
+
   return (
     <div className={classes.main}>
-      <Dialog open={open} onClose={closeDialogHandler} aria-labelledby="form-dialog-title" maxWidth="xs" fullWidth>
+      <Dialog
+        open={open}
+        onClose={closeDialogHandler}
+        aria-labelledby="form-dialog-title"
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle id="form-dialog-title">Edycja użytkownika</DialogTitle>
         <DialogContent>
           <DialogContentText component="div">
@@ -145,13 +228,13 @@ function EditUserComp(props) {
             <InputLabel htmlFor="default-work-schedule-profile">Domyślny profil harmonogramu</InputLabel>
             <Select
               value={userData.defaultWorkScheduleProfileId || -1}
-              onChange={event => handleInputChange(event.target.name, event.target.value)}
+              onChange={(event) => handleInputChange(event.target.name, event.target.value)}
               inputProps={{
                 name: 'defaultWorkScheduleProfileId',
                 id: 'default-work-schedule-profile',
               }}
             >
-              {workScheduleProfiles.map(workScheduleProfile => (
+              {workScheduleProfiles.map((workScheduleProfile) => (
                 <MenuItem button componet="li" key={workScheduleProfile.name} value={workScheduleProfile.id}>
                   {workScheduleProfile.name}
                 </MenuItem>
@@ -165,7 +248,7 @@ function EditUserComp(props) {
           {getTimePicker('Zakończenie pracy do', 'dayEndTimeToDate')}
 
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-            <InputLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</InputLabel>
+            <FormLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</FormLabel>
             <Slider
               value={userData.dailyWorkingTime * 100}
               onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
@@ -175,6 +258,8 @@ function EditUserComp(props) {
               max={2400}
             />
           </FormControl>
+
+          {getAdminComponents()}
 
           <Paper
             hidden={state.requestError === null || state.requestError === ''}
@@ -200,7 +285,7 @@ function EditUserComp(props) {
   );
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   main: {
     display: 'flex',
     flexDirection: 'column',

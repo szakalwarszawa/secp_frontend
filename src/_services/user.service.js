@@ -1,4 +1,5 @@
 import { apiService } from './api.service';
+import { userConstants } from '../_constants';
 
 function logout() {
   // remove user from local storage to log user out
@@ -52,8 +53,19 @@ function callForOwnUserData() {
     });
 }
 
+function refresh() {
+  callForOwnUserData();
+}
+
 function getUserData() {
   return JSON.parse(sessionStorage.getItem('user'));
+}
+
+function isAdmin() {
+  const userRoles = getUserData().roles;
+  const ownedAdminRoles = userRoles.filter((value) => userConstants.ADMIN_ROLES.includes(value));
+
+  return (ownedAdminRoles.length > 0);
 }
 
 export const userService = {
@@ -61,4 +73,6 @@ export const userService = {
   logout,
   callForOwnUserData,
   getUserData,
+  isAdmin,
+  refresh,
 };
