@@ -192,7 +192,7 @@ function EditUserComp(props) {
                             name: 'roles',
                           }}
                         />
-)}
+                      )}
                       label={role.name}
                     />
                   ))}
@@ -203,6 +203,8 @@ function EditUserComp(props) {
         </>
       );
     }
+
+    return;
   }
 
   return (
