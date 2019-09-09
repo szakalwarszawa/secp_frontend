@@ -63,7 +63,7 @@ function getUserData() {
 
 function isAdmin() {
   const userRoles = getUserData().roles;
-  const ownedAdminRoles = userRoles.filter((value) => userConstants.ADMIN_ROLES.includes(value));
+  const ownedAdminRoles = userRoles.filter(value => userConstants.ADMIN_ROLES.includes(value));
 
   return (ownedAdminRoles.length > 0);
 }

@@ -47,20 +47,20 @@ function EditUserComp(props) {
     roles: [],
   });
   const [workScheduleProfiles, setWorkScheduleProfiles] = useState([]);
-  const [availableRoles, setAvailalbleRoles] = useState([]);
+  const [availableRoles, setAvailableRoles] = useState([]);
   const isLoading = Boolean(state.loaderWorkerCount > 0);
   const isCurrentUserAdmin = userService.isAdmin();
 
   useEffect(
     () => {
-      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, requestError: null }));
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, requestError: null }));
       apiService.get('work_schedule_profiles')
         .then((result) => {
           setWorkScheduleProfiles(result['hydra:member']);
-          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`users/${userId}`)
         .then((result) => {
           setUserData({
@@ -71,14 +71,14 @@ function EditUserComp(props) {
             dayEndTimeFromDate: new Date(`2000-01-01T${result.dayEndTimeFrom}:00`),
             dayEndTimeToDate: new Date(`2000-01-01T${result.dayEndTimeTo}:00`),
           });
-          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('roles')
         .then((result) => {
-          setAvailalbleRoles(result['hydra:member']);
-          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setAvailableRoles(result['hydra:member']);
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
     [userId],
@@ -154,7 +154,7 @@ function EditUserComp(props) {
           okLabel="Ustaw"
           invalidDateMessage="Nieprawidłowy format czasu"
           value={userData[fieldName]}
-          onChange={(date) => handleInputChange(fieldName, date)}
+          onChange={date => handleInputChange(fieldName, date)}
           KeyboardButtonProps={{
             'aria-label': 'change time',
           }}
@@ -179,11 +179,11 @@ function EditUserComp(props) {
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
                 <FormGroup>
-                  {availableRoles.map((role) => (
+                  {availableRoles.map(role => (
                     <FormControlLabel
                       control={(
                         <Checkbox
-                          onChange={(event) => handleCheck(event.target)}
+                          onChange={event => handleCheck(event.target)}
                           checked={userData.roles.includes(role.name)}
                           value={role.name}
                           color={userConstants.ADMIN_ROLES.includes(role.name) ? 'secondary' : 'primary'}
@@ -203,8 +203,6 @@ function EditUserComp(props) {
         </>
       );
     }
-
-    return;
   }
 
   return (
@@ -230,13 +228,13 @@ function EditUserComp(props) {
             <InputLabel htmlFor="default-work-schedule-profile">Domyślny profil harmonogramu</InputLabel>
             <Select
               value={userData.defaultWorkScheduleProfileId || -1}
-              onChange={(event) => handleInputChange(event.target.name, event.target.value)}
+              onChange={event => handleInputChange(event.target.name, event.target.value)}
               inputProps={{
                 name: 'defaultWorkScheduleProfileId',
                 id: 'default-work-schedule-profile',
               }}
             >
-              {workScheduleProfiles.map((workScheduleProfile) => (
+              {workScheduleProfiles.map(workScheduleProfile => (
                 <MenuItem button componet="li" key={workScheduleProfile.name} value={workScheduleProfile.id}>
                   {workScheduleProfile.name}
                 </MenuItem>
@@ -287,7 +285,7 @@ function EditUserComp(props) {
   );
 }
 
-const styles = (theme) => ({
+const styles = theme => ({
   main: {
     display: 'flex',
     flexDirection: 'column',
