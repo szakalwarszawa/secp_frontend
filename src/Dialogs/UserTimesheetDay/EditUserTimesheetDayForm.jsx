@@ -71,6 +71,10 @@ function EditUserTimesheetDayFormComp(props) {
     ? ((userTimesheetDayData.dayEndTime - userTimesheetDayData.dayStartTime) / 3600000).toFixed(2)
     : 0;
   const isAbsence = Boolean(userTimesheetDayData.presenceType.isAbsence);
+  const unableToSetAbsenceType = Boolean(
+    userTimesheetDayData.presenceType.isAbsence
+    && !('absenceType' in userTimesheetDayData)
+  );
   const isTimed = Boolean(userTimesheetDayData.presenceType.isTimed);
   const editRestrictions = {
     EDIT_RESTRICTION_ALL: 0,
@@ -93,9 +97,7 @@ function EditUserTimesheetDayFormComp(props) {
         presenceTypeId: userTimesheetDay.presenceType !== null
           ? userTimesheetDay.presenceType.id
           : null,
-        absenceTypeId: userTimesheetDay.absenceType !== null
-          ? userTimesheetDay.absenceType.id
-          : null,
+        absenceTypeId: ('absenceType' in userTimesheetDay) ?userTimesheetDay.absenceType.id : null
       });
 
       if (!userTimesheetDay.timesheetDayDate) {
@@ -262,7 +264,9 @@ function EditUserTimesheetDayFormComp(props) {
         && (!userTimesheetDayData.dayStartTime || !userTimesheetDayData.dayEndTime)
       )
     ) {
-      return false;
+      if (!unableToSetAbsenceType) {
+        return false;
+      }
     }
 
     if (
@@ -437,7 +441,7 @@ function EditUserTimesheetDayFormComp(props) {
             )}
           </FormControl>
 
-          {isAbsence && (
+          {isAbsence && !unableToSetAbsenceType && (
             <FormControl component="div" className={classes.formControl} disabled={isLoading}>
               <InputLabel htmlFor="absenceTypeId">Przyczyna nieobecności</InputLabel>
               <Select

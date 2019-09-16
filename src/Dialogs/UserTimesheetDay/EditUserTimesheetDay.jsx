@@ -50,7 +50,7 @@ function EditUserTimesheetDayComp(props) {
           setUserTimesheetDayData({
             ...result,
             presenceTypeId: result.presenceType !== null ? result.presenceType.id : null,
-            absenceTypeId: result.absenceType !== null ? result.absenceType.id : null,
+            absenceTypeId: ('absenceType' in result)? result.absenceType.id : null,
             dayStartTime: dayStartTimeDate,
             dayEndTime: dayEndTimeDate,
             timesheetDayDate: moment(result.userWorkScheduleDay.dayDefinition.id).format('YYYY-MM-DD'),
@@ -70,7 +70,7 @@ function EditUserTimesheetDayComp(props) {
 
     const payload = {
       presenceType: `/api/presence_types/${savedData.presenceTypeId}`,
-      absenceType: isAbsence ? `/api/absence_types/${savedData.absenceTypeId}` : null,
+      absenceType: isAbsence && ('absenceType' in savedData) ? `/api/absence_types/${savedData.absenceTypeId}` : null,
       dayStartTime: isTimed
         ? savedData.dayStartTime.toLocaleTimeString(
           'pl-PL',
