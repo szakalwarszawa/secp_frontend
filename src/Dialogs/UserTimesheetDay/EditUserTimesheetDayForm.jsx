@@ -97,7 +97,9 @@ function EditUserTimesheetDayFormComp(props) {
         presenceTypeId: userTimesheetDay.presenceType !== null
           ? userTimesheetDay.presenceType.id
           : null,
-        absenceTypeId: ('absenceType' in userTimesheetDay) ?userTimesheetDay.absenceType.id : null
+        absenceTypeId: ('absenceType' in userTimesheetDay) && userTimesheetDay.absenceType !== null
+          ? userTimesheetDay.absenceType.id
+          : null
       });
 
       if (!userTimesheetDay.timesheetDayDate) {

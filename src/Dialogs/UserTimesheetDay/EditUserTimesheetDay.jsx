@@ -50,7 +50,7 @@ function EditUserTimesheetDayComp(props) {
           setUserTimesheetDayData({
             ...result,
             presenceTypeId: result.presenceType !== null ? result.presenceType.id : null,
-            absenceTypeId: ('absenceType' in result)? result.absenceType.id : null,
+            absenceTypeId: ('absenceType' in result) && result.absenceType !== null ? result.absenceType.id : null,
             dayStartTime: dayStartTimeDate,
             dayEndTime: dayEndTimeDate,
             timesheetDayDate: moment(result.userWorkScheduleDay.dayDefinition.id).format('YYYY-MM-DD'),
