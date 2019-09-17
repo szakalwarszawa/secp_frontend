@@ -10,6 +10,17 @@
     "import/prefer-default-export": "off",
     "react/jsx-filename-extension": "off",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "only-multiline"
+    }],
+    "max-len": ["error", {
+      "code": 120,
+      "tabWidth": 2
+    }]
   }
 }
