@@ -5,11 +5,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Calendar, Views, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/pl';
-import { apiService } from '../../_services';
-import { EditUserTimesheetDay, CreateUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
+import { lightGreen, amber } from '@material-ui/core/colors';
 import { Chip, Avatar, Grid } from '@material-ui/core';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import { lightGreen, amber } from '@material-ui/core/colors';
+import { apiService } from '../../_services';
+import { EditUserTimesheetDay, CreateUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
 
 const flexibleHoursColor = lightGreen[200];
 const fixedHoursColor = amber[200];
@@ -19,11 +19,11 @@ const useStyles = makeStyles(theme => ({
     marginRight: '45px',
   },
   legendAvatar: {
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
   },
   chip: {
-    margin: theme.spacing(0.2)
-  }
+    margin: theme.spacing(0.2),
+  },
 }));
 
 function UserCalendarComp(props) {
@@ -84,7 +84,7 @@ function UserCalendarComp(props) {
   const initialTableLegendState = {
     flexibleWorkingHours: false,
     fixedWorkingHours: false,
-  }
+  };
   const [tableLegend, setTableLegend] = useState(initialTableLegendState);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
@@ -177,13 +177,13 @@ function UserCalendarComp(props) {
     ) {
       setTableLegend({
         ...tableLegend,
-        flexibleWorkingHours: true
-      })
+        flexibleWorkingHours: true,
+      });
     } else if (!tableLegend.fixedWorkingHours) {
       setTableLegend({
         ...tableLegend,
-        fixedWorkingHours: true
-      })
+        fixedWorkingHours: true,
+      });
     }
 
     if (scheduleDay.workingDay
@@ -217,7 +217,7 @@ function UserCalendarComp(props) {
       return {
         className: 'working-day',
         style: {
-          background: isFlexibleWorkingHoursDay? flexibleHoursColor : fixedHoursColor,
+          background: isFlexibleWorkingHoursDay ? flexibleHoursColor : fixedHoursColor,
         },
       };
     }
@@ -275,11 +275,11 @@ function UserCalendarComp(props) {
         {tableLegend.flexibleWorkingHours && (
           <Chip
             className={classes.chip}
-            avatar={
+            avatar={(
               <Avatar className={classes.legendAvatar}>
                 <FiberManualRecordIcon htmlColor={flexibleHoursColor} />
               </Avatar>
-            }
+            )}
             label="Ruchome godziny pracy"
             variant="outlined"
             size="small"
@@ -288,11 +288,11 @@ function UserCalendarComp(props) {
         {tableLegend.fixedWorkingHours && (
           <Chip
             className={classes.chip}
-            avatar={
+            avatar={(
               <Avatar className={classes.legendAvatar}>
                 <FiberManualRecordIcon htmlColor={fixedHoursColor} />
               </Avatar>
-            }
+            )}
             label="Stałe godziny pracy"
             variant="outlined"
             size="small"
