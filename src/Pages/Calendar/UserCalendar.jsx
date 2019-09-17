@@ -7,12 +7,23 @@ import moment from 'moment';
 import 'moment/locale/pl';
 import { apiService } from '../../_services';
 import { EditUserTimesheetDay, CreateUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
+import { Chip, Avatar, Grid } from '@material-ui/core';
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
+import { lightGreen, amber } from '@material-ui/core/colors';
 
+const flexibleHoursColor = lightGreen[200];
+const fixedHoursColor = amber[200];
 const useStyles = makeStyles(theme => ({
   mainCalendar: {
     width: '100%',
     marginRight: '45px',
   },
+  legendAvatar: {
+    backgroundColor: 'transparent'
+  },
+  chip: {
+    margin: theme.spacing(0.2)
+  }
 }));
 
 function UserCalendarComp(props) {
@@ -70,6 +81,11 @@ function UserCalendarComp(props) {
   });
   const [activeWorkScheduleDayList, setActiveWorkScheduleDay] = useState([]);
   const [myEventsList, setMyEventsList] = useState([]);
+  const initialTableLegendState = {
+    flexibleWorkingHours: false,
+    fixedWorkingHours: false,
+  }
+  const [tableLegend, setTableLegend] = useState(initialTableLegendState);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [userTimesheetDayId, setUserTimesheetDayId] = useState(0);
@@ -115,6 +131,7 @@ function UserCalendarComp(props) {
             };
           });
 
+          setTableLegend(initialTableLegendState);
           setActiveWorkScheduleDay(scheduleDays);
         });
     },
@@ -134,7 +151,7 @@ function UserCalendarComp(props) {
         className: 'working-day',
         style: {
           border: '2px solid #62ff6f',
-          backgroundColor: '#dbffdd',
+          backgroundColor: flexibleHoursColor,
         },
       };
     }
@@ -152,6 +169,22 @@ function UserCalendarComp(props) {
     }
 
     const scheduleDay = activeWorkScheduleDayList[dateString];
+    const isFlexibleWorkingHoursDay = !moment(scheduleDay.dayStartTimeFromDate).isSame(scheduleDay.dayStartTimeToDate);
+
+    if (
+      isFlexibleWorkingHoursDay
+      && !tableLegend.flexibleWorkingHours
+    ) {
+      setTableLegend({
+        ...tableLegend,
+        flexibleWorkingHours: true
+      })
+    } else if (!tableLegend.fixedWorkingHours) {
+      setTableLegend({
+        ...tableLegend,
+        fixedWorkingHours: true
+      })
+    }
 
     if (scheduleDay.workingDay
       && date >= scheduleDay.dayStartTimeFromDate
@@ -160,7 +193,7 @@ function UserCalendarComp(props) {
       return {
         className: 'working-day',
         style: {
-          background: '#dbffdd',
+          background: flexibleHoursColor,
         },
       };
     }
@@ -172,7 +205,7 @@ function UserCalendarComp(props) {
       return {
         className: 'working-day',
         style: {
-          background: '#dbffdd',
+          background: flexibleHoursColor,
         },
       };
     }
@@ -184,7 +217,7 @@ function UserCalendarComp(props) {
       return {
         className: 'working-day',
         style: {
-          background: '#fff1c8',
+          background: isFlexibleWorkingHoursDay? flexibleHoursColor : fixedHoursColor,
         },
       };
     }
@@ -238,6 +271,34 @@ function UserCalendarComp(props) {
 
   return (
     <div className={classes.mainCalendar}>
+      <Grid container justify="center">
+        {tableLegend.flexibleWorkingHours && (
+          <Chip
+            className={classes.chip}
+            avatar={
+              <Avatar className={classes.legendAvatar}>
+                <FiberManualRecordIcon htmlColor={flexibleHoursColor} />
+              </Avatar>
+            }
+            label="Ruchome godziny pracy"
+            variant="outlined"
+            size="small"
+          />
+        )}
+        {tableLegend.fixedWorkingHours && (
+          <Chip
+            className={classes.chip}
+            avatar={
+              <Avatar className={classes.legendAvatar}>
+                <FiberManualRecordIcon htmlColor={fixedHoursColor} />
+              </Avatar>
+            }
+            label="Stałe godziny pracy"
+            variant="outlined"
+            size="small"
+          />
+        )}
+      </Grid>
       <Calendar
         selectable
         localizer={localizer}
