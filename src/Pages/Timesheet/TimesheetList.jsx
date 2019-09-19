@@ -21,6 +21,8 @@ function TimesheetListComp(prop) {
   const tableRef = useRef();
   const [presences, setPresences] = useState({});
   const [absences, setAbsences] = useState({});
+  const [departments, setDepartments] = useState({});
+  const [sections, setSections] = useState({});
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [userTimesheetDayId, setUserTimesheetDayId] = useState(0);
 
@@ -33,6 +35,24 @@ function TimesheetListComp(prop) {
             absenceList[`_${absence.id}_`] = absence.name;
           });
           setAbsences(absenceList);
+        });
+
+      apiService.get('sections?_order[name]=asc')
+        .then((result) => {
+          const sectionsList = {};
+          result['hydra:member'].forEach((section) => {
+            sectionsList[`_${section.id}_`] = section.name;
+          });
+          setSections(sectionsList);
+        });
+
+      apiService.get('departments?_order[name]=asc')
+        .then((result) => {
+          const departmentsList = {};
+          result['hydra:member'].forEach((department) => {
+            departmentsList[`_${department.id}_`] = department.name;
+          });
+          setDepartments(departmentsList);
         });
 
       apiService.get('presence_types?_order[name]=asc')
@@ -71,6 +91,30 @@ function TimesheetListComp(prop) {
           { title: 'Okres', field: 'userTimesheet.period' },
           { title: 'Imię', field: 'userTimesheet.owner.firstName' },
           { title: 'Nazwisko', field: 'userTimesheet.owner.lastName' },
+          {
+            title: 'Departament',
+            field: 'userTimesheet.owner.department.name',
+            searchField: 'userTimesheet.owner.department.id',
+            lookup: departments,
+            render: rowData => (
+              <span>
+                {rowData.userTimesheet.owner.department && rowData.userTimesheet.owner.department.name}
+              </span>
+            ),
+            customFilterAndSearch: () => true,
+          },
+          {
+            title: 'Sekcja',
+            field: 'userTimesheet.owner.section.name',
+            searchField: 'section.id',
+            lookup: sections,
+            render: rowData => (
+              <span>
+                {rowData.userTimesheet.owner.section && rowData.userTimesheet.owner.section.name}
+              </span>
+            ),
+            customFilterAndSearch: () => true,
+          },
           { title: 'Dzień', field: 'userWorkScheduleDay.dayDefinition.id' },
           {
             title: 'Obecność',
