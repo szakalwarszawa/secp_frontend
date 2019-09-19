@@ -313,6 +313,13 @@ function UserCalendarComp(props) {
         onSelectSlot={handleOnSelectSlot}
         dayPropGetter={customDayPropGetter}
         slotPropGetter={customSlotPropGetter}
+        /**
+         * https://redmine.parp.gov.pl/issues/88761
+         * Calendar was unable to display current time correctly.
+         * Despite that moment() returns correct date, the view displays
+         * (rbc-current-time-indicator) 30 minutes less.
+         */
+        getNow={() => moment().add(30, 'minutes')}
         min={moment('2019-07-19 06:00:00').toDate()}
         max={moment('2019-07-19 20:00:00').toDate()}
         style={{ height: 'calc(100vh - 150px)' }}
