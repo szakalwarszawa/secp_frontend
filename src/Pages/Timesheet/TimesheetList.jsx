@@ -114,7 +114,6 @@ function TimesheetListComp(prop) {
               </span>
             ),
             customFilterAndSearch: () => true,
-
           },
           { title: 'Dzień', field: 'userWorkScheduleDay.dayDefinition.id' },
           {
