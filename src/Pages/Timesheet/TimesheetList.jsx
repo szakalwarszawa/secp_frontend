@@ -102,7 +102,6 @@ function TimesheetListComp(prop) {
               </span>
             ),
             customFilterAndSearch: () => true,
-
           },
           {
             title: 'Sekcja',
