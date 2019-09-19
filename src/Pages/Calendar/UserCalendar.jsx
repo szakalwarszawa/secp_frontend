@@ -313,6 +313,7 @@ function UserCalendarComp(props) {
         onSelectSlot={handleOnSelectSlot}
         dayPropGetter={customDayPropGetter}
         slotPropGetter={customSlotPropGetter}
+        getNow={() => moment().add(30, 'minutes')}
         min={moment('2019-07-19 06:00:00').toDate()}
         max={moment('2019-07-19 20:00:00').toDate()}
         style={{ height: 'calc(100vh - 150px)' }}
