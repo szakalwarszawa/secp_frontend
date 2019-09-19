@@ -96,10 +96,11 @@ function TimesheetListComp(prop) {
             field: 'userTimesheet.owner.department.name',
             searchField: 'userTimesheet.owner.department.id',
             lookup: departments,
-            render: rowData =>
+            render: rowData => (
               <span>
                 {rowData.userTimesheet.owner.department && rowData.userTimesheet.owner.department.name}
-              </span>,
+              </span>
+            ),
             customFilterAndSearch: () => true,
 
           },
@@ -108,10 +109,11 @@ function TimesheetListComp(prop) {
             field: 'userTimesheet.owner.section.name',
             searchField: 'section.id',
             lookup: sections,
-            render: rowData =>
-            <span>
+            render: rowData => (
+              <span>
                 {rowData.userTimesheet.owner.section && rowData.userTimesheet.owner.section.name}
-            </span>,
+              </span>
+            ),
             customFilterAndSearch: () => true,
 
           },
