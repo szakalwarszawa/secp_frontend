@@ -23,7 +23,7 @@ import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
 import { Login } from '../Pages/Login';
 import { Home } from '../Pages/Home';
-import { TimesheetList } from '../Pages/Timesheet';
+import { TimesheetList, TimesheetListToAccept } from '../Pages/Timesheet';
 import { UserList } from '../Pages/User';
 import AppHeader from '../_components/AppHeader';
 import { UserCalendar } from '../Pages/Calendar';
@@ -53,7 +53,7 @@ class App extends React.Component {
               <Route path="/login" component={Login} />
               <PrivateRoute path="/userCalendar" component={UserCalendar} />
               <PrivateRoute path="/timesheetList" component={TimesheetList} />
-              <PrivateRoute path="/timesheetListToAccept" component={Home} />
+              <PrivateRoute path="/timesheetListToAccept" component={TimesheetListToAccept} />
               <PrivateRoute path="/users" component={UserList} />
               <Snackbar
                 open={alert.message && alert.message !== ''}
