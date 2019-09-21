@@ -62,7 +62,6 @@ function TimesheetListToAcceptComp(prop) {
     }
   };
 
-
   return (
     <div className={classes.mainTable}>
       <MaterialTable
