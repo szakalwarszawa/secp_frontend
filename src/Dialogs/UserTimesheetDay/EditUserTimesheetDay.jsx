@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment';
 import { EditUserTimesheetDayForm } from './EditUserTimesheetDayForm';
 import { apiService } from '../../_services';
-import moment from 'moment';
 
 function EditUserTimesheetDayComp(props) {
   const {
