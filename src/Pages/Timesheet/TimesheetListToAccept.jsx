@@ -1,0 +1,151 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
+
+import { makeStyles } from '@material-ui/core/styles';
+import MaterialTable from 'material-table';
+import { Typography } from '@material-ui/core';
+import { apiService, getQuery } from '../../_services';
+import getTableIcons from '../../_helpers/tableIcons';
+import getTableLocalization from '../../_helpers/tableLocalization';
+import { EditUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
+
+const useStyles = makeStyles(theme => ({
+  mainTable: {
+    width: '100%',
+    marginRight: '45px',
+  },
+}));
+
+function TimesheetListToAcceptComp(prop) {
+  const classes = useStyles();
+  const tableRef = useRef();
+  const [departments, setDepartments] = useState({});
+  const [sections, setSections] = useState({});
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [userTimesheetId, setUserTimesheetId] = useState(0);
+  const statuses = {
+    _0_: 'Edytowana przez pracownika',
+    _1_: 'Zatwierdzona przez pracownika',
+    _2_: 'Zatwierdzona przez przełożonego',
+    _3_: 'Zatwierdzona przez HR',
+  };
+
+  useEffect(
+    () => {
+      apiService.get('departments?_order[name]=asc')
+        .then((result) => {
+          const departmentList = {};
+          result['hydra:member'].forEach((department) => {
+            departmentList[`_${department.id}_`] = department.name;
+          });
+          setDepartments(departmentList);
+        });
+
+      apiService.get('sections?_order[name]=asc')
+        .then((result) => {
+          const sectionList = {};
+          result['hydra:member'].forEach((section) => {
+            sectionList[`_${section.id}_`] = section.name;
+          });
+          setSections(sectionList);
+        });
+    },
+    [],
+  );
+
+  const handleCloseDialog = (reload) => {
+    setOpenEditDialog(false);
+    setUserTimesheetId(0);
+
+    if (reload) {
+      tableRef.current.onQueryChange();
+    }
+  };
+
+  return (
+    <div className={classes.mainTable}>
+      <MaterialTable
+        title={(
+          <Typography variant="inherit">
+            Listy obecności
+          </Typography>
+        )}
+        tableRef={tableRef}
+        icons={getTableIcons()}
+        columns={[
+          { title: 'Okres', field: 'period' },
+          {
+            title: 'Status',
+            field: 'status',
+            searchField: 'status',
+            lookup: statuses,
+            render: rowData => (
+              <span>{statuses[`_${rowData.status}_`]}</span>
+            ),
+            customFilterAndSearch: () => true,
+          },
+          { title: 'Imię', field: 'owner.firstName' },
+          { title: 'Nazwisko', field: 'owner.lastName' },
+          {
+            title: 'Departament',
+            field: 'owner.department.name',
+            searchField: 'owner.department.id',
+            lookup: departments,
+            render: rowData => (
+              <span>{rowData.owner.department && rowData.owner.department.name}</span>
+            ),
+            customFilterAndSearch: () => true,
+          },
+          {
+            title: 'Sekcja',
+            field: 'owner.section.name',
+            searchField: 'owner.section.id',
+            lookup: sections,
+            render: rowData => (
+              <span>{rowData.owner.section && rowData.owner.section.name}</span>
+            ),
+            customFilterAndSearch: () => true,
+          },
+        ]}
+        data={query => getQuery(query, 'user_timesheets')}
+        actions={[
+          {
+            icon: getTableIcons().Edit,
+            tooltip: 'Edycja listy obecności',
+            onClick: (event, rowData) => {
+              setUserTimesheetId(rowData.id);
+              setOpenEditDialog(true);
+            },
+          },
+          {
+            disabled: false,
+            icon: getTableIcons().Refresh,
+            isFreeAction: true,
+            tooltip: 'Refresh Data',
+            onClick: () => tableRef.current && tableRef.current.onQueryChange(),
+          },
+        ]}
+        options={{
+          search: false,
+          filtering: true,
+          maxBodyHeight: '500px',
+          actionsColumnIndex: -1,
+          debounceInterval: 400,
+        }}
+        localization={getTableLocalization}
+      />
+      {false && openEditDialog && (
+        <EditUserTimesheetDay
+          userTimesheetDayId={userTimesheetId}
+          open={openEditDialog}
+          onClose={handleCloseDialog}
+        />
+      )}
+    </div>
+  );
+}
+
+const mapStateToProps = (state) => ({});
+
+const connectedTimesheetToAcceptList = connect(mapStateToProps)(TimesheetListToAcceptComp);
+export { connectedTimesheetToAcceptList as TimesheetListToAccept };
