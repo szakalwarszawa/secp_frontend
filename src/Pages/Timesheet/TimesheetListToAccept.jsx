@@ -23,12 +23,7 @@ function TimesheetListToAcceptComp(prop) {
   const [sections, setSections] = useState({});
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [userTimesheetId, setUserTimesheetId] = useState(0);
-  const statuses = {
-    _0_: 'Edytowana przez pracownika',
-    _1_: 'Zatwierdzona przez pracownika',
-    _2_: 'Zatwierdzona przez przełożonego',
-    _3_: 'Zatwierdzona przez HR',
-  };
+  const [timesheetStatuses, setTimesheetStatuses] = useState({});
 
   useEffect(
     () => {
@@ -48,6 +43,15 @@ function TimesheetListToAcceptComp(prop) {
             sectionList[`_${section.id}_`] = section.name;
           });
           setSections(sectionList);
+        });
+
+        apiService.get('user_timesheet_statuses?_order[name]=asc')
+        .then((result) => {
+          const timesheetStatusesList = {};
+          result['hydra:member'].forEach((timesheetStatus) => {
+            timesheetStatusesList[`_${timesheetStatus.id}_`] = timesheetStatus.name;
+          });
+          setTimesheetStatuses(timesheetStatusesList);
         });
     },
     [],
@@ -76,11 +80,13 @@ function TimesheetListToAcceptComp(prop) {
           { title: 'Okres', field: 'period' },
           {
             title: 'Status',
-            field: 'status',
-            searchField: 'status',
-            lookup: statuses,
+            field: 'status.name',
+            searchField: 'status.id',
+            lookup: timesheetStatuses,
             render: rowData => (
-              <span>{statuses[`_${rowData.status}_`]}</span>
+              <span>
+                {rowData.status && rowData.status.name}
+              </span>
             ),
             customFilterAndSearch: () => true,
           },
