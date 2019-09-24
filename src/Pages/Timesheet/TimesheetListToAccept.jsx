@@ -45,7 +45,7 @@ function TimesheetListToAcceptComp(prop) {
           setSections(sectionList);
         });
 
-        apiService.get('user_timesheet_statuses?_order[name]=asc')
+      apiService.get('user_timesheet_statuses?_order[name]=asc')
         .then((result) => {
           const timesheetStatusesList = {};
           result['hydra:member'].forEach((timesheetStatus) => {
