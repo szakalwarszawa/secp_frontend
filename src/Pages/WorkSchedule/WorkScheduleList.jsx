@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
@@ -55,11 +54,11 @@ function WorkScheduleListComp(props) {
 
       apiService.get('user_work_schedule_statuses?_order[name]=asc')
         .then((result) => {
-          const WorkScheduleStatusesList = {};
+          const workScheduleStatusesList = {};
           result['hydra:member'].forEach((scheduleStatus) => {
-            WorkScheduleStatusesList[`_${scheduleStatus.id}_`] = scheduleStatus.name;
+            workScheduleStatusesList[`_${scheduleStatus.id}_`] = scheduleStatus.name;
           });
-          setWorkScheduleStatuses(WorkScheduleStatusesList);
+          setWorkScheduleStatuses(workScheduleStatusesList);
         });
     },
     [],
