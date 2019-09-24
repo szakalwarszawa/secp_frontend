@@ -20,6 +20,7 @@ Do tymczasowego folderu należy wgrać kod (np: git clone).
     ```shell script
     npm install
     ```
+- skopiować plik .env do .env.local i ustawić w nim wartości dla tworzonej instancji
 - zbudować aplikację poprzez:
     ```shell script
     yarn build
