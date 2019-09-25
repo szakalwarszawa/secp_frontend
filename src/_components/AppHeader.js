@@ -12,6 +12,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import TableChartIcon from '@material-ui/icons/TableChart';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
 import IconAccountCircle from '@material-ui/icons/AccountCircle';
@@ -111,6 +112,10 @@ function AppHeader(props) {
             <ListItem button component="a" href="/timesheetList/">
               <ListItemIcon><IconList /></ListItemIcon>
               <ListItemText primary="Lista obecności" />
+            </ListItem>
+            <ListItem button component="a" href="/userWorkSchedules/">
+              <ListItemIcon><TableChartIcon /></ListItemIcon>
+              <ListItemText primary="Lista harmonogramów" />
             </ListItem>
             <ListItem button component="a" href="/timesheetListToAccept/">
               <ListItemIcon><IconDoneAll /></ListItemIcon>
