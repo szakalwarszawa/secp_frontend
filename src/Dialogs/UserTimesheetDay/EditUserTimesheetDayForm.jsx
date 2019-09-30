@@ -21,8 +21,7 @@ import {
 } from '@material-ui/pickers';
 import { apiService } from '../../_services';
 import LogsTableComp from '../../_components/LogsTable';
-import { Typography, AppBar, Tab, Tabs, Box, Grid, GridList, IconButton } from '@material-ui/core';
-import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
+import { Typography, AppBar, Tab, Tabs, Box, Grid, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
 function EditUserTimesheetDayFormComp(props) {
