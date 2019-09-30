@@ -46,7 +46,6 @@ function EditUserTimesheetDayFormComp(props) {
       wrongWorkingTime: false,
     },
   });
-  const logTableRef = useRef({});
   const [userTimesheetDayData, setUserTimesheetDayData] = useState({
     userTimesheet: {
       owner: {
@@ -347,7 +346,7 @@ function EditUserTimesheetDayFormComp(props) {
   };
 
   function TabPanel(props) {
-    const { children, value, index, LogRef, ...other } = props;
+    const { children, value, index, ...other } = props;
 
     return (
       <Typography

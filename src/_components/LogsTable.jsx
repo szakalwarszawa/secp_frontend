@@ -7,19 +7,12 @@ import moment from 'moment';
 import { makeStyles } from '@material-ui/core/styles';
 import { apiService } from '../_services';
 
-const useStyles = makeStyles((theme) => ({
-  mainTable: {
-    height: '200px',
-  },
-}));
-
 function LogsTableComp(props) {
   const {
     route,
     value
   } = props;
   const [logs, setLogs] = useState([]);
-  const classes = useStyles();
 
   useEffect(
     () => {
@@ -33,7 +26,7 @@ function LogsTableComp(props) {
 
   return (
     <Card>
-      <Table className={classes.mainTable} size="small">
+      <Table size="small">
         <TableHead>
           <TableRow>
             <TableCell>Data</TableCell>
