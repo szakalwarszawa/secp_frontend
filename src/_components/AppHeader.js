@@ -20,8 +20,8 @@ import IconAccessTime from '@material-ui/icons/AccessTime';
 import IconDoneAll from '@material-ui/icons/DoneAll';
 import IconList from '@material-ui/icons/List';
 import IconPeople from '@material-ui/icons/People';
-import Badge from '@material-ui/core/Badge';
-import NotificationsIcon from '@material-ui/icons/Notifications';
+// import Badge from '@material-ui/core/Badge';
+// import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 
@@ -76,8 +76,8 @@ function AppHeader(props) {
         {`${user.lastName} ${user.firstName}`}
       </MenuItem>
       <Divider component="hr" />
-      <MenuItem component="li" button onClick={handleProfileMenuClose}>Profil</MenuItem>
-      <MenuItem component="li" button onClick={handleProfileMenuClose}>Moje konto</MenuItem>
+      {/*<MenuItem component="li" button onClick={handleProfileMenuClose}>Profil</MenuItem>*/}
+      {/*<MenuItem component="li" button onClick={handleProfileMenuClose}>Moje konto</MenuItem>*/}
       <Divider component="hr" />
       <MenuItem
         component="a"
@@ -132,11 +132,11 @@ function AppHeader(props) {
           {appBarTitle}
         </Typography>
         <div className={user.username !== undefined ? classes.userLoaded : classes.userNotLoaded}>
-          <IconButton aria-label="Pokaz wszystkie przypomnienia" color="inherit">
-            <Badge badgeContent={3} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          {/*<IconButton aria-label="Pokaz wszystkie przypomnienia" color="inherit">*/}
+          {/*  <Badge badgeContent={3} color="secondary">*/}
+          {/*    <NotificationsIcon />*/}
+          {/*  </Badge>*/}
+          {/*</IconButton>*/}
           <IconButton
             edge="end"
             aria-label="Moje konto"
