@@ -35,19 +35,19 @@ function LogsTableComp(props) {
         </TableHead>
         <TableBody>
           {logs.map(row => (
-              <TableRow key={ row.id }>
-                <TableCell>
-                  {moment(row.logDate).format('YYYY-MM-DD')}
-                </TableCell>
-                <TableCell>
-                  { row.owner.firstName }
-                  {' '}
-                  { row.owner.lastName }
-                </TableCell>
-                <TableCell>
-                  { row.notice }
-                </TableCell>
-              </TableRow>
+            <TableRow key={row.id}>
+              <TableCell>
+                {moment(row.logDate).format('YYYY-MM-DD')}
+              </TableCell>
+              <TableCell>
+                { row.owner.firstName }
+                {' '}
+                { row.owner.lastName }
+              </TableCell>
+              <TableCell>
+                { row.notice }
+              </TableCell>
+            </TableRow>
           ))}
           { !logs.length && (
             <TableRow key={0}>
