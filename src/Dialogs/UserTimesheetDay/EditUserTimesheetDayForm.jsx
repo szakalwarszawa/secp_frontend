@@ -552,7 +552,9 @@ function EditUserTimesheetDayFormComp(props) {
             <Grid item xs={11}>
               <Tabs value={tabIndex} onChange={handleTabChange}>
                 <Tab label={createMode ? 'Dodawanie dnia pracy' : 'Edycja dnia pracy'} {...applyProps(0)} />
-                <Tab disabled={!!createMode} label="Rejestr zmian" {...applyProps(1)} />
+                {!createMode && (
+                  <Tab label="Rejestr zmian" {...applyProps(1)} />
+                )}
               </Tabs>
             </Grid>
             <Grid item xs={1} className={classes.centerFlex}>
