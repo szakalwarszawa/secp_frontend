@@ -4,13 +4,12 @@ import {
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { makeStyles } from '@material-ui/core/styles';
 import { apiService } from '../_services';
 
 function LogsTableComp(props) {
   const {
     route,
-    value
+    value,
   } = props;
   const [logs, setLogs] = useState([]);
 
@@ -35,7 +34,7 @@ function LogsTableComp(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {logs.map((row) => (
+          {logs.map(row => (
               <TableRow key={ row.id }>
                 <TableCell>
                   {moment(row.logDate).format('YYYY-MM-DD')}
@@ -68,4 +67,4 @@ LogsTableComp.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-export default LogsTableComp;
+export { LogsTableComp as LogsTable };
