@@ -364,8 +364,8 @@ function EditUserTimesheetDayFormComp(props) {
 
   TabPanel.propTypes = {
     children: PropTypes.node.isRequired,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
+    index: PropTypes.string.isRequired,
+    value: PropTypes.numeric.isRequired,
   };
 
   function applyProps(index) {
