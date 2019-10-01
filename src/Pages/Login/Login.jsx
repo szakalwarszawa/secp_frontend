@@ -54,7 +54,7 @@ class Login extends React.Component {
         <CssBaseline />
         <Paper className={classes.paper} elevation={8}>
           <Typography component="h1" variant="h5">
-            SECP Login
+            ECP Login
           </Typography>
           <form className={classes.form} noValidate name="form" onSubmit={this.handleSubmit}>
             <FormControl margin="normal" required fullWidth>
