@@ -423,123 +423,126 @@ function EditUserTimesheetDayFormComp(props) {
   function EditTimesheetDialogContent() {
     return (
       <>
-      <DialogContent>
-        <DialogContentText component="div">
-          <div>{`${userTimesheetDayData.userTimesheet.owner.lastName} ${userTimesheetDayData.userTimesheet.owner.firstName}`}</div>
-          <div>
-            {userTimesheetDayData.userTimesheet.owner.department
-              ? userTimesheetDayData.userTimesheet.owner.department.name
-              : ''}
-            {userTimesheetDayData.userTimesheet.owner.section
-              ? (` / ${userTimesheetDayData.userTimesheet.owner.section.name}`)
-              : ''}
-          </div>
-          <div>{userTimesheetDayData.timesheetDayDate}</div>
-        </DialogContentText>
+        <DialogContent>
+          <DialogContentText component="div">
+            <div>
+              {userTimesheetDayData.userTimesheet.owner.lastName}
+              {userTimesheetDayData.userTimesheet.owner.firstName}
+            </div>
+            <div>
+              {userTimesheetDayData.userTimesheet.owner.department
+                ? userTimesheetDayData.userTimesheet.owner.department.name
+                : ''}
+              {userTimesheetDayData.userTimesheet.owner.section
+                ? (` / ${userTimesheetDayData.userTimesheet.owner.section.name}`)
+                : ''}
+            </div>
+            <div>{userTimesheetDayData.timesheetDayDate}</div>
+          </DialogContentText>
 
-        <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-          <InputLabel htmlFor="presenceTypeId">Obecność</InputLabel>
-          <Select
-            value={userTimesheetDayData.presenceTypeId || -1}
-            onChange={event => handlePresenceChange(event.target.name, event.target.value)}
-            inputProps={{
-              name: 'presenceTypeId',
-              id: 'presenceTypeId',
-            }}
-          >
-            {presences.map(presence => (
-              <MenuItem button componet="li" key={presence.name} value={presence.id}>
-                {presence.name}
-              </MenuItem>
-            ))}
-          </Select>
-          {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
-            <FormHelperText error>
-              Podanie obecności jest wymagane
-            </FormHelperText>
-          )}
-          {
-            state.submitted
-            && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.WORKING_DAY
-            && userWorkScheduleDay.current.workingDay !== true
-            && (
-            <FormHelperText error>
-              Opcja dostępna tylko dla dni pracujących
-            </FormHelperText>
-          )}
-          {
-            state.submitted
-            && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
-            && userWorkScheduleDay.current.workingDay !== false
-            && (
-            <FormHelperText error>
-              Opcja dostępna tylko dla dni niepracujących
-            </FormHelperText>
-          )}
-        </FormControl>
-
-        {isAbsence && !unableToSetAbsenceType && (
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-            <InputLabel htmlFor="absenceTypeId">Przyczyna nieobecności</InputLabel>
+            <InputLabel htmlFor="presenceTypeId">Obecność</InputLabel>
             <Select
-              value={userTimesheetDayData.absenceTypeId || -1}
-              onChange={event => handleInputChange(event.target.name, event.target.value)}
+              value={userTimesheetDayData.presenceTypeId || -1}
+              onChange={event => handlePresenceChange(event.target.name, event.target.value)}
               inputProps={{
-                name: 'absenceTypeId',
-                id: 'absenceTypeId',
+                name: 'presenceTypeId',
+                id: 'presenceTypeId',
               }}
             >
-              {absences.map(absence => (
-                <MenuItem button componet="li" key={absence.name} value={absence.id}>
-                  {absence.name}
+              {presences.map(presence => (
+                <MenuItem button componet="li" key={presence.name} value={presence.id}>
+                  {presence.name}
                 </MenuItem>
               ))}
             </Select>
-            {state.submitted && !userTimesheetDayData.absenceTypeId && (
+            {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
               <FormHelperText error>
-                Podanie rodzaju nieobecności jest wymagane
+                Podanie obecności jest wymagane
               </FormHelperText>
             )}
+            {
+              state.submitted
+              && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.WORKING_DAY
+              && userWorkScheduleDay.current.workingDay !== true
+              && (
+                <FormHelperText error>
+                  Opcja dostępna tylko dla dni pracujących
+                </FormHelperText>
+              )}
+            {
+              state.submitted
+              && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
+              && userWorkScheduleDay.current.workingDay !== false
+              && (
+                <FormHelperText error>
+                  Opcja dostępna tylko dla dni niepracujących
+                </FormHelperText>
+              )}
           </FormControl>
-        )}
 
-        {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
-          'Rozpoczęcie pracy',
-          'dayStartTime',
-        )}
-        {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
-          'Zakończenie pracy',
-          'dayEndTime',
-        )}
+          {isAbsence && !unableToSetAbsenceType && (
+            <FormControl component="div" className={classes.formControl} disabled={isLoading}>
+              <InputLabel htmlFor="absenceTypeId">Przyczyna nieobecności</InputLabel>
+              <Select
+                value={userTimesheetDayData.absenceTypeId || -1}
+                onChange={event => handleInputChange(event.target.name, event.target.value)}
+                inputProps={{
+                  name: 'absenceTypeId',
+                  id: 'absenceTypeId',
+                }}
+              >
+                {absences.map(absence => (
+                  <MenuItem button componet="li" key={absence.name} value={absence.id}>
+                    {absence.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              {state.submitted && !userTimesheetDayData.absenceTypeId && (
+                <FormHelperText error>
+                  Podanie rodzaju nieobecności jest wymagane
+                </FormHelperText>
+              )}
+            </FormControl>
+          )}
 
-        {!isAbsence && isTimed && (
-          <FormControl component="div" className={classes.formControl}>
-            <InputLabel>
-              {`Czas pracy: ${!Number.isNaN(workingTime) && workingTime !== 'NaN' ? workingTime : 0} godz.`}
-            </InputLabel>
-          </FormControl>
-        )}
+          {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
+            'Rozpoczęcie pracy',
+            'dayStartTime',
+          )}
+          {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
+            'Zakończenie pracy',
+            'dayEndTime',
+          )}
 
-        <Paper
-          hidden={state.requestError === null || state.requestError === ''}
-          className={classes.errorBox}
-          elevation={5}
-        >
-          {state.requestError}
-        </Paper>
-      </DialogContent>
-      <div className={classes.progressBarWrapper}>
-        {isLoading && <LinearProgress />}
-      </div>
-      <DialogActions>
-        <Button href="" onClick={closeDialogHandler} color="primary">
-          Anuluj
-        </Button>
-        <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
-          Zapisz
-        </Button>
-      </DialogActions>
-    </>
+          {!isAbsence && isTimed && (
+            <FormControl component="div" className={classes.formControl}>
+              <InputLabel>
+                {`Czas pracy: ${!Number.isNaN(workingTime) && workingTime !== 'NaN' ? workingTime : 0} godz.`}
+              </InputLabel>
+            </FormControl>
+          )}
+
+          <Paper
+            hidden={state.requestError === null || state.requestError === ''}
+            className={classes.errorBox}
+            elevation={5}
+          >
+            {state.requestError}
+          </Paper>
+        </DialogContent>
+        <div className={classes.progressBarWrapper}>
+          {isLoading && <LinearProgress />}
+        </div>
+        <DialogActions>
+          <Button href="" onClick={closeDialogHandler} color="primary">
+            Anuluj
+          </Button>
+          <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
+            Zapisz
+          </Button>
+        </DialogActions>
+      </>
     );
   }
 
@@ -607,7 +610,7 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 
 EditUserTimesheetDayFormComp.propTypes = {
@@ -626,7 +629,7 @@ EditUserTimesheetDayFormComp.defaultProps = {
   createMode: false,
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = () => ({});
 
 const styledEditUserTimesheetDayForm = withStyles(styles)(EditUserTimesheetDayFormComp);
 const connectedEditUserTimesheetDayForm = connect(mapStateToProps)(styledEditUserTimesheetDayForm);

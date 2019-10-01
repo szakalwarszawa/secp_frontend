@@ -18,6 +18,9 @@
       "exports": "always-multiline",
       "functions": "only-multiline"
     }],
+    "object-curly-newline": ["error", {
+      "consistent": true
+    }],
     "max-len": ["error", {
       "code": 120,
       "tabWidth": 2
