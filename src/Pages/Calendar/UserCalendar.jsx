@@ -262,11 +262,25 @@ function UserCalendarComp(props) {
     setUserTimesheetDayId(0);
     setCreatedSelection({});
 
-    if (reload && dayData) {
+    if (reload && dayData && dayData.id) {
       const newEventList = myEventsList.slice(0);
       newEventList[prepareDataEvent(dayData).id] = prepareDataEvent(dayData);
       setMyEventsList(newEventList);
     }
+  };
+
+  const messages = {
+    allDay: 'cały dzień',
+    previous: 'poprzedni',
+    next: 'następny',
+    today: 'dziś',
+    month: 'miesiąc',
+    week: 'tydzień',
+    day: 'dzień',
+    agenda: 'agenda',
+    date: 'data',
+    time: 'czas',
+    event: 'zdarzenie',
   };
 
   return (
@@ -313,13 +327,14 @@ function UserCalendarComp(props) {
         onSelectSlot={handleOnSelectSlot}
         dayPropGetter={customDayPropGetter}
         slotPropGetter={customSlotPropGetter}
+        messages={messages}
         /**
          * https://redmine.parp.gov.pl/issues/88761
          * Calendar was unable to display current time correctly.
          * Despite that moment() returns correct date, the view displays
          * (rbc-current-time-indicator) 30 minutes less.
          */
-        getNow={() => moment().add(30, 'minutes')}
+        getNow={() => moment().add(30, 'minutes').toDate()}
         min={moment('2019-07-19 06:00:00').toDate()}
         max={moment('2019-07-19 20:00:00').toDate()}
         style={{ height: 'calc(100vh - 150px)' }}

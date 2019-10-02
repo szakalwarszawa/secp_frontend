@@ -4,8 +4,11 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
+import { AppBar, Box, Grid, IconButton, Tab, Tabs, Typography, Dialog } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import { EditUserTimesheetDayForm } from './EditUserTimesheetDayForm';
 import { apiService } from '../../_services';
+import { LogsTable } from '../../_components';
 
 function EditUserTimesheetDayComp(props) {
   const {
@@ -34,6 +37,7 @@ function EditUserTimesheetDayComp(props) {
     },
     absenceType: {},
   });
+  const [tabIndex, setTabIndex] = useState(0);
   const isLoading = Boolean(state.loaderWorkerCount > 0);
 
   useEffect(
@@ -60,6 +64,8 @@ function EditUserTimesheetDayComp(props) {
     },
     [userTimesheetDayId],
   );
+
+  const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = (savedData) => {
     const workingTime = !!savedData.dayEndTime && !!savedData.dayStartTime
@@ -104,19 +110,75 @@ function EditUserTimesheetDayComp(props) {
       );
   };
 
+  const handleTabChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
+
+  function TabPanel(propsTabPanel) {
+    const { children, value, index, ...other } = propsTabPanel;
+
+    return (
+      <Typography
+        component="div"
+        role="tabpanel"
+        hidden={value !== index}
+        id={`timesheet-tabpanel-${index}`}
+        aria-labelledby={`timesheet-tab-${index}`}
+        {...other}
+      >
+        <Box p={3}>{children}</Box>
+      </Typography>
+    );
+  }
+
+  TabPanel.propTypes = {
+    children: PropTypes.node.isRequired,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  };
+
+  function applyProps(index) {
+    return {
+      id: `timesheet-tab-${index}`,
+      'aria-controls': `timesheet-tabpanel-${index}`,
+    };
+  }
+
   return (
-    <EditUserTimesheetDayForm
-      userTimesheetDay={userTimesheetDayData}
-      open={open}
-      onClose={onClose}
-      onSave={saveDialogHandler}
-      classes={classes}
-      requestError={state.requestError}
-    />
+    <>
+      <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
+        <AppBar position="static">
+          <Grid container>
+            <Grid item xs={11}>
+              <Tabs value={tabIndex} onChange={handleTabChange}>
+                <Tab label="Edycja dnia pracy" {...applyProps(0)} />
+                <Tab label="Rejestr zmian" {...applyProps(1)} />
+              </Tabs>
+            </Grid>
+            <Grid item xs={1} className={classes.centerFlex}>
+              <IconButton onClick={onClose}>
+                <CloseIcon className={classes.icon} />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </AppBar>
+        <TabPanel value={tabIndex} index={0}>
+          <EditUserTimesheetDayForm
+            userTimesheetDay={userTimesheetDayData}
+            open={open}
+            onClose={closeDialogHandler}
+            onSave={saveDialogHandler}
+            classes={classes}
+            requestError={state.requestError}
+          />
+        </TabPanel>
+        <TabPanel value={tabIndex} index={1}>
+          <LogsTable route="user_timesheet_days" value={userTimesheetDayId} />
+        </TabPanel>
+      </Dialog>
+    </>
   );
 }
-
-const styles = theme => ({});
 
 EditUserTimesheetDayComp.propTypes = {
   open: PropTypes.bool.isRequired,
@@ -125,11 +187,45 @@ EditUserTimesheetDayComp.propTypes = {
   classes: PropTypes.instanceOf(Object),
 };
 
+const styles = theme => ({
+  main: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: 'auto',
+    width: 'fit-content',
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+    [theme.breakpoints.up(400 + theme.spacing(3 * 2))]: {
+      width: 400,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
+  },
+  formControl: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(),
+  },
+  progressBarWrapper: {
+    margin: 0,
+    position: 'relative',
+  },
+  errorBox: {
+    padding: theme.spacing(),
+    marginTop: theme.spacing(),
+    background: theme.palette.error.main,
+  },
+  centerFlex: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
 EditUserTimesheetDayComp.defaultProps = {
   classes: {},
 };
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = state => ({});
 
 const styledEditUserTimesheetDay = withStyles(styles)(EditUserTimesheetDayComp);
 const connectedEditUserTimesheetDay = connect(mapStateToProps)(styledEditUserTimesheetDay);
