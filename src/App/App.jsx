@@ -24,6 +24,7 @@ import { history } from '../_helpers';
 import { Login } from '../Pages/Login';
 import { Home } from '../Pages/Home';
 import { TimesheetList, TimesheetListToAccept } from '../Pages/Timesheet';
+import { WorkScheduleList } from '../Pages/WorkSchedule';
 import { UserList } from '../Pages/User';
 import AppHeader from '../_components/AppHeader';
 import { UserCalendar } from '../Pages/Calendar';
@@ -41,7 +42,7 @@ class App extends React.Component {
       <div>
         <MuiPickersUtilsProvider utils={DateFnsUtils} locale={DateFnsUtilsLocalePl}>
           <Router history={history}>
-            {loggedIn ? <AppHeader appBarTitle="SECP" /> : null}
+            {loggedIn ? <AppHeader appBarTitle="ECP" /> : null}
             <Grid
               container
               className={classes.root}
@@ -53,6 +54,7 @@ class App extends React.Component {
               <Route path="/login" component={Login} />
               <PrivateRoute path="/userCalendar" component={UserCalendar} />
               <PrivateRoute path="/timesheetList" component={TimesheetList} />
+              <PrivateRoute path="/userWorkSchedules" component={WorkScheduleList} />
               <PrivateRoute path="/timesheetListToAccept" component={TimesheetListToAccept} />
               <PrivateRoute path="/users" component={UserList} />
               <Snackbar

@@ -12,6 +12,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import TableChartIcon from '@material-ui/icons/TableChart';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
 import IconAccountCircle from '@material-ui/icons/AccountCircle';
@@ -19,12 +20,12 @@ import IconAccessTime from '@material-ui/icons/AccessTime';
 import IconDoneAll from '@material-ui/icons/DoneAll';
 import IconList from '@material-ui/icons/List';
 import IconPeople from '@material-ui/icons/People';
-import Badge from '@material-ui/core/Badge';
-import NotificationsIcon from '@material-ui/icons/Notifications';
+// import Badge from '@material-ui/core/Badge';
+// import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   menuButton: {
     // marginRight: theme.spacing(2),
   },
@@ -75,8 +76,8 @@ function AppHeader(props) {
         {`${user.lastName} ${user.firstName}`}
       </MenuItem>
       <Divider component="hr" />
-      <MenuItem component="li" button onClick={handleProfileMenuClose}>Profil</MenuItem>
-      <MenuItem component="li" button onClick={handleProfileMenuClose}>Moje konto</MenuItem>
+      {/* <MenuItem component="li" button onClick={handleProfileMenuClose}>Profil</MenuItem> */}
+      {/* <MenuItem component="li" button onClick={handleProfileMenuClose}>Moje konto</MenuItem> */}
       <Divider component="hr" />
       <MenuItem
         component="a"
@@ -112,6 +113,10 @@ function AppHeader(props) {
               <ListItemIcon><IconList /></ListItemIcon>
               <ListItemText primary="Lista obecności" />
             </ListItem>
+            <ListItem button component="a" href="/userWorkSchedules/">
+              <ListItemIcon><TableChartIcon /></ListItemIcon>
+              <ListItemText primary="Lista harmonogramów" />
+            </ListItem>
             <ListItem button component="a" href="/timesheetListToAccept/">
               <ListItemIcon><IconDoneAll /></ListItemIcon>
               <ListItemText primary="Lista obecności do akceptacji" />
@@ -127,11 +132,11 @@ function AppHeader(props) {
           {appBarTitle}
         </Typography>
         <div className={user.username !== undefined ? classes.userLoaded : classes.userNotLoaded}>
-          <IconButton aria-label="Pokaz wszystkie przypomnienia" color="inherit">
-            <Badge badgeContent={3} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          {/* <IconButton aria-label="Pokaz wszystkie przypomnienia" color="inherit"> */}
+          {/*  <Badge badgeContent={3} color="secondary"> */}
+          {/*    <NotificationsIcon /> */}
+          {/*  </Badge> */}
+          {/* </IconButton> */}
           <IconButton
             edge="end"
             aria-label="Moje konto"
