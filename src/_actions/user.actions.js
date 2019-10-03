@@ -55,7 +55,7 @@ function login(username, password) {
         (token) => {
           dispatch(success(token));
           dispatch(this.getOwnData());
-          history.push('/');
+          history.push('/userCalendar');
         },
         (error) => {
           dispatch(failure(error.toString()));

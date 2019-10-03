@@ -42,7 +42,7 @@ class App extends React.Component {
       <div>
         <MuiPickersUtilsProvider utils={DateFnsUtils} locale={DateFnsUtilsLocalePl}>
           <Router history={history}>
-            {loggedIn ? <AppHeader appBarTitle="ECP" /> : null}
+            {loggedIn ? <AppHeader appBarTitle="Ewidencja Czasu Pracy" /> : null}
             <Grid
               container
               className={classes.root}

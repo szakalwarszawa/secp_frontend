@@ -11,21 +11,17 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Paper from '@material-ui/core/Paper';
 import { KeyboardTimePicker } from '@material-ui/pickers';
-import CloseIcon from '@material-ui/icons/Close';
-import { Typography, AppBar, Tab, Tabs, Box, Grid, IconButton } from '@material-ui/core';
+
 import { apiService } from '../../_services';
-import { LogsTable } from '../../_components';
 
 function EditUserTimesheetDayFormComp(props) {
   const {
     classes,
-    open,
     userTimesheetDay,
     onSave,
     onClose,
@@ -338,42 +334,6 @@ function EditUserTimesheetDayFormComp(props) {
     onSave(userTimesheetDayData);
   };
 
-  const [tabIndex, setTabIndex] = useState(0);
-
-  const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
-  };
-
-  function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-      <Typography
-        component="div"
-        role="tabpanel"
-        hidden={value !== index}
-        id={`timesheet-tabpanel-${index}`}
-        aria-labelledby={`timesheet-tab-${index}`}
-        {...other}
-      >
-        <Box p={3}>{children}</Box>
-      </Typography>
-    );
-  }
-
-  TabPanel.propTypes = {
-    children: PropTypes.node.isRequired,
-    index: PropTypes.string.isRequired,
-    value: PropTypes.number.isRequired,
-  };
-
-  function applyProps(index) {
-    return {
-      id: `timesheet-tab-${index}`,
-      'aria-controls': `timesheet-tabpanel-${index}`,
-    };
-  }
-
   function getTimePicker(label, fieldName) {
     return (
       <FormControl component="div" className={classes.formControl} disabled={isLoading}>
@@ -420,161 +380,127 @@ function EditUserTimesheetDayFormComp(props) {
     );
   }
 
-  function EditTimesheetDialogContent() {
-    return (
-      <>
-        <DialogContent>
-          <DialogContentText component="div">
-            <div>
-              {userTimesheetDayData.userTimesheet.owner.lastName}
-              {userTimesheetDayData.userTimesheet.owner.firstName}
-            </div>
-            <div>
-              {userTimesheetDayData.userTimesheet.owner.department
-                ? userTimesheetDayData.userTimesheet.owner.department.name
-                : ''}
-              {userTimesheetDayData.userTimesheet.owner.section
-                ? (` / ${userTimesheetDayData.userTimesheet.owner.section.name}`)
-                : ''}
-            </div>
-            <div>{userTimesheetDayData.timesheetDayDate}</div>
-          </DialogContentText>
+  return (
+    <div>
+      <DialogContent>
+        <DialogContentText component="div">
+          <div>
+            {userTimesheetDayData.userTimesheet.owner.lastName}
+            {userTimesheetDayData.userTimesheet.owner.firstName}
+          </div>
+          <div>
+            {userTimesheetDayData.userTimesheet.owner.department
+              ? userTimesheetDayData.userTimesheet.owner.department.name
+              : ''}
+            {userTimesheetDayData.userTimesheet.owner.section
+              ? (` / ${userTimesheetDayData.userTimesheet.owner.section.name}`)
+              : ''}
+          </div>
+          <div>{userTimesheetDayData.timesheetDayDate}</div>
+        </DialogContentText>
 
+        <FormControl component="div" className={classes.formControl} disabled={isLoading}>
+          <InputLabel htmlFor="presenceTypeId">Obecność</InputLabel>
+          <Select
+            value={userTimesheetDayData.presenceTypeId || -1}
+            onChange={event => handlePresenceChange(event.target.name, event.target.value)}
+            inputProps={{
+              name: 'presenceTypeId',
+              id: 'presenceTypeId',
+            }}
+          >
+            {presences.map(presence => (
+              <MenuItem button componet="li" key={presence.name} value={presence.id}>
+                {presence.name}
+              </MenuItem>
+            ))}
+          </Select>
+          {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
+            <FormHelperText error>
+              Podanie obecności jest wymagane
+            </FormHelperText>
+          )}
+          {
+            state.submitted
+            && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.WORKING_DAY
+            && userWorkScheduleDay.current.workingDay !== true
+            && (
+              <FormHelperText error>
+                Opcja dostępna tylko dla dni pracujących
+              </FormHelperText>
+            )}
+          {
+            state.submitted
+            && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
+            && userWorkScheduleDay.current.workingDay !== false
+            && (
+              <FormHelperText error>
+                Opcja dostępna tylko dla dni niepracujących
+              </FormHelperText>
+            )}
+        </FormControl>
+
+        {isAbsence && !unableToSetAbsenceType && (
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-            <InputLabel htmlFor="presenceTypeId">Obecność</InputLabel>
+            <InputLabel htmlFor="absenceTypeId">Przyczyna nieobecności</InputLabel>
             <Select
-              value={userTimesheetDayData.presenceTypeId || -1}
-              onChange={event => handlePresenceChange(event.target.name, event.target.value)}
+              value={userTimesheetDayData.absenceTypeId || -1}
+              onChange={event => handleInputChange(event.target.name, event.target.value)}
               inputProps={{
-                name: 'presenceTypeId',
-                id: 'presenceTypeId',
+                name: 'absenceTypeId',
+                id: 'absenceTypeId',
               }}
             >
-              {presences.map(presence => (
-                <MenuItem button componet="li" key={presence.name} value={presence.id}>
-                  {presence.name}
+              {absences.map(absence => (
+                <MenuItem button componet="li" key={absence.name} value={absence.id}>
+                  {absence.name}
                 </MenuItem>
               ))}
             </Select>
-            {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
+            {state.submitted && !userTimesheetDayData.absenceTypeId && (
               <FormHelperText error>
-                Podanie obecności jest wymagane
+                Podanie rodzaju nieobecności jest wymagane
               </FormHelperText>
             )}
-            {
-              state.submitted
-              && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.WORKING_DAY
-              && userWorkScheduleDay.current.workingDay !== true
-              && (
-                <FormHelperText error>
-                  Opcja dostępna tylko dla dni pracujących
-                </FormHelperText>
-              )}
-            {
-              state.submitted
-              && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
-              && userWorkScheduleDay.current.workingDay !== false
-              && (
-                <FormHelperText error>
-                  Opcja dostępna tylko dla dni niepracujących
-                </FormHelperText>
-              )}
           </FormControl>
+        )}
 
-          {isAbsence && !unableToSetAbsenceType && (
-            <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-              <InputLabel htmlFor="absenceTypeId">Przyczyna nieobecności</InputLabel>
-              <Select
-                value={userTimesheetDayData.absenceTypeId || -1}
-                onChange={event => handleInputChange(event.target.name, event.target.value)}
-                inputProps={{
-                  name: 'absenceTypeId',
-                  id: 'absenceTypeId',
-                }}
-              >
-                {absences.map(absence => (
-                  <MenuItem button componet="li" key={absence.name} value={absence.id}>
-                    {absence.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {state.submitted && !userTimesheetDayData.absenceTypeId && (
-                <FormHelperText error>
-                  Podanie rodzaju nieobecności jest wymagane
-                </FormHelperText>
-              )}
-            </FormControl>
-          )}
+        {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
+          'Rozpoczęcie pracy',
+          'dayStartTime',
+        )}
+        {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
+          'Zakończenie pracy',
+          'dayEndTime',
+        )}
 
-          {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
-            'Rozpoczęcie pracy',
-            'dayStartTime',
-          )}
-          {!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust && getTimePicker(
-            'Zakończenie pracy',
-            'dayEndTime',
-          )}
+        {!isAbsence && isTimed && (
+          <FormControl component="div" className={classes.formControl}>
+            <InputLabel>
+              {`Czas pracy: ${!Number.isNaN(workingTime) && workingTime !== 'NaN' ? workingTime : 0} godz.`}
+            </InputLabel>
+          </FormControl>
+        )}
 
-          {!isAbsence && isTimed && (
-            <FormControl component="div" className={classes.formControl}>
-              <InputLabel>
-                {`Czas pracy: ${!Number.isNaN(workingTime) && workingTime !== 'NaN' ? workingTime : 0} godz.`}
-              </InputLabel>
-            </FormControl>
-          )}
-
-          <Paper
-            hidden={state.requestError === null || state.requestError === ''}
-            className={classes.errorBox}
-            elevation={5}
-          >
-            {state.requestError}
-          </Paper>
-        </DialogContent>
-        <div className={classes.progressBarWrapper}>
-          {isLoading && <LinearProgress />}
-        </div>
-        <DialogActions>
-          <Button href="" onClick={closeDialogHandler} color="primary">
-            Anuluj
-          </Button>
-          <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
-            Zapisz
-          </Button>
-        </DialogActions>
-      </>
-    );
-  }
-
-  return (
-    <div className={classes.main}>
-      <Dialog open={open} onClose={closeDialogHandler} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
-        <AppBar position="static">
-          <Grid container>
-            <Grid item xs={11}>
-              <Tabs value={tabIndex} onChange={handleTabChange}>
-                <Tab label={createMode ? 'Dodawanie dnia pracy' : 'Edycja dnia pracy'} {...applyProps(0)} />
-                {!createMode && (
-                  <Tab label="Rejestr zmian" {...applyProps(1)} />
-                )}
-              </Tabs>
-            </Grid>
-            <Grid item xs={1} className={classes.centerFlex}>
-              <IconButton onClick={closeDialogHandler}>
-                <CloseIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
-        </AppBar>
-        <TabPanel value={tabIndex} index={0}>
-          <EditTimesheetDialogContent />
-        </TabPanel>
-        <TabPanel value={tabIndex} index={1}>
-          {!createMode && tabIndex === 1 && userTimesheetDay.id && (
-            <LogsTable route="user_timesheet_days" value={userTimesheetDay.id} />
-          )}
-        </TabPanel>
-      </Dialog>
+        <Paper
+          hidden={state.requestError === null || state.requestError === ''}
+          className={classes.errorBox}
+          elevation={5}
+        >
+          {state.requestError}
+        </Paper>
+      </DialogContent>
+      <div className={classes.progressBarWrapper}>
+        {isLoading && <LinearProgress />}
+      </div>
+      <DialogActions>
+        <Button href="" onClick={closeDialogHandler} color="primary">
+          Anuluj
+        </Button>
+        <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
+          Zapisz
+        </Button>
+      </DialogActions>
     </div>
   );
 }
@@ -614,7 +540,6 @@ const styles = theme => ({
 });
 
 EditUserTimesheetDayFormComp.propTypes = {
-  open: PropTypes.bool.isRequired,
   userTimesheetDay: PropTypes.instanceOf(Object).isRequired,
   onSave: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
@@ -629,7 +554,7 @@ EditUserTimesheetDayFormComp.defaultProps = {
   createMode: false,
 };
 
-const mapStateToProps = () => ({});
+const mapStateToProps = state => ({});
 
 const styledEditUserTimesheetDayForm = withStyles(styles)(EditUserTimesheetDayFormComp);
 const connectedEditUserTimesheetDayForm = connect(mapStateToProps)(styledEditUserTimesheetDayForm);

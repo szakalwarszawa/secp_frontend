@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
-import { EditUserTimesheetDayForm } from './EditUserTimesheetDayForm';
+import { AppBar, Box, Grid, IconButton, Tab, Tabs, Typography, Dialog } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import { apiService, userService } from '../../_services';
+import { EditUserTimesheetDayForm } from './EditUserTimesheetDayForm';
 
 function CreateUserTimesheetDayComp(props) {
   const {
@@ -17,8 +19,10 @@ function CreateUserTimesheetDayComp(props) {
   } = props;
 
   const [state, setState] = useState({
+    loaded: false,
     loaderWorkerCount: 0,
     requestError: null,
+    tabIndex: 0,
   });
   const [userTimesheetDayData, setUserTimesheetDayData] = useState({
     userTimesheet: {
@@ -48,6 +52,7 @@ function CreateUserTimesheetDayComp(props) {
         workingTime: 0,
         timesheetDayDate: moment(timeFrom).format('YYYY-MM-DD'),
       }));
+      setState(s => ({ ...s, loaded: true }));
     },
     [timeFrom, timeTo],
   );
@@ -98,16 +103,74 @@ function CreateUserTimesheetDayComp(props) {
       );
   };
 
+  const handleTabChange = (event, newValue) => {
+    setState({ ...state, tabIndex: newValue });
+  };
+
+  function TabPanel(propsTabPanel) {
+    const { children, value, index, ...other } = propsTabPanel;
+
+    return (
+      <Typography
+        component="div"
+        role="tabpanel"
+        hidden={value !== index}
+        id={`timesheet-tabpanel-${index}`}
+        aria-labelledby={`timesheet-tab-${index}`}
+        {...other}
+      >
+        <Box p={3}>{children}</Box>
+      </Typography>
+    );
+  }
+
+  TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  };
+
+  TabPanel.defaultProps = {
+    children: (<></>),
+  };
+
+  function applyProps(index) {
+    return {
+      id: `timesheet-tab-${index}`,
+      'aria-controls': `timesheet-tabpanel-${index}`,
+    };
+  }
+
   return (
-    <EditUserTimesheetDayForm
-      userTimesheetDay={userTimesheetDayData}
-      open={open}
-      onClose={closeDialogHandler}
-      onSave={saveDialogHandler}
-      classes={classes}
-      requestError={state.requestError}
-      createMode
-    />
+    <>
+      <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
+        <AppBar position="static">
+          <Grid container>
+            <Grid item xs={11}>
+              <Tabs value={state.tabIndex} onChange={handleTabChange}>
+                <Tab label="Dodawanie dnia pracy" {...applyProps(0)} />
+              </Tabs>
+            </Grid>
+            <Grid item xs={1} className={classes.centerFlex}>
+              <IconButton onClick={closeDialogHandler}>
+                <CloseIcon className={classes.icon} />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </AppBar>
+        <TabPanel value={state.tabIndex} index={0}>
+          <EditUserTimesheetDayForm
+            userTimesheetDay={userTimesheetDayData}
+            open={open}
+            onClose={closeDialogHandler}
+            onSave={saveDialogHandler}
+            classes={classes}
+            requestError={state.requestError}
+            createMode
+          />
+        </TabPanel>
+      </Dialog>
+    </>
   );
 }
 
