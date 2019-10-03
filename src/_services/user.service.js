@@ -62,8 +62,31 @@ function getUserData() {
 }
 
 function isAdmin() {
+  if (!getUserData()) {
+    return false;
+  }
   const userRoles = getUserData().roles;
   const ownedAdminRoles = userRoles.filter(value => userConstants.ADMIN_ROLES.includes(value));
+
+  return (ownedAdminRoles.length > 0);
+}
+
+function isHR() {
+  if (!getUserData()) {
+    return false;
+  }
+  const userRoles = getUserData().roles;
+  const ownedAdminRoles = userRoles.filter(value => userConstants.HR_ROLES.includes(value));
+
+  return (ownedAdminRoles.length > 0);
+}
+
+function isManager() {
+  if (!getUserData()) {
+    return false;
+  }
+  const userRoles = getUserData().roles;
+  const ownedAdminRoles = userRoles.filter(value => userConstants.MANAGER_ROLES.includes(value));
 
   return (ownedAdminRoles.length > 0);
 }
@@ -74,5 +97,7 @@ export const userService = {
   callForOwnUserData,
   getUserData,
   isAdmin,
+  isHR,
+  isManager,
   refresh,
 };

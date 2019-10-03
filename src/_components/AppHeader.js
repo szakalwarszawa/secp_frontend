@@ -24,6 +24,7 @@ import IconPeople from '@material-ui/icons/People';
 // import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import { userService } from '../_services';
 
 const useStyles = makeStyles(() => ({
   menuButton: {
@@ -113,19 +114,25 @@ function AppHeader(props) {
               <ListItemIcon><IconList /></ListItemIcon>
               <ListItemText primary="Lista obecności" />
             </ListItem>
-            <ListItem button component="a" href="/userWorkSchedules/">
-              <ListItemIcon><TableChartIcon /></ListItemIcon>
-              <ListItemText primary="Lista harmonogramów" />
-            </ListItem>
-            <ListItem button component="a" href="/timesheetListToAccept/">
-              <ListItemIcon><IconDoneAll /></ListItemIcon>
-              <ListItemText primary="Lista obecności do akceptacji" />
-            </ListItem>
+            {userService.isAdmin() && (
+              <ListItem button component="a" href="/userWorkSchedules/">
+                <ListItemIcon><TableChartIcon /></ListItemIcon>
+                <ListItemText primary="Lista harmonogramów" />
+              </ListItem>
+            )}
+            {userService.isManager && (
+              <ListItem button component="a" href="/timesheetListToAccept/">
+                <ListItemIcon><IconDoneAll /></ListItemIcon>
+                <ListItemText primary="Lista obecności do akceptacji" />
+              </ListItem>
+            )}
             <Divider component="hr" />
-            <ListItem button component="a" href="/users/">
-              <ListItemIcon><IconPeople /></ListItemIcon>
-              <ListItemText primary="Lista użytkowników" />
-            </ListItem>
+            {userService.isHR() && (
+              <ListItem button component="a" href="/users/">
+                <ListItemIcon><IconPeople /></ListItemIcon>
+                <ListItemText primary="Lista użytkowników" />
+              </ListItem>
+            )}
           </List>
         </Drawer>
         <Typography variant="h6" className={classes.title}>
