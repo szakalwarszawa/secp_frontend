@@ -1,6 +1,6 @@
 {
-  "short_name": "SECP App",
-  "name": "System Ewidencji Czasu Pracy",
+  "short_name": "ECP App",
+  "name": "Ewidencja Czasu Pracy",
   "icons": [
     {
       "src": "favicon.ico",
