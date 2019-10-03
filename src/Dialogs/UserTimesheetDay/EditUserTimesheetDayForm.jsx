@@ -245,6 +245,7 @@ function EditUserTimesheetDayFormComp(props) {
         .set('year', moment(userTimesheetDayData.timesheetDayDate).get('year'))
         .set('month', moment(userTimesheetDayData.timesheetDayDate).get('month'))
         .set('date', moment(userTimesheetDayData.timesheetDayDate).get('date'))
+        .set('second', 0)
         .toDate();
     }
     setUserTimesheetDayData({ ...userTimesheetDayData, [field]: validDateTime });
