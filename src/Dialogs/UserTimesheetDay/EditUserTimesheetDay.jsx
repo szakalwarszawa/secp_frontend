@@ -19,8 +19,10 @@ function EditUserTimesheetDayComp(props) {
   } = props;
 
   const [state, setState] = useState({
+    loaded: false,
     loaderWorkerCount: 0,
     requestError: null,
+    tabIndex: 0,
   });
   const [userTimesheetDayData, setUserTimesheetDayData] = useState({
     userTimesheet: {
@@ -37,11 +39,11 @@ function EditUserTimesheetDayComp(props) {
     },
     absenceType: {},
   });
-  const [tabIndex, setTabIndex] = useState(0);
   const isLoading = Boolean(state.loaderWorkerCount > 0);
 
   useEffect(
     () => {
+      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
       apiService.get(`user_timesheet_days/${userTimesheetDayId}`)
         .then((result) => {
           const dayStartTimeDate = result.dayStartTime !== null
@@ -60,6 +62,7 @@ function EditUserTimesheetDayComp(props) {
             timesheetDayDate: moment(result.userWorkScheduleDay.dayDefinition.id).format('YYYY-MM-DD'),
           });
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState(s => ({ ...s, loaded: true }));
         });
     },
     [userTimesheetDayId],
@@ -102,6 +105,7 @@ function EditUserTimesheetDayComp(props) {
           onClose(true, result);
         },
         (error) => {
+          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
           setState({
             ...state,
             requestError: error,
@@ -111,7 +115,7 @@ function EditUserTimesheetDayComp(props) {
   };
 
   const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
+    setState({ ...state, tabIndex: newValue });
   };
 
   function TabPanel(propsTabPanel) {
@@ -132,9 +136,13 @@ function EditUserTimesheetDayComp(props) {
   }
 
   TabPanel.propTypes = {
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node,
     index: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
+  };
+
+  TabPanel.defaultProps = {
+    children: (<></>),
   };
 
   function applyProps(index) {
@@ -150,7 +158,7 @@ function EditUserTimesheetDayComp(props) {
         <AppBar position="static">
           <Grid container>
             <Grid item xs={11}>
-              <Tabs value={tabIndex} onChange={handleTabChange}>
+              <Tabs value={state.tabIndex} onChange={handleTabChange}>
                 <Tab label="Edycja dnia pracy" {...applyProps(0)} />
                 <Tab label="Rejestr zmian" {...applyProps(1)} />
               </Tabs>
@@ -162,18 +170,22 @@ function EditUserTimesheetDayComp(props) {
             </Grid>
           </Grid>
         </AppBar>
-        <TabPanel value={tabIndex} index={0}>
-          <EditUserTimesheetDayForm
-            userTimesheetDay={userTimesheetDayData}
-            open={open}
-            onClose={closeDialogHandler}
-            onSave={saveDialogHandler}
-            classes={classes}
-            requestError={state.requestError}
-          />
+        <TabPanel value={state.tabIndex} index={0}>
+          {state.loaded && (
+            <EditUserTimesheetDayForm
+              userTimesheetDay={userTimesheetDayData}
+              open={open}
+              onClose={closeDialogHandler}
+              onSave={saveDialogHandler}
+              classes={classes}
+              requestError={state.requestError}
+            />
+          )}
         </TabPanel>
-        <TabPanel value={tabIndex} index={1}>
-          <LogsTable route="user_timesheet_days" value={userTimesheetDayId} />
+        <TabPanel value={state.tabIndex} index={1}>
+          {state.loaded && (
+            <LogsTable route="user_timesheet_days" value={userTimesheetDayId} />
+          )}
         </TabPanel>
       </Dialog>
     </>

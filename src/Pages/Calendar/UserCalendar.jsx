@@ -285,7 +285,33 @@ function UserCalendarComp(props) {
 
   return (
     <div className={classes.mainCalendar}>
-      <Grid container justify="center">
+      <Calendar
+        selectable
+        localizer={localizer}
+        culture="pl"
+        events={myEventsList}
+        startAccessor="start"
+        endAccessor="end"
+        view={calendarState.currentView}
+        onView={handleOnView}
+        onNavigate={handleOnNavigate}
+        onSelectEvent={handleOnSelectEvent}
+        onSelectSlot={handleOnSelectSlot}
+        dayPropGetter={customDayPropGetter}
+        slotPropGetter={customSlotPropGetter}
+        messages={messages}
+        /**
+         * https://redmine.parp.gov.pl/issues/88761
+         * Calendar was unable to display current time correctly.
+         * Despite that moment() returns correct date, the view displays
+         * (rbc-current-time-indicator) 30 minutes less.
+         */
+        getNow={() => moment().add(30, 'minutes').toDate()}
+        min={moment('2019-07-19 06:00:00').toDate()}
+        max={moment('2019-07-19 20:00:00').toDate()}
+        style={{ height: 'calc(100vh - 160px)' }}
+      />
+      <Grid container justify="center" style={{ marginTop: '5px' }}>
         {tableLegend.flexibleWorkingHours && (
           <Chip
             className={classes.chip}
@@ -313,32 +339,6 @@ function UserCalendarComp(props) {
           />
         )}
       </Grid>
-      <Calendar
-        selectable
-        localizer={localizer}
-        culture="pl"
-        events={myEventsList}
-        startAccessor="start"
-        endAccessor="end"
-        view={calendarState.currentView}
-        onView={handleOnView}
-        onNavigate={handleOnNavigate}
-        onSelectEvent={handleOnSelectEvent}
-        onSelectSlot={handleOnSelectSlot}
-        dayPropGetter={customDayPropGetter}
-        slotPropGetter={customSlotPropGetter}
-        messages={messages}
-        /**
-         * https://redmine.parp.gov.pl/issues/88761
-         * Calendar was unable to display current time correctly.
-         * Despite that moment() returns correct date, the view displays
-         * (rbc-current-time-indicator) 30 minutes less.
-         */
-        getNow={() => moment().add(30, 'minutes').toDate()}
-        min={moment('2019-07-19 06:00:00').toDate()}
-        max={moment('2019-07-19 20:00:00').toDate()}
-        style={{ height: 'calc(100vh - 150px)' }}
-      />
       {openEditDialog && (
         <EditUserTimesheetDay
           userTimesheetDayId={userTimesheetDayId}

@@ -19,8 +19,10 @@ function CreateUserTimesheetDayComp(props) {
   } = props;
 
   const [state, setState] = useState({
+    loaded: false,
     loaderWorkerCount: 0,
     requestError: null,
+    tabIndex: 0,
   });
   const [userTimesheetDayData, setUserTimesheetDayData] = useState({
     userTimesheet: {
@@ -37,7 +39,6 @@ function CreateUserTimesheetDayComp(props) {
     },
     absenceType: {},
   });
-  const [tabIndex, setTabIndex] = useState(0);
   const isLoading = Boolean(state.loaderWorkerCount > 0);
 
   useEffect(
@@ -51,6 +52,7 @@ function CreateUserTimesheetDayComp(props) {
         workingTime: 0,
         timesheetDayDate: moment(timeFrom).format('YYYY-MM-DD'),
       }));
+      setState(s => ({ ...s, loaded: true }));
     },
     [timeFrom, timeTo],
   );
@@ -102,7 +104,7 @@ function CreateUserTimesheetDayComp(props) {
   };
 
   const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
+    setState({ ...state, tabIndex: newValue });
   };
 
   function TabPanel(propsTabPanel) {
@@ -123,9 +125,13 @@ function CreateUserTimesheetDayComp(props) {
   }
 
   TabPanel.propTypes = {
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node,
     index: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
+  };
+
+  TabPanel.defaultProps = {
+    children: (<></>),
   };
 
   function applyProps(index) {
@@ -141,7 +147,7 @@ function CreateUserTimesheetDayComp(props) {
         <AppBar position="static">
           <Grid container>
             <Grid item xs={11}>
-              <Tabs value={tabIndex} onChange={handleTabChange}>
+              <Tabs value={state.tabIndex} onChange={handleTabChange}>
                 <Tab label="Dodawanie dnia pracy" {...applyProps(0)} />
               </Tabs>
             </Grid>
@@ -152,7 +158,7 @@ function CreateUserTimesheetDayComp(props) {
             </Grid>
           </Grid>
         </AppBar>
-        <TabPanel value={tabIndex} index={0}>
+        <TabPanel value={state.tabIndex} index={0}>
           <EditUserTimesheetDayForm
             userTimesheetDay={userTimesheetDayData}
             open={open}
