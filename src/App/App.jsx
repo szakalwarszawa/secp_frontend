@@ -28,6 +28,7 @@ import { WorkScheduleList } from '../Pages/WorkSchedule';
 import { UserList } from '../Pages/User';
 import AppHeader from '../_components/AppHeader';
 import { UserCalendar } from '../Pages/Calendar';
+import { userService } from '../_services';
 
 class App extends React.Component {
   handlCloseSnackBar = () => {
@@ -55,11 +56,23 @@ class App extends React.Component {
             >
               <PrivateRoute exact path="/" component={Home} />
               <Route path="/login" component={Login} />
-              <PrivateRoute path="/userCalendar" component={UserCalendar} />
-              <PrivateRoute path="/timesheetList" component={TimesheetList} />
-              <PrivateRoute path="/userWorkSchedules" component={WorkScheduleList} />
-              <PrivateRoute path="/timesheetListToAccept" component={TimesheetListToAccept} />
-              <PrivateRoute path="/users" component={UserList} />
+              <PrivateRoute path="/userCalendar" component={UserCalendar} accessRight />
+              <PrivateRoute path="/timesheetList" component={TimesheetList} accessRight />
+              <PrivateRoute
+                path="/userWorkSchedules"
+                component={WorkScheduleList}
+                accessRight={userService.isManager()}
+              />
+              <PrivateRoute
+                path="/timesheetListToAccept"
+                component={TimesheetListToAccept}
+                accessRight={userService.isManager()}
+              />
+              <PrivateRoute
+                path="/users"
+                component={UserList}
+                accessRight={userService.isHR()}
+              />
               <Snackbar
                 open={alert.message && alert.message !== ''}
                 autoHideDuration={4000}
