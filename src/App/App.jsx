@@ -37,6 +37,9 @@ class App extends React.Component {
 
   render() {
     const { alert, classes, loggedIn } = this.props;
+    console.info(`UI_TAG: ${process.env.REACT_APP_GIT_TAG}`);
+    console.info(`UI_GIT: ${process.env.REACT_APP_GIT_COMMIT}`);
+    console.info(`UI_DATE: ${process.env.REACT_APP_DEPLOY_TIME}`);
 
     return (
       <div>
