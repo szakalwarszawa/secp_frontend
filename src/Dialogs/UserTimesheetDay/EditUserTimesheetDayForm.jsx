@@ -108,25 +108,27 @@ function EditUserTimesheetDayFormComp(props) {
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
+      let route = `user_work_schedule_days/own/active/${userTimesheetDay.timesheetDayDate}/${userTimesheetDay.timesheetDayDate}`;
+      if (userTimesheetDay.userWorkScheduleDay.id) {
+        route = `user_work_schedule_days/${userTimesheetDay.userWorkScheduleDay.id}`;
+      }
+
       setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
-      apiService.get(
-        `user_work_schedule_days/own/active/${userTimesheetDay.timesheetDayDate}/${userTimesheetDay.timesheetDayDate}`,
-      )
+      apiService.get(route)
         .then(
           (result) => {
-            const day = result['hydra:member'][0];
-            const dayId = day.dayDefinition.id;
+            const day = result['hydra:member']? result['hydra:member'][0] : result;
             const dayStartTimeFromDate = day.dayStartTimeFrom !== null
-              ? new Date(`${dayId}T${day.dayStartTimeFrom}:00`)
+              ? new Date(`${day.dayDefinition.id}T${day.dayStartTimeFrom}:00`)
               : null;
             const dayStartTimeToDate = day.dayStartTimeTo !== null
-              ? new Date(`${dayId}T${day.dayStartTimeTo}:00`)
+              ? new Date(`${day.dayDefinition.id}T${day.dayStartTimeTo}:00`)
               : null;
             const dayEndTimeFromDate = day.dayEndTimeFrom !== null
-              ? new Date(`${dayId}T${day.dayEndTimeFrom}:00`)
+              ? new Date(`${day.dayDefinition.id}T${day.dayEndTimeFrom}:00`)
               : null;
             const dayEndTimeToDate = day.dayEndTimeTo !== null
-              ? new Date(`${dayId}T${day.dayEndTimeTo}:00`)
+              ? new Date(`${day.dayDefinition.id}T${day.dayEndTimeTo}:00`)
               : null;
             const timeAdjust = !moment(dayStartTimeFromDate).isSame(dayStartTimeToDate, 'minute')
               || !moment(dayEndTimeFromDate).isSame(dayEndTimeToDate, 'minute');
