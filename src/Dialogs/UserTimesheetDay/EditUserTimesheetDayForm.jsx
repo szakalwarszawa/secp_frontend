@@ -68,7 +68,7 @@ function EditUserTimesheetDayFormComp(props) {
   const isAbsence = Boolean(userTimesheetDayData.presenceType.isAbsence);
   const unableToSetAbsenceType = Boolean(
     userTimesheetDayData.presenceType.isAbsence
-    && !('absenceType' in userTimesheetDayData)
+    && !('absenceType' in userTimesheetDayData),
   );
   const isTimed = Boolean(userTimesheetDayData.presenceType.isTimed);
   const editRestrictions = {
@@ -108,110 +108,91 @@ function EditUserTimesheetDayFormComp(props) {
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
-      apiService.get(
-        `user_work_schedule_days/own/active/${userTimesheetDay.timesheetDayDate}/${userTimesheetDay.timesheetDayDate}`,
-      )
-        .then(
-          (result) => {
-            const day = result['hydra:member'][0];
-            const dayId = day.dayDefinition.id;
-            const dayStartTimeFromDate = day.dayStartTimeFrom !== null
-              ? new Date(`${dayId}T${day.dayStartTimeFrom}:00`)
-              : null;
-            const dayStartTimeToDate = day.dayStartTimeTo !== null
-              ? new Date(`${dayId}T${day.dayStartTimeTo}:00`)
-              : null;
-            const dayEndTimeFromDate = day.dayEndTimeFrom !== null
-              ? new Date(`${dayId}T${day.dayEndTimeFrom}:00`)
-              : null;
-            const dayEndTimeToDate = day.dayEndTimeTo !== null
-              ? new Date(`${dayId}T${day.dayEndTimeTo}:00`)
-              : null;
-            const timeAdjust = !moment(dayStartTimeFromDate).isSame(dayStartTimeToDate, 'minute')
-              || !moment(dayEndTimeFromDate).isSame(dayEndTimeToDate, 'minute');
+      const day = userTimesheetDay.userWorkScheduleDay;
+      const dayId = day.dayDefinition.id;
+      const dayStartTimeFromDate = day.dayStartTimeFrom !== null
+        ? new Date(`${dayId}T${day.dayStartTimeFrom}:00`)
+        : null;
+      const dayStartTimeToDate = day.dayStartTimeTo !== null
+        ? new Date(`${dayId}T${day.dayStartTimeTo}:00`)
+        : null;
+      const dayEndTimeFromDate = day.dayEndTimeFrom !== null
+        ? new Date(`${dayId}T${day.dayEndTimeFrom}:00`)
+        : null;
+      const dayEndTimeToDate = day.dayEndTimeTo !== null
+        ? new Date(`${dayId}T${day.dayEndTimeTo}:00`)
+        : null;
+      const timeAdjust = !moment(dayStartTimeFromDate).isSame(dayStartTimeToDate, 'minute')
+        || !moment(dayEndTimeFromDate).isSame(dayEndTimeToDate, 'minute');
 
-            if (!timeAdjust) {
-              setUserTimesheetDayData(s => ({
-                ...s,
-                dayStartTime: dayStartTimeFromDate,
-                dayEndTime: dayEndTimeFromDate,
-              }));
+      if (!timeAdjust) {
+        setUserTimesheetDayData(s => ({
+          ...s,
+          dayStartTime: dayStartTimeFromDate,
+          dayEndTime: dayEndTimeFromDate,
+        }));
+      }
+
+      userWorkScheduleDay.current = {
+        ...day,
+        dayStartTimeFromDate,
+        dayStartTimeToDate,
+        dayEndTimeFromDate,
+        dayEndTimeToDate,
+        timeAdjust,
+      };
+
+      apiService.get('presence_types?_order[name]=asc&active=true')
+        .then((result) => {
+          let presenceTypes = result['hydra:member'];
+          const isWorkingDay = userWorkScheduleDay.current.workingDay;
+
+          presenceTypes = presenceTypes.filter((presence) => {
+            const presenceRestriction = createMode
+              ? presence.createRestriction
+              : presence.editRestriction;
+
+            if (!createMode && userTimesheetDay.presenceTypeId === presence.id) {
+              return true;
             }
 
-            userWorkScheduleDay.current = {
-              ...day,
-              dayStartTimeFromDate,
-              dayStartTimeToDate,
-              dayEndTimeFromDate,
-              dayEndTimeToDate,
-              timeAdjust,
-            };
+            if (
+              presence.workingDayRestriction === workingDayRestrictions.WORKING_DAY
+              && isWorkingDay !== true
+            ) {
+              return false;
+            }
 
-            setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-          },
-          (error) => {
-            setState(s => ({
-              ...s,
-              loaderWorkerCount: s.loaderWorkerCount - 1,
-              requestError: error,
-            }));
-          },
-        )
-        .then(() => {
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
-          apiService.get('presence_types?_order[name]=asc&active=true')
-            .then((result) => {
-              let presenceTypes = result['hydra:member'];
-              const isWorkingDay = userWorkScheduleDay.current.workingDay;
+            if (
+              presence.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
+              && isWorkingDay !== false
+            ) {
+              return false;
+            }
 
-              presenceTypes = presenceTypes.filter((presence) => {
-                const presenceRestriction = createMode
-                  ? presence.createRestriction
-                  : presence.editRestriction;
+            switch (presenceRestriction) {
+              case editRestrictions.EDIT_RESTRICTION_ALL:
+                return true;
+              case editRestrictions.EDIT_RESTRICTION_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isSame(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_AFTER_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isAfter(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_BEFORE_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isBefore(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_AFTER_AND_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isSameOrAfter(moment(), 'day');
+              case editRestrictions.EDIT_RESTRICTION_BEFORE_AND_TODAY:
+                return moment(userTimesheetDay.timesheetDayDate).isSameOrBefore(moment(), 'day');
+              default:
+                return false;
+            }
+          });
 
-                if (!createMode && userTimesheetDay.presenceTypeId === presence.id) {
-                  return true;
-                }
-
-                if (
-                  presence.workingDayRestriction === workingDayRestrictions.WORKING_DAY
-                  && isWorkingDay !== true
-                ) {
-                  return false;
-                }
-
-                if (
-                  presence.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
-                  && isWorkingDay !== false
-                ) {
-                  return false;
-                }
-
-                switch (presenceRestriction) {
-                  case editRestrictions.EDIT_RESTRICTION_ALL:
-                    return true;
-                  case editRestrictions.EDIT_RESTRICTION_TODAY:
-                    return moment(userTimesheetDay.timesheetDayDate).isSame(moment(), 'day');
-                  case editRestrictions.EDIT_RESTRICTION_AFTER_TODAY:
-                    return moment(userTimesheetDay.timesheetDayDate).isAfter(moment(), 'day');
-                  case editRestrictions.EDIT_RESTRICTION_BEFORE_TODAY:
-                    return moment(userTimesheetDay.timesheetDayDate).isBefore(moment(), 'day');
-                  case editRestrictions.EDIT_RESTRICTION_AFTER_AND_TODAY:
-                    return moment(userTimesheetDay.timesheetDayDate).isSameOrAfter(moment(), 'day');
-                  case editRestrictions.EDIT_RESTRICTION_BEFORE_AND_TODAY:
-                    return moment(userTimesheetDay.timesheetDayDate).isSameOrBefore(moment(), 'day');
-                  default:
-                    return false;
-                }
-              });
-
-              setPresences(presenceTypes);
-              setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-            });
+          setPresences(presenceTypes);
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
-    [userTimesheetDay],
+    [userTimesheetDay]
   );
 
   useEffect(
@@ -295,7 +276,7 @@ function EditUserTimesheetDayFormComp(props) {
           userWorkScheduleDay.current.dayStartTimeFromDate,
           userWorkScheduleDay.current.dayStartTimeToDate,
           'minute',
-          '[]'
+          '[]',
         )
     ) {
       setState(s => ({ ...s, error: { wrongDayStartSlot: true } }));
@@ -308,7 +289,7 @@ function EditUserTimesheetDayFormComp(props) {
           userWorkScheduleDay.current.dayEndTimeFromDate,
           userWorkScheduleDay.current.dayEndTimeToDate,
           'minute',
-          '[]'
+          '[]',
         )
     ) {
       setState(s => ({ ...s, error: { wrongDayEndSlot: true } }));
