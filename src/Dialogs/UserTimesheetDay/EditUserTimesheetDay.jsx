@@ -39,11 +39,10 @@ function EditUserTimesheetDayComp(props) {
     },
     absenceType: {},
   });
-  const isLoading = Boolean(state.loaderWorkerCount > 0);
 
   useEffect(
     () => {
-      setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`user_timesheet_days/${userTimesheetDayId}`)
         .then((result) => {
           const dayStartTimeDate = result.dayStartTime !== null
@@ -53,14 +52,15 @@ function EditUserTimesheetDayComp(props) {
             ? new Date(`${result.userWorkScheduleDay.dayDefinition.id}T${result.dayEndTime}:00`)
             : null;
 
-          setUserTimesheetDayData({
+          setUserTimesheetDayData(s => ({
+            ...s,
             ...result,
             presenceTypeId: result.presenceType !== null ? result.presenceType.id : null,
             absenceTypeId: ('absenceType' in result) && result.absenceType !== null ? result.absenceType.id : null,
             dayStartTime: dayStartTimeDate,
             dayEndTime: dayEndTimeDate,
             timesheetDayDate: moment(result.userWorkScheduleDay.dayDefinition.id).format('YYYY-MM-DD'),
-          });
+          }));
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
           setState(s => ({ ...s, loaded: true }));
         });
@@ -71,6 +71,7 @@ function EditUserTimesheetDayComp(props) {
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = (savedData) => {
+    setState(s => ({ ...s, loaded: false }));
     const workingTime = !!savedData.dayEndTime && !!savedData.dayStartTime
       ? ((savedData.dayEndTime - savedData.dayStartTime) / 3600000).toFixed(2)
       : 0;
@@ -97,25 +98,22 @@ function EditUserTimesheetDayComp(props) {
         : '0',
     };
 
-    setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+    setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
     apiService.put(`user_timesheet_days/${userTimesheetDayId}`, payload)
       .then(
         (result) => {
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
           onClose(true, result);
         },
         (error) => {
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
-          setState({
-            ...state,
-            requestError: error,
-          });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState(s => ({ ...s, requestError: error }));
         },
       );
   };
 
   const handleTabChange = (event, newValue) => {
-    setState({ ...state, tabIndex: newValue });
+    setState(s => ({ ...s, tabIndex: newValue }));
   };
 
   function TabPanel(propsTabPanel) {
@@ -184,7 +182,7 @@ function EditUserTimesheetDayComp(props) {
         </TabPanel>
         <TabPanel value={state.tabIndex} index={1}>
           {state.loaded && (
-            <LogsTable route="user_timesheet_days" value={userTimesheetDayId} />
+            <LogsTable route="user_timesheet_days" value={userTimesheetDayData.id} />
           )}
         </TabPanel>
       </Dialog>

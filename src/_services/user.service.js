@@ -44,11 +44,23 @@ function login(username, password) {
     });
 }
 
+function callForApiVersion() {
+  return apiService.get('application/info')
+    .then((result) => {
+      sessionStorage.setItem('api', JSON.stringify(result));
+      console.info(`API_TAG: ${result.git_tag}`);
+      console.info(`API_GIT: ${result.git_commit}`);
+      console.info(`API_DATE: ${result.deploy_time}`);
+
+      return result;
+    });
+}
+
 function callForOwnUserData() {
   return apiService.get('users/me')
     .then((result) => {
       sessionStorage.setItem('user', JSON.stringify(result));
-
+      callForApiVersion();
       return result;
     });
 }
@@ -59,6 +71,10 @@ function refresh() {
 
 function getUserData() {
   return JSON.parse(sessionStorage.getItem('user'));
+}
+
+function getUserId() {
+  return getUserData().id || 0;
 }
 
 function isAdmin() {
@@ -95,7 +111,9 @@ export const userService = {
   login,
   logout,
   callForOwnUserData,
+  callForApiVersion,
   getUserData,
+  getUserId,
   isAdmin,
   isHR,
   isManager,
