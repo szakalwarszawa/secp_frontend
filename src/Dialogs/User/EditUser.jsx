@@ -24,9 +24,10 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { Divider, FormLabel } from '@material-ui/core';
+import moment from 'moment';
+import { Divider, FormLabel, Tooltip } from '@material-ui/core';
 import {
-  KeyboardTimePicker,
+  KeyboardTimePicker, KeyboardDatePicker,
 } from '@material-ui/pickers';
 
 import { apiService, userService } from '../../_services';
@@ -122,6 +123,7 @@ function EditUserComp(props) {
         { hour: '2-digit', minute: '2-digit' },
       ),
       dailyWorkingTime: userData.dailyWorkingTime.toString(),
+      profileExpireDate: moment(userData.profileExpireDate).toDate(),
       roles: userData.roles,
     };
 
@@ -242,6 +244,20 @@ function EditUserComp(props) {
               ))}
             </Select>
           </FormControl>
+          <Tooltip title="Po tej dacie zostanie ustawiony domyślny profil (8:30 - 16:30)">
+            <KeyboardDatePicker
+              margin="normal"
+              id="date-picker-dialog"
+              label="Data ważności ustawień profilu"
+              invalidDateMessage="Nieprawidłowy format daty"
+              format="dd.MM.yyyy"
+              value={userData['profileExpireDate']}
+              onChange={date => handleInputChange('profileExpireDate', date)}
+              KeyboardButtonProps={{
+                'aria-label': 'change date',
+              }}
+            />
+          </Tooltip>
 
           {getTimePicker('Rozpoczęcie pracy od', 'dayStartTimeFromDate')}
           {getTimePicker('Rozpoczęcie pracy do', 'dayStartTimeToDate')}
