@@ -251,7 +251,7 @@ function EditUserComp(props) {
               label="Data ważności ustawień profilu"
               invalidDateMessage="Nieprawidłowy format daty"
               format="dd.MM.yyyy"
-              value={userData['profileExpireDate']}
+              value={userData.profileExpireDate}
               onChange={date => handleInputChange('profileExpireDate', date)}
               KeyboardButtonProps={{
                 'aria-label': 'change date',
