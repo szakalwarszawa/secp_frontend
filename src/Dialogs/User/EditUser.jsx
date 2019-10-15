@@ -25,9 +25,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Divider, FormLabel } from '@material-ui/core';
-import {
-  KeyboardTimePicker,
-} from '@material-ui/pickers';
+import { KeyboardTimePicker } from '@material-ui/pickers';
 
 import { apiService, userService } from '../../_services';
 import { userConstants } from '../../_constants';
