@@ -8,7 +8,7 @@ import 'moment/locale/pl';
 import { lightGreen, amber } from '@material-ui/core/colors';
 import { Chip, Avatar, Grid } from '@material-ui/core';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import { apiService } from '../../_services';
+import { apiService, userService } from '../../_services';
 import { EditUserTimesheetDay, CreateUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
 
 const flexibleHoursColor = lightGreen[200];
@@ -81,11 +81,10 @@ function UserCalendarComp(props) {
   });
   const [activeWorkScheduleDayList, setActiveWorkScheduleDay] = useState([]);
   const [myEventsList, setMyEventsList] = useState([]);
-  const initialTableLegendState = {
+  const [tableLegend, setTableLegend] = useState({
     flexibleWorkingHours: false,
     fixedWorkingHours: false,
-  };
-  const [tableLegend, setTableLegend] = useState(initialTableLegendState);
+  });
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [userTimesheetDayId, setUserTimesheetDayId] = useState(0);
@@ -131,7 +130,6 @@ function UserCalendarComp(props) {
             };
           });
 
-          setTableLegend(initialTableLegendState);
           setActiveWorkScheduleDay(scheduleDays);
         });
     },
@@ -348,6 +346,7 @@ function UserCalendarComp(props) {
       )}
       {openCreateDialog && (
         <CreateUserTimesheetDay
+          userId={userService.getUserId()}
           timeFrom={createdSelection.start}
           timeTo={createdSelection.end}
           open={openCreateDialog}

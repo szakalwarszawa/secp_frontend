@@ -13,6 +13,7 @@ function CreateUserTimesheetDayComp(props) {
   const {
     classes,
     open,
+    userId,
     timeFrom,
     timeTo,
     onClose,
@@ -39,27 +40,31 @@ function CreateUserTimesheetDayComp(props) {
     },
     absenceType: {},
   });
-  const isLoading = Boolean(state.loaderWorkerCount > 0);
 
   useEffect(
     () => {
-      setUserTimesheetDayData(s => ({
-        ...s,
-        presenceTypeId: null,
-        absenceTypeId: null,
-        dayStartTime: timeFrom,
-        dayEndTime: timeTo,
-        workingTime: 0,
-        timesheetDayDate: moment(timeFrom).format('YYYY-MM-DD'),
-      }));
-      setState(s => ({ ...s, loaded: true }));
+      apiService.get(`user_work_schedule_days/active/${userId}/${moment(timeFrom).format('YYYY-MM-DD')}`)
+        .then((result) => {
+          setUserTimesheetDayData(s => ({
+            ...s,
+            userWorkScheduleDay: result,
+            presenceTypeId: null,
+            absenceTypeId: null,
+            dayStartTime: timeFrom,
+            dayEndTime: timeTo,
+            workingTime: 0,
+            timesheetDayDate: moment(timeFrom).format('YYYY-MM-DD'),
+          }));
+          setState(s => ({ ...s, loaded: true }));
+        });
     },
-    [timeFrom, timeTo],
+    [timeFrom, timeTo, userId],
   );
 
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = (savedData) => {
+    setState(s => ({ ...s, loaded: false }));
     const workingTime = dayData => (!!dayData.dayEndTime && !!dayData.dayStartTime
       ? ((dayData.dayEndTime - dayData.dayStartTime) / 3600000).toFixed(2)
       : 0);
@@ -68,6 +73,7 @@ function CreateUserTimesheetDayComp(props) {
 
     const payload = {
       owner: `/api/users/${userService.getUserData().id}`,
+      userWorkScheduleDay: `/api/user_work_schedule_days/${savedData.userWorkScheduleDay.id}`,
       presenceType: `/api/presence_types/${savedData.presenceTypeId}`,
       absenceType: isAbsence ? `/api/absence_types/${savedData.absenceTypeId}` : null,
       dayStartTime: isTimed
@@ -86,25 +92,23 @@ function CreateUserTimesheetDayComp(props) {
       dayDate: moment(timeFrom).format('YYYY-MM-DD'),
     };
 
-    setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
+    setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
     apiService.post(`user_timesheet_days/own/create/${payload.dayDate}`, payload)
       .then(
         (result) => {
-          setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
           onClose(true, result);
         },
         (error) => {
           console.log(error);
-          setState({
-            ...state,
-            requestError: error,
-          });
+          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState(s => ({ ...s, requestError: error }));
         },
       );
   };
 
   const handleTabChange = (event, newValue) => {
-    setState({ ...state, tabIndex: newValue });
+    setState(s => ({ ...s, tabIndex: newValue }));
   };
 
   function TabPanel(propsTabPanel) {
@@ -159,15 +163,17 @@ function CreateUserTimesheetDayComp(props) {
           </Grid>
         </AppBar>
         <TabPanel value={state.tabIndex} index={0}>
-          <EditUserTimesheetDayForm
-            userTimesheetDay={userTimesheetDayData}
-            open={open}
-            onClose={closeDialogHandler}
-            onSave={saveDialogHandler}
-            classes={classes}
-            requestError={state.requestError}
-            createMode
-          />
+          {state.loaded && (
+            <EditUserTimesheetDayForm
+              userTimesheetDay={userTimesheetDayData}
+              open={open}
+              onClose={closeDialogHandler}
+              onSave={saveDialogHandler}
+              classes={classes}
+              requestError={state.requestError}
+              createMode
+            />
+          )}
         </TabPanel>
       </Dialog>
     </>
@@ -178,6 +184,7 @@ const styles = theme => ({});
 
 CreateUserTimesheetDayComp.propTypes = {
   open: PropTypes.bool.isRequired,
+  userId: PropTypes.number.isRequired,
   timeFrom: PropTypes.instanceOf(Date).isRequired,
   timeTo: PropTypes.instanceOf(Date).isRequired,
   onClose: PropTypes.func.isRequired,
