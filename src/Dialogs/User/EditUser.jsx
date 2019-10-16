@@ -123,6 +123,12 @@ function EditUserComp(props) {
       roles: userData.roles,
     };
 
+    Object.keys(payload).forEach((key) => {
+      if (!isAvailableFormField(key)) {
+        delete payload[key];
+      }
+    });
+
     setState({ ...state, loaderWorkerCount: state.loaderWorkerCount + 1 });
     apiService.put(`users/${userId}`, payload)
       .then(
@@ -140,7 +146,27 @@ function EditUserComp(props) {
       );
   };
 
+  function isAvailableFormField(fieldName) {
+    const selectedWorkScheduleProfile = workScheduleProfiles.find((element) => {
+      return element.id === userData.defaultWorkScheduleProfileId;
+    });
+
+    if (!selectedWorkScheduleProfile) {
+      return true;
+    }
+    const profileFieldProperty = selectedWorkScheduleProfile.properties[fieldName];
+
+    if (!profileFieldProperty) {
+      return true;
+    }
+
+    return profileFieldProperty.visible;
+  }
+
   function getTimePicker(label, fieldName) {
+    if (!isAvailableFormField(fieldName)) {
+      return;
+    }
     return (
       <FormControl component="div" className={classes.formControl} disabled={isLoading}>
         <KeyboardTimePicker
@@ -246,17 +272,19 @@ function EditUserComp(props) {
           {getTimePicker('Zakończenie pracy od', 'dayEndTimeFromDate')}
           {getTimePicker('Zakończenie pracy do', 'dayEndTimeToDate')}
 
-          <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-            <FormLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</FormLabel>
-            <Slider
-              value={userData.dailyWorkingTime * 100}
-              onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
-              aria-labelledby="input-working-time"
-              step={50}
-              min={0}
-              max={2400}
-            />
-          </FormControl>
+          {isAvailableFormField('dailyWorkingTime') && (
+            <FormControl component="div" className={classes.formControl} disabled={isLoading}>
+              <FormLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</FormLabel>
+              <Slider
+                value={userData.dailyWorkingTime * 100}
+                onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
+                aria-labelledby="input-working-time"
+                step={50}
+                min={0}
+                max={2400}
+              />
+            </FormControl>
+          )}
 
           {getAdminComponents()}
 
