@@ -180,7 +180,7 @@ function EditUserComp(props) {
   };
 
   function getTimePicker(label, fieldName) {
-    if (!isAvailableFormField(fieldName)) {
+    if (isLoading || !isAvailableFormField(fieldName)) {
       return '';
     }
     return (
