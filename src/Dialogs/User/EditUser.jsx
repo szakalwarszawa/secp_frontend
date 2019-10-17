@@ -61,14 +61,15 @@ function EditUserComp(props) {
       setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`users/${userId}`)
         .then((result) => {
-          setUserData({
+          setUserData(s => ({
+            ...s,
             ...result,
             defaultWorkScheduleProfileId: result.defaultWorkScheduleProfile.id,
             dayStartTimeFromDate: new Date(`2000-01-01T${result.dayStartTimeFrom}:00`),
             dayStartTimeToDate: new Date(`2000-01-01T${result.dayStartTimeTo}:00`),
             dayEndTimeFromDate: new Date(`2000-01-01T${result.dayEndTimeFrom}:00`),
             dayEndTimeToDate: new Date(`2000-01-01T${result.dayEndTimeTo}:00`),
-          });
+          }));
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
@@ -100,25 +101,63 @@ function EditUserComp(props) {
 
   const closeDialogHandler = () => onClose(false);
 
+  /**
+   * @returns {*}
+   */
+  const selectedWorkScheduleProfile = () => workScheduleProfiles.find(
+    element => element.id === userData.defaultWorkScheduleProfileId
+  );
+
+  /**
+   * @param {string} fieldName
+   * @returns {boolean}
+   */
+  const isAvailableFormField = (fieldName) => {
+    if (!selectedWorkScheduleProfile()) {
+      return true;
+    }
+
+    const profileFieldProperty = selectedWorkScheduleProfile().properties[fieldName.replace('Date', '')];
+    if (!profileFieldProperty) {
+      return true;
+    }
+
+    return profileFieldProperty.visible;
+  };
+
+  /**
+   * @param {string} fieldName
+   * @returns {string}
+   */
+  const getFormattedTime = fieldName => userData[`${fieldName}Date`].toLocaleTimeString(
+    'pl-PL',
+    { hour: '2-digit', minute: '2-digit' },
+  );
+
+  /**
+   * @param {string} fieldName
+   * @param {string} [copyFromFieldName]
+   * @returns {string}
+   */
+  const calculateDayTimeProperty = (fieldName, copyFromFieldName) => {
+    if (isAvailableFormField(fieldName)) {
+      return getFormattedTime(fieldName);
+    }
+
+    if (copyFromFieldName && isAvailableFormField(copyFromFieldName)) {
+      return getFormattedTime(copyFromFieldName);
+    }
+
+    return selectedWorkScheduleProfile()[fieldName];
+  };
+
   const saveDialogHandler = () => {
     const payload = {
       defaultWorkScheduleProfile: `/api/work_schedule_profiles/${userData.defaultWorkScheduleProfileId}`,
-      dayStartTimeFrom: userData.dayStartTimeFromDate.toLocaleTimeString(
-        'pl-PL',
-        { hour: '2-digit', minute: '2-digit' },
-      ),
-      dayStartTimeTo: userData.dayStartTimeToDate.toLocaleTimeString(
-        'pl-PL',
-        { hour: '2-digit', minute: '2-digit' },
-      ),
-      dayEndTimeFrom: userData.dayEndTimeFromDate.toLocaleTimeString(
-        'pl-PL',
-        { hour: '2-digit', minute: '2-digit' },
-      ),
-      dayEndTimeTo: userData.dayEndTimeToDate.toLocaleTimeString(
-        'pl-PL',
-        { hour: '2-digit', minute: '2-digit' },
-      ),
+      dayStartTimeFrom: calculateDayTimeProperty('dayStartTimeFrom'),
+      dayStartTimeTo: calculateDayTimeProperty('dayStartTimeTo', 'dayStartTimeFrom'),
+      dayEndTimeFrom: calculateDayTimeProperty('dayEndTimeFrom'),
+      dayEndTimeTo: calculateDayTimeProperty('dayEndTimeTo', 'dayEndTimeFrom'),
       dailyWorkingTime: userData.dailyWorkingTime.toString(),
       roles: userData.roles,
     };
@@ -141,6 +180,9 @@ function EditUserComp(props) {
   };
 
   function getTimePicker(label, fieldName) {
+    if (isLoading || !isAvailableFormField(fieldName)) {
+      return '';
+    }
     return (
       <FormControl component="div" className={classes.formControl} disabled={isLoading}>
         <KeyboardTimePicker
@@ -179,6 +221,7 @@ function EditUserComp(props) {
                 <FormGroup>
                   {availableRoles.map(role => (
                     <FormControlLabel
+                      key={role.name}
                       control={(
                         <Checkbox
                           onChange={event => handleCheck(event.target)}
@@ -246,17 +289,19 @@ function EditUserComp(props) {
           {getTimePicker('Zakończenie pracy od', 'dayEndTimeFromDate')}
           {getTimePicker('Zakończenie pracy do', 'dayEndTimeToDate')}
 
-          <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-            <FormLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</FormLabel>
-            <Slider
-              value={userData.dailyWorkingTime * 100}
-              onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
-              aria-labelledby="input-working-time"
-              step={50}
-              min={0}
-              max={2400}
-            />
-          </FormControl>
+          {isAvailableFormField('dailyWorkingTime') && (
+            <FormControl component="div" className={classes.formControl} disabled={isLoading}>
+              <FormLabel htmlFor="input-working-time">{`Czas pracy: ${userData.dailyWorkingTime} godz.`}</FormLabel>
+              <Slider
+                value={userData.dailyWorkingTime * 100}
+                onChange={(event, newValue) => handleInputChange('dailyWorkingTime', newValue / 100)}
+                aria-labelledby="input-working-time"
+                step={50}
+                min={0}
+                max={2400}
+              />
+            </FormControl>
+          )}
 
           {getAdminComponents()}
 
@@ -324,7 +369,7 @@ EditUserComp.defaultProps = {
   classes: {},
 };
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = state => ({});
 
 const styledEditUser = withStyles(styles)(EditUserComp);
 const connectedEditUser = connect(mapStateToProps)(styledEditUser);
