@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core';
 import { apiService, getQuery } from '../../_services';
 import getTableIcons from '../../_helpers/tableIcons';
 import getTableLocalization from '../../_helpers/tableLocalization';
-import { EditUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
+import { EditUserTimesheet } from '../../Dialogs/UserTimesheet';
 
 const useStyles = makeStyles(theme => ({
   mainTable: {
@@ -140,9 +140,9 @@ function TimesheetListToAcceptComp(prop) {
         }}
         localization={getTableLocalization}
       />
-      {false && openEditDialog && (
-        <EditUserTimesheetDay
-          userTimesheetDayId={userTimesheetId}
+      {openEditDialog && (
+        <EditUserTimesheet
+          userTimesheetId={userTimesheetId}
           open={openEditDialog}
           onClose={handleCloseDialog}
         />
