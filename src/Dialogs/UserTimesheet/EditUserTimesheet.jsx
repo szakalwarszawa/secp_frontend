@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { AppBar, Box, Grid, IconButton, Tab, Tabs, Typography, Dialog } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { EditUserTimesheetForm } from './EditUserTimesheetForm';
+import { ConfirmDialog } from '../Common';
 import { apiService } from '../../_services';
 import { LogsTable } from '../../_components';
 
@@ -58,38 +59,16 @@ function EditUserTimesheetComp(props) {
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = (savedData) => {
-    setState(s => ({ ...s, loaded: false }));
-    const workingTime = !!savedData.dayEndTime && !!savedData.dayStartTime
-      ? ((savedData.dayEndTime - savedData.dayStartTime) / 3600000).toFixed(2)
-      : 0;
-    const isAbsence = Boolean(savedData.presenceType.isAbsence);
-    const isTimed = Boolean(savedData.presenceType.isTimed);
-
     const payload = {
-      presenceType: `/api/presence_types/${savedData.presenceTypeId}`,
-      absenceType: isAbsence && ('absenceType' in savedData) ? `/api/absence_types/${savedData.absenceTypeId}` : null,
-      dayStartTime: isTimed
-        ? savedData.dayStartTime.toLocaleTimeString(
-          'pl-PL',
-          { hour: '2-digit', minute: '2-digit' },
-        )
-        : null,
-      dayEndTime: isTimed
-        ? savedData.dayEndTime.toLocaleTimeString(
-          'pl-PL',
-          { hour: '2-digit', minute: '2-digit' },
-        )
-        : null,
-      workingTime: isTimed && !Number.isNaN(workingTime)
-        ? workingTime.toString()
-        : '0',
+      status: `/api/user_timesheet_statuses/${savedData.status.id}`,
     };
 
-    setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
-    apiService.put(`user_timesheet_days/${userTimesheetId}`, payload)
+    setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, loaded: false }));
+    apiService.put(`user_timesheets/${userTimesheetId}`, payload)
       .then(
         (result) => {
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState(s => ({ ...s, loaded: false }));
           onClose(true, result);
         },
         (error) => {
@@ -144,7 +123,7 @@ function EditUserTimesheetComp(props) {
           <Grid container>
             <Grid item xs={11}>
               <Tabs value={state.tabIndex} onChange={handleTabChange}>
-                <Tab label="Edycja dnia pracy" {...applyProps(0)} />
+                <Tab label="Edycja listy" {...applyProps(0)} />
                 <Tab label="Rejestr zmian" {...applyProps(1)} />
               </Tabs>
             </Grid>
@@ -222,7 +201,7 @@ EditUserTimesheetComp.defaultProps = {
   classes: {},
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({ ...state });
 
 const styledEditUserTimesheet = withStyles(styles)(EditUserTimesheetComp);
 const connectedEditUserTimesheet = connect(mapStateToProps)(styledEditUserTimesheet);

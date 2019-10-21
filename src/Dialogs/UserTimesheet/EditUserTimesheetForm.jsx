@@ -17,6 +17,7 @@ import Paper from '@material-ui/core/Paper';
 
 import { apiService, userService } from '../../_services';
 import { userConstants } from '../../_constants';
+import { ConfirmDialog } from '../Common';
 
 function EditUserTimesheetFormComp(props) {
   const {
@@ -31,6 +32,7 @@ function EditUserTimesheetFormComp(props) {
     loaderWorkerCount: 0,
     requestError: null,
     submitted: false,
+    confirmOpen: false,
   });
   const [userTimesheetData, setUserTimesheetData] = useState({
     owner: {
@@ -86,12 +88,15 @@ function EditUserTimesheetFormComp(props) {
 
   useEffect(
     () => {
+      const statusId = userTimesheet.status !== null
+        ? userTimesheet.status.id
+        : null;
+
       setUserTimesheetData(s => ({
         ...s,
         ...userTimesheet,
-        statusId: userTimesheet.status !== null
-          ? userTimesheet.status.id
-          : null,
+        statusId,
+        originalStatusId: statusId,
       }));
 
       setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
@@ -111,6 +116,10 @@ function EditUserTimesheetFormComp(props) {
     [requestError],
   );
 
+  const saveDialogHandler = () => {
+    setState(s => ({ ...s, confirmOpen: true }));
+  };
+
   const handleStatusChange = (field, chosenStatus) => {
     const activeStatus = statuses.filter(
       status => status.id === chosenStatus,
@@ -123,25 +132,23 @@ function EditUserTimesheetFormComp(props) {
     });
   };
 
-  const handleInputChange = (field, date) => {
-    setUserTimesheetData({ ...userTimesheetData, [field]: date });
+  const onConfirmHandler = (confirm) => {
+    setState(s => ({ ...s, confirmOpen: false }));
+
+    if (confirm) {
+      setState(s => ({ ...s, submitted: true, isLoading: true }));
+      onSave(userTimesheetData);
+    }
   };
 
   const closeDialogHandler = () => onClose(false);
-
-  const saveDialogHandler = () => {
-    setState(s => ({ ...s, submitted: true, isLoading: true }));
-
-    onSave(userTimesheetData);
-  };
 
   return (
     <div>
       <DialogContent>
         <DialogContentText component="div">
           <div>
-            {userTimesheetData.owner.lastName}
-            {userTimesheetData.owner.firstName}
+            {`${userTimesheetData.owner.lastName} ${userTimesheetData.owner.firstName}`}
           </div>
           <div>
             {
@@ -155,7 +162,10 @@ function EditUserTimesheetFormComp(props) {
                 : ''
             }
           </div>
-          <div>{userTimesheetData.period}</div>
+          <div>
+            Okres:&nbsp;
+            {userTimesheetData.period}
+          </div>
         </DialogContentText>
 
         <FormControl component="div" className={classes.formControl} disabled={isLoading}>
@@ -196,10 +206,25 @@ function EditUserTimesheetFormComp(props) {
         <Button href="" onClick={closeDialogHandler} color="primary">
           Anuluj
         </Button>
-        <Button href="" onClick={saveDialogHandler} color="primary" disabled={isLoading}>
+        <Button
+          href=""
+          onClick={saveDialogHandler}
+          color="primary"
+          disabled={isLoading || userTimesheetData.statusId === userTimesheetData.originalStatusId}
+        >
           Zapisz
         </Button>
       </DialogActions>
+      <ConfirmDialog
+        open={state.confirmOpen}
+        onClose={onConfirmHandler}
+        dialogTitle="Potwierdź zmianę statusu"
+        acceptLabel="Zmień"
+        declineLabel="Anuluj"
+      >
+        Po zmianie statusu jego dalsza zmiana nie będzie już możliwa, dalsze zmiany moga być przeprowadzone jedynie
+        przez uprawnione osoby.
+      </ConfirmDialog>
     </div>
   );
 }
@@ -251,7 +276,7 @@ EditUserTimesheetFormComp.defaultProps = {
   requestError: '',
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({ ...state });
 
 const styledEditUserTimesheetForm = withStyles(styles)(EditUserTimesheetFormComp);
 const connectedEditUserTimesheetForm = connect(mapStateToProps)(styledEditUserTimesheetForm);
