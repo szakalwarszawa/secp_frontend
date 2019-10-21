@@ -16,7 +16,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import Paper from '@material-ui/core/Paper';
 
 import { apiService, userService } from '../../_services';
-import { userConstants } from '../../_constants';
+import { userConstants, userTimesheetConstants } from '../../_constants';
 import { ConfirmDialog } from '../Common';
 
 function EditUserTimesheetFormComp(props) {
@@ -49,13 +49,14 @@ function EditUserTimesheetFormComp(props) {
   const isLoading = Boolean(state.loaderWorkerCount > 0);
 
   /**
-   * @param {Object} actualStatus
-   * @param {string} actualStatus.id
-   * @param {string} actualStatus.name
-   * @param {string} actualStatus.rules
+   * @param {Object} actualUserTimesheet
+   * @param {string} actualUserTimesheet.status.id
+   * @param {string} actualUserTimesheet.status.name
+   * @param {string} actualUserTimesheet.status.rules
    * @return {(string[]|null)}
    */
-  const getAllowedStatusChange = (actualStatus) => {
+  const getAllowedStatusChange = (actualUserTimesheet) => {
+    const actualStatus = actualUserTimesheet.status;
     if (!actualStatus || actualStatus.rules === '') {
       return null;
     }
@@ -65,7 +66,7 @@ function EditUserTimesheetFormComp(props) {
       return rules[userConstants.ROLES.ROLE_HR] || null;
     }
 
-    if (userService.isManager()) {
+    if (userService.isManager() && actualUserTimesheet.owner.id !== userService.getUserId()) {
       return rules[userConstants.ROLES.ROLE_DEPARTMENT_MANAGER] || null;
     }
 
@@ -73,11 +74,12 @@ function EditUserTimesheetFormComp(props) {
   };
 
   /**
-   * @param {Object} actualStatus
+   * @param {Object} actualUserTimesheet
    * @param {Object[]} allStatuses
    */
-  const makeStatusList = (actualStatus, allStatuses) => {
-    const allowedStatusChange = getAllowedStatusChange(actualStatus);
+  const makeStatusList = (actualUserTimesheet, allStatuses) => {
+    const actualStatus = actualUserTimesheet.status;
+    const allowedStatusChange = getAllowedStatusChange(actualUserTimesheet);
     if (allowedStatusChange === null) {
       return [actualStatus];
     }
@@ -102,7 +104,7 @@ function EditUserTimesheetFormComp(props) {
       setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('user_timesheet_statuses')
         .then((result) => {
-          setStatuses(makeStatusList(userTimesheet.status, result['hydra:member']));
+          setStatuses(makeStatusList(userTimesheet, result['hydra:member']));
           setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },

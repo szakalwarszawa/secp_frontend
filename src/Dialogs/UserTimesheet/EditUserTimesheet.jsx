@@ -6,7 +6,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { AppBar, Box, Grid, IconButton, Tab, Tabs, Typography, Dialog } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { EditUserTimesheetForm } from './EditUserTimesheetForm';
-import { ConfirmDialog } from '../Common';
 import { apiService } from '../../_services';
 import { LogsTable } from '../../_components';
 
