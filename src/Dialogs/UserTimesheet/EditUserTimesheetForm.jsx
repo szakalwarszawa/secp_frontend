@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -43,7 +43,7 @@ function EditUserTimesheetFormComp(props) {
     status: {
       id: '',
     },
-    statusId: -1,
+    statusId: '',
   });
   const [statuses, setStatuses] = useState([]);
   const isLoading = Boolean(state.loaderWorkerCount > 0);
@@ -77,7 +77,7 @@ function EditUserTimesheetFormComp(props) {
    * @param {Object} actualUserTimesheet
    * @param {Object[]} allStatuses
    */
-  const makeStatusList = (actualUserTimesheet, allStatuses) => {
+  const makeStatusList = useCallback((actualUserTimesheet, allStatuses) => {
     const actualStatus = actualUserTimesheet.status;
     const allowedStatusChange = getAllowedStatusChange(actualUserTimesheet);
     if (allowedStatusChange === null) {
@@ -85,8 +85,8 @@ function EditUserTimesheetFormComp(props) {
     }
 
     allowedStatusChange.push(actualStatus.id);
-    return allStatuses.filter(status => allowedStatusChange.indexOf(status.id) !== -1);
-  };
+    return allStatuses.filter((status) => allowedStatusChange.indexOf(status.id) !== -1);
+  }, []);
 
   useEffect(
     () => {
@@ -94,37 +94,37 @@ function EditUserTimesheetFormComp(props) {
         ? userTimesheet.status.id
         : null;
 
-      setUserTimesheetData(s => ({
+      setUserTimesheetData((s) => ({
         ...s,
         ...userTimesheet,
         statusId,
         originalStatusId: statusId,
       }));
 
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('user_timesheet_statuses')
         .then((result) => {
           setStatuses(makeStatusList(userTimesheet, result['hydra:member']));
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
-    [userTimesheet]
+    [makeStatusList, userTimesheet]
   );
 
   useEffect(
     () => {
-      setState(s => ({ ...s, requestError }));
+      setState((s) => ({ ...s, requestError }));
     },
     [requestError],
   );
 
   const saveDialogHandler = () => {
-    setState(s => ({ ...s, confirmOpen: true }));
+    setState((s) => ({ ...s, confirmOpen: true }));
   };
 
   const handleStatusChange = (field, chosenStatus) => {
     const activeStatus = statuses.filter(
-      status => status.id === chosenStatus,
+      (status) => status.id === chosenStatus,
     );
 
     setUserTimesheetData({
@@ -135,10 +135,10 @@ function EditUserTimesheetFormComp(props) {
   };
 
   const onConfirmHandler = (confirm) => {
-    setState(s => ({ ...s, confirmOpen: false }));
+    setState((s) => ({ ...s, confirmOpen: false }));
 
     if (confirm) {
-      setState(s => ({ ...s, submitted: true, isLoading: true }));
+      setState((s) => ({ ...s, submitted: true, isLoading: true }));
       onSave(userTimesheetData);
     }
   };
@@ -173,14 +173,14 @@ function EditUserTimesheetFormComp(props) {
         <FormControl component="div" className={classes.formControl} disabled={isLoading}>
           <InputLabel htmlFor="status">Status listy</InputLabel>
           <Select
-            value={userTimesheetData.statusId || -1}
-            onChange={event => handleStatusChange(event.target.name, event.target.value)}
+            value={statuses.length === 0 ? '' : (userTimesheetData.statusId || '')}
+            onChange={(event) => handleStatusChange(event.target.name, event.target.value)}
             inputProps={{
               name: 'statusId',
               id: 'statusId',
             }}
           >
-            {statuses.map(status => (
+            {statuses.map((status) => (
               <MenuItem button componet="li" key={status.id} value={status.id}>
                 {status.name}
               </MenuItem>
@@ -231,7 +231,7 @@ function EditUserTimesheetFormComp(props) {
   );
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   main: {
     display: 'flex',
     flexDirection: 'column',
@@ -278,7 +278,7 @@ EditUserTimesheetFormComp.defaultProps = {
   requestError: '',
 };
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = (state) => ({ ...state });
 
 const styledEditUserTimesheetForm = withStyles(styles)(EditUserTimesheetFormComp);
 const connectedEditUserTimesheetForm = connect(mapStateToProps)(styledEditUserTimesheetForm);

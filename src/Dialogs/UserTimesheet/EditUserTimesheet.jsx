@@ -41,15 +41,15 @@ function EditUserTimesheetComp(props) {
 
   useEffect(
     () => {
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`user_timesheets/${userTimesheetId}`)
         .then((result) => {
-          setUserTimesheetData(s => ({
+          setUserTimesheetData((s) => ({
             ...s,
             ...result,
           }));
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-          setState(s => ({ ...s, loaded: true }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaded: true }));
         });
     },
     [userTimesheetId],
@@ -62,23 +62,23 @@ function EditUserTimesheetComp(props) {
       status: `/api/user_timesheet_statuses/${savedData.status.id}`,
     };
 
-    setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, loaded: false }));
+    setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, loaded: false }));
     apiService.put(`user_timesheets/${userTimesheetId}`, payload)
       .then(
         (result) => {
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-          setState(s => ({ ...s, loaded: false }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaded: false }));
           onClose(true, result);
         },
         (error) => {
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-          setState(s => ({ ...s, requestError: error }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, requestError: error }));
         },
       );
   };
 
   const handleTabChange = (event, newValue) => {
-    setState(s => ({ ...s, tabIndex: newValue }));
+    setState((s) => ({ ...s, tabIndex: newValue }));
   };
 
   function TabPanel(propsTabPanel) {
@@ -162,7 +162,7 @@ EditUserTimesheetComp.propTypes = {
   classes: PropTypes.instanceOf(Object),
 };
 
-const styles = theme => ({
+const styles = (theme) => ({
   main: {
     display: 'flex',
     flexDirection: 'column',
@@ -200,7 +200,7 @@ EditUserTimesheetComp.defaultProps = {
   classes: {},
 };
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = (state) => ({ ...state });
 
 const styledEditUserTimesheet = withStyles(styles)(EditUserTimesheetComp);
 const connectedEditUserTimesheet = connect(mapStateToProps)(styledEditUserTimesheet);

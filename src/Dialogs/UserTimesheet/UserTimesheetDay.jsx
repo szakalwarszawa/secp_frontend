@@ -11,9 +11,9 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 
-import { UserTimesheetDayTable } from '.';
+import { UserTimesheetDayTable } from './UserTimesheetDayTable';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   mainTable: {
     width: '100%',
     marginRight: '45px',
@@ -83,7 +83,7 @@ UserTimesheetDayComp.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = (state) => ({ ...state });
 
 const connectedUserTimesheetDay = connect(mapStateToProps)(UserTimesheetDayComp);
 export { connectedUserTimesheetDay as UserTimesheetDay };

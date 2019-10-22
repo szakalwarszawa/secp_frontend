@@ -45,7 +45,7 @@ function CreateUserTimesheetDayComp(props) {
     () => {
       apiService.get(`user_work_schedule_days/active/${userId}/${moment(timeFrom).format('YYYY-MM-DD')}`)
         .then((result) => {
-          setUserTimesheetDayData(s => ({
+          setUserTimesheetDayData((s) => ({
             ...s,
             userWorkScheduleDay: result,
             presenceTypeId: null,
@@ -55,7 +55,7 @@ function CreateUserTimesheetDayComp(props) {
             workingTime: 0,
             timesheetDayDate: moment(timeFrom).format('YYYY-MM-DD'),
           }));
-          setState(s => ({ ...s, loaded: true }));
+          setState((s) => ({ ...s, loaded: true }));
         });
     },
     [timeFrom, timeTo, userId],
@@ -64,8 +64,8 @@ function CreateUserTimesheetDayComp(props) {
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = (savedData) => {
-    setState(s => ({ ...s, loaded: false }));
-    const workingTime = dayData => (!!dayData.dayEndTime && !!dayData.dayStartTime
+    setState((s) => ({ ...s, loaded: false }));
+    const workingTime = (dayData) => (!!dayData.dayEndTime && !!dayData.dayStartTime
       ? ((dayData.dayEndTime - dayData.dayStartTime) / 3600000).toFixed(2)
       : 0);
     const isAbsence = Boolean(savedData.presenceType.isAbsence);
@@ -92,23 +92,23 @@ function CreateUserTimesheetDayComp(props) {
       dayDate: moment(timeFrom).format('YYYY-MM-DD'),
     };
 
-    setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+    setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
     apiService.post(`user_timesheet_days/own/create/${payload.dayDate}`, payload)
       .then(
         (result) => {
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
           onClose(true, result);
         },
         (error) => {
           console.log(error);
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-          setState(s => ({ ...s, requestError: error }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, requestError: error }));
         },
       );
   };
 
   const handleTabChange = (event, newValue) => {
-    setState(s => ({ ...s, tabIndex: newValue }));
+    setState((s) => ({ ...s, tabIndex: newValue }));
   };
 
   function TabPanel(propsTabPanel) {
@@ -180,7 +180,7 @@ function CreateUserTimesheetDayComp(props) {
   );
 }
 
-const styles = theme => ({});
+const styles = () => ({});
 
 CreateUserTimesheetDayComp.propTypes = {
   open: PropTypes.bool.isRequired,

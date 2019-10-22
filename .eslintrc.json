@@ -3,8 +3,9 @@
     "react-hooks"
   ],
   "extends": [
-    "react-app",
-    "airbnb"
+    "airbnb",
+    "airbnb/hooks",
+    "react-app"
   ],
   "rules": {
     "import/prefer-default-export": "off",

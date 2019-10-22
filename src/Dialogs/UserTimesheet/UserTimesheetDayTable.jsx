@@ -11,7 +11,7 @@ import getTableIcons from '../../_helpers/tableIcons';
 import getTableLocalization from '../../_helpers/tableLocalization';
 import { EditUserTimesheetDay } from '../UserTimesheetDay';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   mainTable: {
     width: '100%',
     marginRight: '45px',
@@ -52,7 +52,7 @@ function UserTimesheetDayTableComp(props) {
 
   useEffect(
     () => {
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('absence_types?_order[name]=asc')
         .then((result) => {
           const absenceList = {};
@@ -60,10 +60,10 @@ function UserTimesheetDayTableComp(props) {
             absenceList[`_${absence.id}_`] = absence.name;
           });
           setAbsences(absenceList);
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('presence_types?_order[name]=asc')
         .then((result) => {
           const presenceList = {};
@@ -71,18 +71,18 @@ function UserTimesheetDayTableComp(props) {
             presenceList[`_${presence.id}_`] = presence.name;
           });
           setPresences(presenceList);
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get(`user_timesheets/${userTimesheetId}`)
         .then((result) => {
-          setUserTimesheetData(s => ({
+          setUserTimesheetData((s) => ({
             ...s,
             ...result,
           }));
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-          setState(s => ({ ...s, loaded: true }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaded: true }));
         });
     },
     [userTimesheetId],
@@ -126,7 +126,7 @@ function UserTimesheetDayTableComp(props) {
             field: 'presenceType.name',
             searchField: 'presenceType.id',
             lookup: presences,
-            render: rowData => <span>{rowData.presenceType && rowData.presenceType.name}</span>,
+            render: (rowData) => <span>{rowData.presenceType && rowData.presenceType.name}</span>,
             customFilterAndSearch: () => true,
           },
           {
@@ -134,7 +134,7 @@ function UserTimesheetDayTableComp(props) {
             field: 'absenceType.name',
             searchField: 'absenceType.id',
             lookup: absences,
-            render: rowData => <span>{rowData.absenceType && rowData.absenceType.name}</span>,
+            render: (rowData) => <span>{rowData.absenceType && rowData.absenceType.name}</span>,
             customFilterAndSearch: () => true,
           },
           { title: 'Rozpoczęcie dnia', field: 'dayStartTime' },
@@ -186,7 +186,7 @@ UserTimesheetDayTableComp.propTypes = {
   userTimesheetId: PropTypes.number.isRequired,
 };
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = (state) => ({ ...state });
 
 const connectedUserTimesheetDayTable = connect(mapStateToProps)(UserTimesheetDayTableComp);
 export { connectedUserTimesheetDayTable as UserTimesheetDayTable };
