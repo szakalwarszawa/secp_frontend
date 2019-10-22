@@ -9,7 +9,7 @@ import getTableIcons from '../../_helpers/tableIcons';
 import getTableLocalization from '../../_helpers/tableLocalization';
 import { EditUserTimesheet, UserTimesheetDay } from '../../Dialogs/UserTimesheet';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   mainTable: {
     width: '100%',
     marginRight: '45px',
@@ -89,7 +89,7 @@ function TimesheetListToAcceptComp(prop) {
             field: 'status.name',
             searchField: 'status.id',
             lookup: timesheetStatuses,
-            render: rowData => (
+            render: (rowData) => (
               <span>
                 {rowData.status && rowData.status.name}
               </span>
@@ -103,7 +103,7 @@ function TimesheetListToAcceptComp(prop) {
             field: 'owner.department.name',
             searchField: 'owner.department.id',
             lookup: departments,
-            render: rowData => (
+            render: (rowData) => (
               <span>{rowData.owner.department && rowData.owner.department.name}</span>
             ),
             customFilterAndSearch: () => true,
@@ -113,13 +113,13 @@ function TimesheetListToAcceptComp(prop) {
             field: 'owner.section.name',
             searchField: 'owner.section.id',
             lookup: sections,
-            render: rowData => (
+            render: (rowData) => (
               <span>{rowData.owner.section && rowData.owner.section.name}</span>
             ),
             customFilterAndSearch: () => true,
           },
         ]}
-        data={query => getQuery(query, 'user_timesheets')}
+        data={(query) => getQuery(query, 'user_timesheets')}
         actions={[
           {
             icon: getTableIcons().Edit,
@@ -172,7 +172,7 @@ function TimesheetListToAcceptComp(prop) {
   );
 }
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = (state) => ({ ...state });
 
 const connectedTimesheetToAcceptList = connect(mapStateToProps)(TimesheetListToAcceptComp);
 export { connectedTimesheetToAcceptList as TimesheetListToAccept };

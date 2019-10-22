@@ -107,7 +107,7 @@ class App extends React.Component {
   }
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     flexGrow: 1,
     margin: theme.spacing(),
@@ -143,6 +143,7 @@ App.propTypes = {
 
 App.defaultProps = {
   classes: {},
+  loggedIn: false,
 };
 
 const mapStateToProps = (state) => {
