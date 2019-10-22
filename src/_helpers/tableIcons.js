@@ -14,6 +14,7 @@ import Refresh from '@material-ui/icons/Refresh';
 import Edit from '@material-ui/icons/Edit';
 import SortArrow from '@material-ui/icons/ArrowUpward';
 import Delete from '@material-ui/icons/DeleteOutline';
+import List from '@material-ui/icons/List';
 
 export default function getTableIcons() {
   return {
@@ -35,5 +36,6 @@ export default function getTableIcons() {
     ThirdStateCheck: Remove,
     ViewColumn,
     Refresh,
+    List,
   };
 }

@@ -16,7 +16,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import Paper from '@material-ui/core/Paper';
 
 import { apiService, userService } from '../../_services';
-import { userConstants, userTimesheetConstants } from '../../_constants';
+import { userConstants } from '../../_constants';
 import { ConfirmDialog } from '../Common';
 
 function EditUserTimesheetFormComp(props) {

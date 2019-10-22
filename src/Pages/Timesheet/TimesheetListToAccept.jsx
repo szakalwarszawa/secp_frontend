@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core';
 import { apiService, getQuery } from '../../_services';
 import getTableIcons from '../../_helpers/tableIcons';
 import getTableLocalization from '../../_helpers/tableLocalization';
-import { EditUserTimesheet } from '../../Dialogs/UserTimesheet';
+import { EditUserTimesheet, UserTimesheetDay } from '../../Dialogs/UserTimesheet';
 
 const useStyles = makeStyles(theme => ({
   mainTable: {
@@ -22,6 +22,7 @@ function TimesheetListToAcceptComp(prop) {
   const [departments, setDepartments] = useState({});
   const [sections, setSections] = useState({});
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openTimesheetDayDialog, setOpenTimesheetDayDialog] = useState(false);
   const [userTimesheetId, setUserTimesheetId] = useState(0);
   const [timesheetStatuses, setTimesheetStatuses] = useState({});
 
@@ -64,6 +65,11 @@ function TimesheetListToAcceptComp(prop) {
     if (reload) {
       tableRef.current.onQueryChange();
     }
+  };
+
+  const handleCloseTmesheetDayDialog = () => {
+    setOpenTimesheetDayDialog(false);
+    setUserTimesheetId(0);
   };
 
   return (
@@ -124,6 +130,14 @@ function TimesheetListToAcceptComp(prop) {
             },
           },
           {
+            icon: getTableIcons().List,
+            tooltip: 'Edycja obecności',
+            onClick: (event, rowData) => {
+              setUserTimesheetId(rowData.id);
+              setOpenTimesheetDayDialog(true);
+            },
+          },
+          {
             disabled: false,
             icon: getTableIcons().Refresh,
             isFreeAction: true,
@@ -147,11 +161,18 @@ function TimesheetListToAcceptComp(prop) {
           onClose={handleCloseDialog}
         />
       )}
+      {openTimesheetDayDialog && (
+        <UserTimesheetDay
+          userTimesheetId={userTimesheetId}
+          open={openTimesheetDayDialog}
+          onClose={handleCloseTmesheetDayDialog}
+        />
+      )}
     </div>
   );
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = state => ({ ...state });
 
 const connectedTimesheetToAcceptList = connect(mapStateToProps)(TimesheetListToAcceptComp);
 export { connectedTimesheetToAcceptList as TimesheetListToAccept };
