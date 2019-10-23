@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -71,19 +71,19 @@ function EditUserTimesheetDayFormComp(props) {
     && !('absenceType' in userTimesheetDayData),
   );
   const isTimed = Boolean(userTimesheetDayData.presenceType.isTimed);
-  const editRestrictions = {
+  const editRestrictions = useCallback(() => ({
     EDIT_RESTRICTION_ALL: 0,
     EDIT_RESTRICTION_TODAY: 1,
     EDIT_RESTRICTION_BEFORE_TODAY: 2,
     EDIT_RESTRICTION_AFTER_TODAY: 3,
     EDIT_RESTRICTION_BEFORE_AND_TODAY: 4,
     EDIT_RESTRICTION_AFTER_AND_TODAY: 5,
-  };
-  const workingDayRestrictions = {
+  }), []);
+  const workingDayRestrictions = useCallback(() => ({
     WORKING_AND_NON_WORKING_DAY: 0,
     WORKING_DAY: 1,
     NON_WORKING_DAY: 2,
-  };
+  }), []);
 
   useEffect(
     () => {
@@ -101,11 +101,11 @@ function EditUserTimesheetDayFormComp(props) {
         return;
       }
 
-      setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
+      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('absence_types?_order[name]=asc&active=true')
         .then((result) => {
           setAbsences(result['hydra:member']);
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
       const day = userTimesheetDay.userWorkScheduleDay;
@@ -126,7 +126,7 @@ function EditUserTimesheetDayFormComp(props) {
         || !moment(dayEndTimeFromDate).isSame(dayEndTimeToDate, 'minute');
 
       if (!timeAdjust) {
-        setUserTimesheetDayData(s => ({
+        setUserTimesheetDayData((s) => ({
           ...s,
           dayStartTime: dayStartTimeFromDate,
           dayEndTime: dayEndTimeFromDate,
@@ -157,31 +157,31 @@ function EditUserTimesheetDayFormComp(props) {
             }
 
             if (
-              presence.workingDayRestriction === workingDayRestrictions.WORKING_DAY
+              presence.workingDayRestriction === workingDayRestrictions().WORKING_DAY
               && isWorkingDay !== true
             ) {
               return false;
             }
 
             if (
-              presence.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
+              presence.workingDayRestriction === workingDayRestrictions().NON_WORKING_DAY
               && isWorkingDay !== false
             ) {
               return false;
             }
 
             switch (presenceRestriction) {
-              case editRestrictions.EDIT_RESTRICTION_ALL:
+              case editRestrictions().EDIT_RESTRICTION_ALL:
                 return true;
-              case editRestrictions.EDIT_RESTRICTION_TODAY:
+              case editRestrictions().EDIT_RESTRICTION_TODAY:
                 return moment(userTimesheetDay.timesheetDayDate).isSame(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_AFTER_TODAY:
+              case editRestrictions().EDIT_RESTRICTION_AFTER_TODAY:
                 return moment(userTimesheetDay.timesheetDayDate).isAfter(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_BEFORE_TODAY:
+              case editRestrictions().EDIT_RESTRICTION_BEFORE_TODAY:
                 return moment(userTimesheetDay.timesheetDayDate).isBefore(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_AFTER_AND_TODAY:
+              case editRestrictions().EDIT_RESTRICTION_AFTER_AND_TODAY:
                 return moment(userTimesheetDay.timesheetDayDate).isSameOrAfter(moment(), 'day');
-              case editRestrictions.EDIT_RESTRICTION_BEFORE_AND_TODAY:
+              case editRestrictions().EDIT_RESTRICTION_BEFORE_AND_TODAY:
                 return moment(userTimesheetDay.timesheetDayDate).isSameOrBefore(moment(), 'day');
               default:
                 return false;
@@ -189,22 +189,22 @@ function EditUserTimesheetDayFormComp(props) {
           });
 
           setPresences(presenceTypes);
-          setState(s => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
-    [userTimesheetDay]
+    [userTimesheetDay, editRestrictions, workingDayRestrictions, createMode]
   );
 
   useEffect(
     () => {
-      setState(s => ({ ...s, requestError }));
+      setState((s) => ({ ...s, requestError }));
     },
     [requestError],
   );
 
   const handlePresenceChange = (field, date) => {
     const activePresence = presences.filter(
-      presence => presence.id === date,
+      (presence) => presence.id === date,
     );
 
     setUserTimesheetDayData({
@@ -266,7 +266,7 @@ function EditUserTimesheetDayFormComp(props) {
     if (!isAbsence && isTimed
       && moment(userTimesheetDayData.dayStartTime).isAfter(moment(userTimesheetDayData.dayEndTime), 'minute')
     ) {
-      setState(s => ({ ...s, error: { wrongTimeOrder: true } }));
+      setState((s) => ({ ...s, error: { wrongTimeOrder: true } }));
       return false;
     }
 
@@ -279,7 +279,7 @@ function EditUserTimesheetDayFormComp(props) {
           '[]',
         )
     ) {
-      setState(s => ({ ...s, error: { wrongDayStartSlot: true } }));
+      setState((s) => ({ ...s, error: { wrongDayStartSlot: true } }));
       return false;
     }
 
@@ -292,14 +292,14 @@ function EditUserTimesheetDayFormComp(props) {
           '[]',
         )
     ) {
-      setState(s => ({ ...s, error: { wrongDayEndSlot: true } }));
+      setState((s) => ({ ...s, error: { wrongDayEndSlot: true } }));
       return false;
     }
 
     if (!isAbsence && isTimed && userWorkScheduleDay.current.timeAdjust
       && parseFloat(workingTime) !== parseFloat(userWorkScheduleDay.current.dailyWorkingTime)
     ) {
-      setState(s => ({ ...s, error: { wrongWorkingTime: true } }));
+      setState((s) => ({ ...s, error: { wrongWorkingTime: true } }));
       return false;
     }
 
@@ -307,7 +307,7 @@ function EditUserTimesheetDayFormComp(props) {
   };
 
   const saveDialogHandler = () => {
-    setState(s => ({ ...s, submitted: true, isLoading: true }));
+    setState((s) => ({ ...s, submitted: true, isLoading: true }));
 
     if (!validateForm()) {
       return;
@@ -328,7 +328,7 @@ function EditUserTimesheetDayFormComp(props) {
           okLabel="Ustaw"
           invalidDateMessage="Nieprawidłowy format czasu"
           value={userTimesheetDayData[fieldName]}
-          onChange={date => handleTimeInputChange(fieldName, date)}
+          onChange={(date) => handleTimeInputChange(fieldName, date)}
           KeyboardButtonProps={{
             'aria-label': 'change time',
           }}
@@ -384,14 +384,14 @@ function EditUserTimesheetDayFormComp(props) {
         <FormControl component="div" className={classes.formControl} disabled={isLoading}>
           <InputLabel htmlFor="presenceTypeId">Obecność</InputLabel>
           <Select
-            value={userTimesheetDayData.presenceTypeId || -1}
-            onChange={event => handlePresenceChange(event.target.name, event.target.value)}
+            value={presences.length === 0 ? '' : (userTimesheetDayData.presenceTypeId || '')}
+            onChange={(event) => handlePresenceChange(event.target.name, event.target.value)}
             inputProps={{
               name: 'presenceTypeId',
               id: 'presenceTypeId',
             }}
           >
-            {presences.map(presence => (
+            {presences.map((presence) => (
               <MenuItem button componet="li" key={presence.name} value={presence.id}>
                 {presence.name}
               </MenuItem>
@@ -410,7 +410,8 @@ function EditUserTimesheetDayFormComp(props) {
               <FormHelperText error>
                 Opcja dostępna tylko dla dni pracujących
               </FormHelperText>
-            )}
+            )
+}
           {
             state.submitted
             && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
@@ -419,21 +420,22 @@ function EditUserTimesheetDayFormComp(props) {
               <FormHelperText error>
                 Opcja dostępna tylko dla dni niepracujących
               </FormHelperText>
-            )}
+            )
+}
         </FormControl>
 
         {isAbsence && !unableToSetAbsenceType && (
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
             <InputLabel htmlFor="absenceTypeId">Przyczyna nieobecności</InputLabel>
             <Select
-              value={userTimesheetDayData.absenceTypeId || -1}
-              onChange={event => handleInputChange(event.target.name, event.target.value)}
+              value={absences.length === 0 ? '' : (userTimesheetDayData.absenceTypeId || '')}
+              onChange={(event) => handleInputChange(event.target.name, event.target.value)}
               inputProps={{
                 name: 'absenceTypeId',
                 id: 'absenceTypeId',
               }}
             >
-              {absences.map(absence => (
+              {absences.map((absence) => (
                 <MenuItem button componet="li" key={absence.name} value={absence.id}>
                   {absence.name}
                 </MenuItem>
@@ -487,7 +489,7 @@ function EditUserTimesheetDayFormComp(props) {
   );
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   main: {
     display: 'flex',
     flexDirection: 'column',
@@ -536,7 +538,7 @@ EditUserTimesheetDayFormComp.defaultProps = {
   createMode: false,
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = (state) => ({});
 
 const styledEditUserTimesheetDayForm = withStyles(styles)(EditUserTimesheetDayFormComp);
 const connectedEditUserTimesheetDayForm = connect(mapStateToProps)(styledEditUserTimesheetDayForm);

@@ -7,9 +7,9 @@ import { Typography } from '@material-ui/core';
 import { apiService, getQuery } from '../../_services';
 import getTableIcons from '../../_helpers/tableIcons';
 import getTableLocalization from '../../_helpers/tableLocalization';
-import { EditUserTimesheetDay } from '../../Dialogs/UserTimesheetDay';
+import { EditUserTimesheet, UserTimesheetDay } from '../../Dialogs/UserTimesheet';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   mainTable: {
     width: '100%',
     marginRight: '45px',
@@ -22,6 +22,7 @@ function TimesheetListToAcceptComp(prop) {
   const [departments, setDepartments] = useState({});
   const [sections, setSections] = useState({});
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openTimesheetDayDialog, setOpenTimesheetDayDialog] = useState(false);
   const [userTimesheetId, setUserTimesheetId] = useState(0);
   const [timesheetStatuses, setTimesheetStatuses] = useState({});
 
@@ -66,6 +67,11 @@ function TimesheetListToAcceptComp(prop) {
     }
   };
 
+  const handleCloseTmesheetDayDialog = () => {
+    setOpenTimesheetDayDialog(false);
+    setUserTimesheetId(0);
+  };
+
   return (
     <div className={classes.mainTable}>
       <MaterialTable
@@ -83,7 +89,7 @@ function TimesheetListToAcceptComp(prop) {
             field: 'status.name',
             searchField: 'status.id',
             lookup: timesheetStatuses,
-            render: rowData => (
+            render: (rowData) => (
               <span>
                 {rowData.status && rowData.status.name}
               </span>
@@ -97,7 +103,7 @@ function TimesheetListToAcceptComp(prop) {
             field: 'owner.department.name',
             searchField: 'owner.department.id',
             lookup: departments,
-            render: rowData => (
+            render: (rowData) => (
               <span>{rowData.owner.department && rowData.owner.department.name}</span>
             ),
             customFilterAndSearch: () => true,
@@ -107,13 +113,13 @@ function TimesheetListToAcceptComp(prop) {
             field: 'owner.section.name',
             searchField: 'owner.section.id',
             lookup: sections,
-            render: rowData => (
+            render: (rowData) => (
               <span>{rowData.owner.section && rowData.owner.section.name}</span>
             ),
             customFilterAndSearch: () => true,
           },
         ]}
-        data={query => getQuery(query, 'user_timesheets')}
+        data={(query) => getQuery(query, 'user_timesheets')}
         actions={[
           {
             icon: getTableIcons().Edit,
@@ -121,6 +127,14 @@ function TimesheetListToAcceptComp(prop) {
             onClick: (event, rowData) => {
               setUserTimesheetId(rowData.id);
               setOpenEditDialog(true);
+            },
+          },
+          {
+            icon: getTableIcons().List,
+            tooltip: 'Edycja obecności',
+            onClick: (event, rowData) => {
+              setUserTimesheetId(rowData.id);
+              setOpenTimesheetDayDialog(true);
             },
           },
           {
@@ -140,18 +154,25 @@ function TimesheetListToAcceptComp(prop) {
         }}
         localization={getTableLocalization}
       />
-      {false && openEditDialog && (
-        <EditUserTimesheetDay
-          userTimesheetDayId={userTimesheetId}
+      {openEditDialog && (
+        <EditUserTimesheet
+          userTimesheetId={userTimesheetId}
           open={openEditDialog}
           onClose={handleCloseDialog}
+        />
+      )}
+      {openTimesheetDayDialog && (
+        <UserTimesheetDay
+          userTimesheetId={userTimesheetId}
+          open={openTimesheetDayDialog}
+          onClose={handleCloseTmesheetDayDialog}
         />
       )}
     </div>
   );
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({ ...state });
 
 const connectedTimesheetToAcceptList = connect(mapStateToProps)(TimesheetListToAcceptComp);
 export { connectedTimesheetToAcceptList as TimesheetListToAccept };

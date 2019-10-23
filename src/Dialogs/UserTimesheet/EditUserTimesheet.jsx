@@ -3,18 +3,17 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
-import moment from 'moment';
 import { AppBar, Box, Grid, IconButton, Tab, Tabs, Typography, Dialog } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import { EditUserTimesheetDayForm } from './EditUserTimesheetDayForm';
+import { EditUserTimesheetForm } from './EditUserTimesheetForm';
 import { apiService } from '../../_services';
 import { LogsTable } from '../../_components';
 
-function EditUserTimesheetDayComp(props) {
+function EditUserTimesheetComp(props) {
   const {
     classes,
     open,
-    userTimesheetDayId,
+    userTimesheetId,
     onClose,
   } = props;
 
@@ -24,7 +23,7 @@ function EditUserTimesheetDayComp(props) {
     requestError: null,
     tabIndex: 0,
   });
-  const [userTimesheetDayData, setUserTimesheetDayData] = useState({
+  const [userTimesheetData, setUserTimesheetData] = useState({
     userTimesheet: {
       owner: {
         lastName: '',
@@ -43,66 +42,32 @@ function EditUserTimesheetDayComp(props) {
   useEffect(
     () => {
       setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
-      apiService.get(`user_timesheet_days/${userTimesheetDayId}`)
+      apiService.get(`user_timesheets/${userTimesheetId}`)
         .then((result) => {
-          const dayStartTimeDate = result.dayStartTime !== null
-            ? new Date(`${result.userWorkScheduleDay.dayDefinition.id}T${result.dayStartTime}:00`)
-            : null;
-          const dayEndTimeDate = result.dayEndTime !== null
-            ? new Date(`${result.userWorkScheduleDay.dayDefinition.id}T${result.dayEndTime}:00`)
-            : null;
-
-          setUserTimesheetDayData((s) => ({
+          setUserTimesheetData((s) => ({
             ...s,
             ...result,
-            presenceTypeId: result.presenceType !== null ? result.presenceType.id : null,
-            absenceTypeId: ('absenceType' in result) && result.absenceType !== null ? result.absenceType.id : null,
-            dayStartTime: dayStartTimeDate,
-            dayEndTime: dayEndTimeDate,
-            timesheetDayDate: moment(result.userWorkScheduleDay.dayDefinition.id).format('YYYY-MM-DD'),
           }));
           setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
           setState((s) => ({ ...s, loaded: true }));
         });
     },
-    [userTimesheetDayId],
+    [userTimesheetId],
   );
 
   const closeDialogHandler = () => onClose(false);
 
   const saveDialogHandler = (savedData) => {
-    setState((s) => ({ ...s, loaded: false }));
-    const workingTime = !!savedData.dayEndTime && !!savedData.dayStartTime
-      ? ((savedData.dayEndTime - savedData.dayStartTime) / 3600000).toFixed(2)
-      : 0;
-    const isAbsence = Boolean(savedData.presenceType.isAbsence);
-    const isTimed = Boolean(savedData.presenceType.isTimed);
-
     const payload = {
-      presenceType: `/api/presence_types/${savedData.presenceTypeId}`,
-      absenceType: isAbsence && ('absenceType' in savedData) ? `/api/absence_types/${savedData.absenceTypeId}` : null,
-      dayStartTime: isTimed
-        ? savedData.dayStartTime.toLocaleTimeString(
-          'pl-PL',
-          { hour: '2-digit', minute: '2-digit' },
-        )
-        : null,
-      dayEndTime: isTimed
-        ? savedData.dayEndTime.toLocaleTimeString(
-          'pl-PL',
-          { hour: '2-digit', minute: '2-digit' },
-        )
-        : null,
-      workingTime: isTimed && !Number.isNaN(workingTime)
-        ? workingTime.toString()
-        : '0',
+      status: `/api/user_timesheet_statuses/${savedData.status.id}`,
     };
 
-    setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
-    apiService.put(`user_timesheet_days/${userTimesheetDayId}`, payload)
+    setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, loaded: false }));
+    apiService.put(`user_timesheets/${userTimesheetId}`, payload)
       .then(
         (result) => {
           setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
+          setState((s) => ({ ...s, loaded: false }));
           onClose(true, result);
         },
         (error) => {
@@ -157,7 +122,7 @@ function EditUserTimesheetDayComp(props) {
           <Grid container>
             <Grid item xs={11}>
               <Tabs value={state.tabIndex} onChange={handleTabChange}>
-                <Tab label="Edycja dnia pracy" {...applyProps(0)} />
+                <Tab label="Edycja listy" {...applyProps(0)} />
                 <Tab label="Rejestr zmian" {...applyProps(1)} />
               </Tabs>
             </Grid>
@@ -170,8 +135,8 @@ function EditUserTimesheetDayComp(props) {
         </AppBar>
         <TabPanel value={state.tabIndex} index={0}>
           {state.loaded && (
-            <EditUserTimesheetDayForm
-              userTimesheetDay={userTimesheetDayData}
+            <EditUserTimesheetForm
+              userTimesheet={userTimesheetData}
               open={open}
               onClose={closeDialogHandler}
               onSave={saveDialogHandler}
@@ -182,7 +147,7 @@ function EditUserTimesheetDayComp(props) {
         </TabPanel>
         <TabPanel value={state.tabIndex} index={1}>
           {state.loaded && (
-            <LogsTable route="user_timesheet_days" value={userTimesheetDayData.id} />
+            <LogsTable route="user_timesheets" value={userTimesheetData.id} />
           )}
         </TabPanel>
       </Dialog>
@@ -190,9 +155,9 @@ function EditUserTimesheetDayComp(props) {
   );
 }
 
-EditUserTimesheetDayComp.propTypes = {
+EditUserTimesheetComp.propTypes = {
   open: PropTypes.bool.isRequired,
-  userTimesheetDayId: PropTypes.number.isRequired,
+  userTimesheetId: PropTypes.number.isRequired,
   onClose: PropTypes.func.isRequired,
   classes: PropTypes.instanceOf(Object),
 };
@@ -231,12 +196,12 @@ const styles = (theme) => ({
   },
 });
 
-EditUserTimesheetDayComp.defaultProps = {
+EditUserTimesheetComp.defaultProps = {
   classes: {},
 };
 
-const mapStateToProps = () => ({});
+const mapStateToProps = (state) => ({ ...state });
 
-const styledEditUserTimesheetDay = withStyles(styles)(EditUserTimesheetDayComp);
-const connectedEditUserTimesheetDay = connect(mapStateToProps)(styledEditUserTimesheetDay);
-export { connectedEditUserTimesheetDay as EditUserTimesheetDay };
+const styledEditUserTimesheet = withStyles(styles)(EditUserTimesheetComp);
+const connectedEditUserTimesheet = connect(mapStateToProps)(styledEditUserTimesheet);
+export { connectedEditUserTimesheet as EditUserTimesheet };
