@@ -34,12 +34,6 @@ function UserTimesheetDayComp(props) {
 
   const classes = useStyles();
 
-  useEffect(
-    () => {
-    },
-    [],
-  );
-
   const handleClose = () => onClose();
 
   return (
