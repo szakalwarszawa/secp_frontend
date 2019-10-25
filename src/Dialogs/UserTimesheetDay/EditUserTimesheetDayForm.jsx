@@ -368,6 +368,7 @@ function EditUserTimesheetDayFormComp(props) {
         <DialogContentText component="div">
           <div>
             {userTimesheetDayData.userTimesheet.owner.lastName}
+            {' '}
             {userTimesheetDayData.userTimesheet.owner.firstName}
           </div>
           <div>
