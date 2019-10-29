@@ -34,7 +34,7 @@ function LogsTableComp(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {logs.map(row => (
+          {logs.map((row) => (
             <TableRow key={row.id}>
               <TableCell>
                 {moment(row.logDate).format('YYYY-MM-DD')}

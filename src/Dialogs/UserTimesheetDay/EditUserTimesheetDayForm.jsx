@@ -54,6 +54,7 @@ function EditUserTimesheetDayFormComp(props) {
       id: -1,
     },
     absenceType: {},
+    fullOwnerName: '',
   });
   const [presences, setPresences] = useState([]);
   const [absences, setAbsences] = useState([]);
@@ -95,6 +96,9 @@ function EditUserTimesheetDayFormComp(props) {
         absenceTypeId: ('absenceType' in userTimesheetDay) && userTimesheetDay.absenceType !== null
           ? userTimesheetDay.absenceType.id
           : null,
+        fullOwnerName:
+        `${userTimesheetDay.userTimesheet.owner.firstName} ${
+          userTimesheetDay.userTimesheet.owner.lastName}`,
       });
 
       if (!userTimesheetDay.timesheetDayDate) {
@@ -367,9 +371,7 @@ function EditUserTimesheetDayFormComp(props) {
       <DialogContent>
         <DialogContentText component="div">
           <div>
-            {userTimesheetDayData.userTimesheet.owner.lastName}
-            {' '}
-            {userTimesheetDayData.userTimesheet.owner.firstName}
+            {userTimesheetDayData.fullOwnerName}
           </div>
           <div>
             {userTimesheetDayData.userTimesheet.owner.department
