@@ -95,7 +95,7 @@ function EditUserTimesheetDayComp(props) {
         : null,
       workingTime: isTimed && !Number.isNaN(workingTime)
         ? workingTime.toString()
-        : '0',
+        : '0.00',
     };
 
     setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
