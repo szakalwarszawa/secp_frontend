@@ -1,5 +1,6 @@
 import { apiService } from './api.service';
 import { userConstants } from '../_constants';
+import {translate} from "../_helpers/translations";
 
 function logout() {
   // remove user from local storage to log user out
@@ -7,22 +8,17 @@ function logout() {
   sessionStorage.removeItem('user');
 }
 
-function translate(data) {
-  var dictionary = {"Bad credentials.": 'Niepoprawne dane logowania.', "Expired JWT Token": 'Sesja wygasła.'};
-  return dictionary[data];
-}
-
 function handleResponse(response) {
   return response.text().then((text) => {
     const data = text && JSON.parse(text);
     if (!response.ok) {
       if (response.status === 401) {
-        const error = (data && translate(data.message)) || response.statusText;
-        return Promise.reject(error);
         // auto logout if 401 response returned from api
         logout();
         // eslint-disable-next-line no-restricted-globals
         // location.reload(true);
+        const error = (data && translate(data.message)) || response.statusText;
+        return Promise.reject(error);
       }
 
       const error = (data && data.message) || response.statusText;
