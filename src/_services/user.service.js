@@ -70,7 +70,12 @@ function refresh() {
 }
 
 function getUserData() {
-  return JSON.parse(sessionStorage.getItem('user'));
+  let userData = JSON.parse(sessionStorage.getItem('user'));
+  if (userData) {
+    userData['fullName'] = userData.firstName + ' ' + userData.lastName;
+  }
+
+  return userData;
 }
 
 function getUserId() {
