@@ -11,8 +11,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import { withStyles } from '@material-ui/core/styles';
 import { TextField } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import { alertConstants } from '../../_constants';
-import { apiService, userService } from '../../_services';
+import { apiService } from '../../_services';
 
 function IssueReportDialog(props) {
   const {
@@ -28,34 +29,62 @@ function IssueReportDialog(props) {
       type: null,
       message: '',
     },
+    lockForm: false,
+    submitted: false,
   });
-
   const isLoading = Boolean(state.loaderWorkerCount > 0);
-
   const [issueData, setIssueData] = useState({
-    reporterName: reporter.fullName,
+    reporterName: reporter ? reporter.fullName : '',
     subject: '',
     description: '',
   });
 
   const handleInputChange = (field, value) => {
     setIssueData({ ...issueData, [field]: value });
-    console.log(issueData);
+  };
+
+  const validateForm = () => {
+    if (!issueData.description) {
+      return false;
+    }
+    if (!issueData.reporterName) {
+      return false;
+    }
+    if (!issueData.subject) {
+      return false;
+    }
+
+    return true;
   };
 
   const saveDialogHandler = () => {
-    setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1, requestError: null }));
+    setState((s) => ({ ...s, submitted: true }));
+    if (!validateForm()) {
+      return;
+    }
+
+    setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
     apiService.post('app_issues', issueData)
       .then(
         (data) => {
           setState({ ...state, loaderWorkerCount: state.loaderWorkerCount - 1 });
-          const responseData = {
-            message: `Zgłoszenie zostało wysłane poprawnie, otrzymało numer: #${data.redmineTaskId}`,
-            type: alertConstants.SUCCESS,
-          };
+          let responseData;
+          if (!data.redmineTaskId) {
+            responseData = {
+              message: 'Nie udało się przesłać zgłoszenia. Skontaktuj się z administratorem.',
+              type: alertConstants.ERROR,
+            };
+          } else {
+            responseData = {
+              message: `Zgłoszenie zostało wysłane poprawnie, otrzymało numer: #${data.redmineTaskId}`,
+              type: alertConstants.SUCCESS,
+            };
+          }
+
           setState({
             ...state,
             responseData,
+            lockForm: true,
           });
         },
         (error) => {
@@ -66,6 +95,7 @@ function IssueReportDialog(props) {
           setState({
             ...state,
             responseData,
+            lockForm: false,
           });
         },
       );
@@ -92,15 +122,20 @@ function IssueReportDialog(props) {
           <TextField
             autoFocus
             margin="dense"
-            id="reporter"
+            id="reporterName"
             label="Imię i nazwisko"
             type="text"
             fullWidth
             inputProps={{ maxLength: 70 }}
-            disabled={(reporter) || isLoading || state.responseData.type === alertConstants.SUCCESS}
-            value={reporter ? reporter.fullName : ''}
+            disabled={!!reporter || isLoading || state.lockForm}
+            defaultValue={reporter ? reporter.fullName : ''}
             onChange={(event) => handleInputChange(event.target.id, event.target.value)}
           />
+          {state.submitted && !issueData.reporterName && (
+          <FormHelperText error>
+                Podanie swoich danych jest wymagane
+          </FormHelperText>
+          )}
           <TextField
             margin="dense"
             id="subject"
@@ -108,9 +143,14 @@ function IssueReportDialog(props) {
             type="text"
             fullWidth
             inputProps={{ maxLength: 255 }}
-            disabled={isLoading || state.responseData.type === alertConstants.SUCCESS}
+            disabled={isLoading || state.lockForm}
             onChange={(event) => handleInputChange(event.target.id, event.target.value)}
           />
+          {state.submitted && !issueData.subject && (
+          <FormHelperText error>
+                Podanie tematu zgłoszenia jest wymagane
+          </FormHelperText>
+          )}
           <TextField
             margin="dense"
             id="description"
@@ -120,9 +160,14 @@ function IssueReportDialog(props) {
             rows={5}
             multiline
             inputProps={{ maxLength: 5000 }}
-            disabled={isLoading || state.responseData.type === alertConstants.SUCCESS}
+            disabled={isLoading || state.lockForm}
             onChange={(event) => handleInputChange(event.target.id, event.target.value)}
           />
+          {state.submitted && !issueData.description && (
+          <FormHelperText error>
+                Podanie opisu zgłoszenia jest wymagane
+          </FormHelperText>
+          )}
           <Paper
             hidden={state.responseData.type === null}
             className={state.responseData.type === alertConstants.SUCCESS ? classes.successBox : classes.errorBox}
@@ -137,7 +182,7 @@ function IssueReportDialog(props) {
           </Button>
           <Button
             href=""
-            disabled={isLoading || state.responseData.type === 'success'}
+            disabled={isLoading || state.lockForm}
             onClick={saveDialogHandler}
             color="primary"
           >
@@ -171,7 +216,13 @@ const styles = (theme) => ({
 IssueReportDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  reporter: PropTypes.object.isRequired,
+  reporter: PropTypes.instanceOf(Object),
+  classes: PropTypes.instanceOf(Object),
+};
+
+IssueReportDialog.defaultProps = {
+  classes: {},
+  reporter: {},
 };
 
 const styledLoginPage = withStyles(styles)(IssueReportDialog);
