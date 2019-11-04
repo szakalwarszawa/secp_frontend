@@ -93,10 +93,11 @@ function EditUserTimesheetDayComp(props) {
           { hour: '2-digit', minute: '2-digit' },
         )
         : null,
-      workingTime: isTimed && !Number.isNaN(workingTime)
-        ? workingTime.toString()
-        : '0.00',
     };
+
+    if (isTimed && !Number.isNaN(workingTime)) {
+      payload.workingTime = workingTime.toString();
+    }
 
     setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
     apiService.put(`user_timesheet_days/${userTimesheetDayId}`, payload)
