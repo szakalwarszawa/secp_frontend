@@ -110,6 +110,12 @@ function AppHeader(props) {
               <ListItemIcon><IconAccessTime /></ListItemIcon>
               <ListItemText primary="Kalendarz" />
             </ListItem>
+            {userService.isManager && (
+              <ListItem button component="a" href="/anotherUserCalendar/">
+                <ListItemIcon><IconAccessTime /></ListItemIcon>
+                <ListItemText primary="Kalendarz innych użytkowników" />
+              </ListItem>
+            )}
             <ListItem button component="a" href="/timesheetList/">
               <ListItemIcon><IconList /></ListItemIcon>
               <ListItemText primary="Lista obecności" />
