@@ -146,7 +146,7 @@ function EditUserTimesheetDayFormComp(props) {
         timeAdjust,
       };
 
-      apiService.get('presence_types?_order[name]=asc&active=true')
+      apiService.get('presence_types?_order[id]=asc&active=true')
         .then((result) => {
           let presenceTypes = result['hydra:member'];
           const isWorkingDay = userWorkScheduleDay.current.workingDay;
