@@ -20,6 +20,7 @@ import IconAccessTime from '@material-ui/icons/AccessTime';
 import IconDoneAll from '@material-ui/icons/DoneAll';
 import IconList from '@material-ui/icons/List';
 import IconPeople from '@material-ui/icons/People';
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 // import Badge from '@material-ui/core/Badge';
 // import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -51,7 +52,11 @@ function AppHeader(props) {
   const classes = useStyles();
   const [drawerOpened, setDrawerOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const { appBarTitle, user } = props;
+  const {
+    appBarTitle,
+    user,
+    issueDialogHandler,
+  } = props;
 
   const isMenuOpen = Boolean(anchorEl);
 
@@ -132,13 +137,20 @@ function AppHeader(props) {
                 <ListItemText primary="Lista obecności do akceptacji" />
               </ListItem>
             )}
-            <Divider component="hr" />
             {userService.isHR() && (
-              <ListItem button component="a" href="/users/">
-                <ListItemIcon><IconPeople /></ListItemIcon>
-                <ListItemText primary="Lista użytkowników" />
-              </ListItem>
+              <>
+                <Divider component="hr" />
+                <ListItem button component="a" href="/users/">
+                  <ListItemIcon><IconPeople /></ListItemIcon>
+                  <ListItemText primary="Lista użytkowników" />
+                </ListItem>
+              </>
             )}
+            <Divider component="hr" />
+            <ListItem onClick={() => { setDrawerOpened(false); issueDialogHandler(); }} button component="a">
+              <ListItemIcon><ReportProblemIcon /></ListItemIcon>
+              <ListItemText primary="Zgłoś błąd" />
+            </ListItem>
           </List>
         </Drawer>
         <Typography variant="h6" className={classes.title}>
