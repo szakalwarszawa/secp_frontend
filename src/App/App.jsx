@@ -18,6 +18,8 @@ import DateFnsUtilsLocalePl from 'date-fns/locale/pl';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 
 
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
+import { Fab, Tooltip } from '@material-ui/core';
 import { alertActions } from '../_actions';
 import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
@@ -29,24 +31,42 @@ import { UserList } from '../Pages/User';
 import AppHeader from '../_components/AppHeader';
 import { UserCalendar } from '../Pages/Calendar';
 import { userService } from '../_services';
+import { IssueReportDialog } from '../Dialogs/App';
 
 class App extends React.Component {
-  handlCloseSnackBar = () => {
+  constructor(props) {
+    super(props);
+    this.state = {
+      openIssueReportDialog: false,
+    };
+  }
+
+  handleCloseSnackBar = () => {
     const { dispatch } = this.props;
     dispatch(alertActions.clear());
   };
 
   render() {
     const { alert, classes, loggedIn } = this.props;
+    const { openIssueReportDialog } = this.state;
     console.info(`UI_TAG: ${process.env.REACT_APP_GIT_TAG}`);
     console.info(`UI_GIT: ${process.env.REACT_APP_GIT_COMMIT}`);
     console.info(`UI_DATE: ${process.env.REACT_APP_DEPLOY_TIME}`);
+
+    const handleDialogOpen = () => {
+      this.setState({ openIssueReportDialog: !openIssueReportDialog });
+    };
 
     return (
       <div>
         <MuiPickersUtilsProvider utils={DateFnsUtils} locale={DateFnsUtilsLocalePl}>
           <Router history={history}>
-            {loggedIn ? <AppHeader appBarTitle="Ewidencja Czasu Pracy" /> : null}
+            {loggedIn ? (
+              <AppHeader
+                appBarTitle="Ewidencja Czasu Pracy"
+                issueDialogHandler={handleDialogOpen}
+              />
+            ) : null}
             <Grid
               container
               className={classes.root}
@@ -92,7 +112,7 @@ class App extends React.Component {
                       aria-label="Close"
                       color="inherit"
                       className={classes.close}
-                      onClick={this.handlCloseSnackBar}
+                      onClick={this.handleCloseSnackBar}
                     >
                       <CloseIcon className={classes.icon} />
                     </IconButton>
@@ -102,6 +122,28 @@ class App extends React.Component {
             </Grid>
           </Router>
         </MuiPickersUtilsProvider>
+        {!loggedIn && (
+        <Tooltip title="Zgłoś błąd">
+          <Fab
+            size="small"
+            color="secondary"
+            aria-label="issue"
+            className={classes.issueFab}
+            onClick={handleDialogOpen}
+            onClose={handleDialogOpen}
+          >
+            <ReportProblemIcon />
+          </Fab>
+        </Tooltip>
+        )}
+
+        {openIssueReportDialog && (
+        <IssueReportDialog
+          open={openIssueReportDialog}
+          onClose={handleDialogOpen}
+          reporter={userService.getUserData()}
+        />
+        )}
       </div>
     );
   }
@@ -128,6 +170,11 @@ const styles = (theme) => ({
   },
   icon: {
     fontSize: 20,
+  },
+  issueFab: {
+    position: 'absolute',
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
   },
 });
 

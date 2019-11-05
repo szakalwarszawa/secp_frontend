@@ -62,6 +62,7 @@ function callForOwnUserData() {
     .then((result) => {
       sessionStorage.setItem('user', JSON.stringify(result));
       callForApiVersion();
+
       return result;
     });
 }
