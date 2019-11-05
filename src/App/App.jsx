@@ -31,7 +31,6 @@ import { UserList } from '../Pages/User';
 import AppHeader from '../_components/AppHeader';
 import { UserCalendar } from '../Pages/Calendar';
 import { userService } from '../_services';
-import { EditUserTimesheetDay } from '../Dialogs/UserTimesheetDay';
 import { IssueReportDialog } from '../Dialogs/App';
 
 class App extends React.Component {
