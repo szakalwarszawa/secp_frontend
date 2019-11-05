@@ -201,6 +201,18 @@ function EditUserTimesheetDayFormComp(props) {
 
   useEffect(
     () => {
+      if (userTimesheetDayData.presenceTypeId === null) {
+        setUserTimesheetDayData((s) => ({
+          ...s,
+          presenceTypeId: presences[0].id,
+          presenceType: presences[0],
+        }));
+      }
+    }, [presences]
+  );
+
+  useEffect(
+    () => {
       setState((s) => ({ ...s, requestError }));
     },
     [requestError],
