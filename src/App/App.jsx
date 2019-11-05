@@ -20,7 +20,7 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 import { Fab, Tooltip } from '@material-ui/core';
-import { alertActions, userActions } from '../_actions';
+import { alertActions } from '../_actions';
 import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
 import { Login } from '../Pages/Login';
@@ -34,17 +34,17 @@ import { userService } from '../_services';
 import { IssueReportDialog } from '../Dialogs/App';
 
 class App extends React.Component {
-  handlCloseSnackBar = () => {
-    const { dispatch } = this.props;
-    dispatch(alertActions.clear());
-  };
-
   constructor(props) {
     super(props);
     this.state = {
       openIssueReportDialog: false,
     };
   }
+
+  handleCloseSnackBar = () => {
+    const { dispatch } = this.props;
+    dispatch(alertActions.clear());
+  };
 
   render() {
     const { alert, classes, loggedIn } = this.props;
@@ -61,7 +61,12 @@ class App extends React.Component {
       <div>
         <MuiPickersUtilsProvider utils={DateFnsUtils} locale={DateFnsUtilsLocalePl}>
           <Router history={history}>
-            {loggedIn ? <AppHeader appBarTitle="Ewidencja Czasu Pracy" /> : null}
+            {loggedIn ? (
+              <AppHeader
+                appBarTitle="Ewidencja Czasu Pracy"
+                issueDialogHandler={handleDialogOpen}
+              />
+            ) : null}
             <Grid
               container
               className={classes.root}
@@ -107,7 +112,7 @@ class App extends React.Component {
                       aria-label="Close"
                       color="inherit"
                       className={classes.close}
-                      onClick={this.handlCloseSnackBar}
+                      onClick={this.handleCloseSnackBar}
                     >
                       <CloseIcon className={classes.icon} />
                     </IconButton>
@@ -117,6 +122,7 @@ class App extends React.Component {
             </Grid>
           </Router>
         </MuiPickersUtilsProvider>
+        {!loggedIn && (
         <Tooltip title="Zgłoś błąd">
           <Fab
             size="small"
@@ -129,6 +135,8 @@ class App extends React.Component {
             <ReportProblemIcon />
           </Fab>
         </Tooltip>
+        )}
+
         {openIssueReportDialog && (
         <IssueReportDialog
           open={openIssueReportDialog}

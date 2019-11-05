@@ -61,6 +61,7 @@ function callForOwnUserData() {
     .then((result) => {
       sessionStorage.setItem('user', JSON.stringify(result));
       callForApiVersion();
+
       return result;
     });
 }
@@ -70,12 +71,7 @@ function refresh() {
 }
 
 function getUserData() {
-  let userData = JSON.parse(sessionStorage.getItem('user'));
-  if (userData) {
-    userData['fullName'] = userData.firstName + ' ' + userData.lastName;
-  }
-
-  return userData;
+  return JSON.parse(sessionStorage.getItem('user'));
 }
 
 function getUserId() {
