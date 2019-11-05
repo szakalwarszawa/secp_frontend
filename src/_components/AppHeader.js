@@ -12,6 +12,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import HelpIcon from '@material-ui/icons/Help';
 import TableChartIcon from '@material-ui/icons/TableChart';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -25,6 +26,8 @@ import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 // import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import LaunchIcon from '@material-ui/icons/Launch';
+import { grey } from '@material-ui/core/colors';
 import { userService } from '../_services';
 
 const useStyles = makeStyles(() => ({
@@ -45,6 +48,9 @@ const useStyles = makeStyles(() => ({
   },
   userNotLoaded: {
     display: 'none',
+  },
+  greyIcon: {
+    color: grey[300],
   },
 }));
 
@@ -144,6 +150,17 @@ function AppHeader(props) {
             <ListItem onClick={() => { setDrawerOpened(false); issueDialogHandler(); }} button component="a">
               <ListItemIcon><ReportProblemIcon /></ListItemIcon>
               <ListItemText primary="Zgłoś błąd" />
+            </ListItem>
+            <ListItem
+              href={process.env.REACT_APP_USER_MANUAL_URL}
+              rel="noopener"
+              target="_blank"
+              button
+              component="a"
+            >
+              <ListItemIcon><HelpIcon /></ListItemIcon>
+              <ListItemText primary="Instrukcja użytkowania" />
+              <LaunchIcon className={classes.greyIcon} />
             </ListItem>
           </List>
         </Drawer>
