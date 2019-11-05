@@ -385,7 +385,7 @@ function EditUserTimesheetDayFormComp(props) {
         </DialogContentText>
 
         <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-          <InputLabel htmlFor="presenceTypeId">Obecność</InputLabel>
+          <InputLabel htmlFor="presenceTypeId">Obecność/nieobecność</InputLabel>
           <Select
             value={presences.length === 0 ? '' : (userTimesheetDayData.presenceTypeId || '')}
             onChange={(event) => handlePresenceChange(event.target.name, event.target.value)}
@@ -402,7 +402,7 @@ function EditUserTimesheetDayFormComp(props) {
           </Select>
           {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
             <FormHelperText error>
-              Podanie obecności jest wymagane
+              Podanie obecności/nieobecności jest wymagane
             </FormHelperText>
           )}
           {
