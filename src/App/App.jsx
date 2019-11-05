@@ -131,7 +131,7 @@ class App extends React.Component {
         </Tooltip>
         {openIssueReportDialog && (
         <IssueReportDialog
-          open={this.state.openIssueReportDialog}
+          open={openIssueReportDialog}
           onClose={handleDialogOpen}
           reporter={userService.getUserData()}
         />
