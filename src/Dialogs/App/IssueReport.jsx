@@ -43,19 +43,7 @@ function IssueReportDialog(props) {
     setIssueData({ ...issueData, [field]: value });
   };
 
-  const validateForm = () => {
-    if (!issueData.description) {
-      return false;
-    }
-    if (!issueData.reporterName) {
-      return false;
-    }
-    if (!issueData.subject) {
-      return false;
-    }
-
-    return true;
-  };
+  const validateForm = () => !!issueData.subject && !!issueData.description && !!issueData.reporterName;
 
   const saveDialogHandler = () => {
     setState((s) => ({ ...s, submitted: true }));
