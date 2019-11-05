@@ -16,7 +16,6 @@ import InfoIcon from '@material-ui/icons/Info';
 import DateFnsUtils from '@date-io/date-fns';
 import DateFnsUtilsLocalePl from 'date-fns/locale/pl';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-import Button from '@material-ui/core/Button';
 
 
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
