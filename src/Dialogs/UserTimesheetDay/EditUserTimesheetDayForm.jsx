@@ -146,7 +146,7 @@ function EditUserTimesheetDayFormComp(props) {
         timeAdjust,
       };
 
-      apiService.get('presence_types?_order[name]=asc&active=true')
+      apiService.get('presence_types?_order[id]=asc&active=true')
         .then((result) => {
           let presenceTypes = result['hydra:member'];
           const isWorkingDay = userWorkScheduleDay.current.workingDay;
@@ -197,6 +197,18 @@ function EditUserTimesheetDayFormComp(props) {
         });
     },
     [userTimesheetDay, editRestrictions, workingDayRestrictions, createMode]
+  );
+
+  useEffect(
+    () => {
+      if (userTimesheetDayData.presenceTypeId === null) {
+        setUserTimesheetDayData((s) => ({
+          ...s,
+          presenceTypeId: presences[0].id,
+          presenceType: presences[0],
+        }));
+      }
+    }, [presences]
   );
 
   useEffect(

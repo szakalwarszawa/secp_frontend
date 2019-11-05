@@ -36,7 +36,7 @@ function CreateUserTimesheetDayComp(props) {
       dayDefinition: {},
     },
     presenceType: {
-      id: -1,
+      id: null,
     },
     absenceType: {},
   });
