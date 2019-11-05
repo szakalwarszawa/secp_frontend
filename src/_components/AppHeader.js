@@ -26,6 +26,8 @@ import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 // import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import LaunchIcon from '@material-ui/icons/Launch';
+import { grey } from '@material-ui/core/colors';
 import { userService } from '../_services';
 
 const useStyles = makeStyles(() => ({
@@ -46,6 +48,9 @@ const useStyles = makeStyles(() => ({
   },
   userNotLoaded: {
     display: 'none',
+  },
+  greyIcon: {
+    color: grey[300],
   },
 }));
 
@@ -155,6 +160,7 @@ function AppHeader(props) {
             >
               <ListItemIcon><HelpIcon /></ListItemIcon>
               <ListItemText primary="Instrukcja użytkowania" />
+              <LaunchIcon className={classes.greyIcon} />
             </ListItem>
           </List>
         </Drawer>
