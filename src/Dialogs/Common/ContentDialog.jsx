@@ -3,7 +3,6 @@ import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
 
@@ -11,17 +10,15 @@ function ContentDialog(props) {
   const {
     open,
     onAccept,
-    dataOnAccept,
     onDecline,
-    dataOnDecline,
     dialogTitle,
     children,
     acceptLabel,
     declineLabel,
   } = props;
 
-  const handleAccept = () => onAccept(dataOnAccept);
-  const handleDecline = () => onDecline(dataOnDecline);
+  const handleAccept = () => onAccept();
+  const handleDecline = () => onDecline();
 
   return (
     <div>
@@ -30,12 +27,12 @@ function ContentDialog(props) {
         onClose={handleDecline}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        maxWidth="lg"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle id="alert-dialog-title">{dialogTitle}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">{children}</DialogContentText>
+          <DialogContent id="alert-dialog-description">{children}</DialogContent>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDecline} color="primary">{declineLabel}</Button>
@@ -50,17 +47,13 @@ ContentDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onAccept: PropTypes.func.isRequired,
   onDecline: PropTypes.func.isRequired,
-  dataOnAccept: PropTypes.oneOfType(['bool', 'string', 'object']),
-  dataOnDecline: PropTypes.oneOfType(['bool', 'string', 'object']),
   dialogTitle: PropTypes.string,
-  children: PropTypes.string.isRequired,
+  children: PropTypes.element.isRequired,
   acceptLabel: PropTypes.string,
   declineLabel: PropTypes.string,
 };
 
 ContentDialog.defaultProps = {
-  dataOnAccept: true,
-  dataOnDecline: false,
   dialogTitle: 'ECP',
   acceptLabel: 'Tak',
   declineLabel: 'Nie',

@@ -25,7 +25,9 @@ import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 // import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import { ChoseUser } from '../Dialogs/User';
 import { userService } from '../_services';
+import { history } from '../_helpers';
 
 const useStyles = makeStyles(() => ({
   menuButton: {
@@ -52,6 +54,10 @@ function AppHeader(props) {
   const classes = useStyles();
   const [drawerOpened, setDrawerOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [choseDialog, setChoseDialog] = useState({
+    open: false,
+    targetUrl: '',
+  });
   const {
     appBarTitle,
     user,
@@ -66,6 +72,30 @@ function AppHeader(props) {
 
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const choseUserOpenHandler = (targetUrl) => {
+    setDrawerOpened(false);
+    setChoseDialog({
+      open: true,
+      targetUrl,
+    });
+  };
+
+  const choseUserCloseHandler = () => {
+    setChoseDialog({
+      open: false,
+      targetUrl: '',
+    });
+  };
+
+  const choseUserSelectHandler = (userId) => {
+    setChoseDialog((s) => ({
+      ...s,
+      open: false,
+      userId,
+    }));
+    history.push(`/${choseDialog.targetUrl}/${userId}`);
   };
 
   const renderUserMenu = (
@@ -116,7 +146,7 @@ function AppHeader(props) {
               <ListItemText primary="Kalendarz" />
             </ListItem>
             {userService.isManager && (
-              <ListItem button component="a" href="/anotherUserCalendar/">
+              <ListItem button component="a" onClick={() => choseUserOpenHandler('userCalendar')}>
                 <ListItemIcon><IconAccessTime /></ListItemIcon>
                 <ListItemText primary="Kalendarz innych użytkowników" />
               </ListItem>
@@ -175,6 +205,12 @@ function AppHeader(props) {
         </div>
       </Toolbar>
       {renderUserMenu}
+      <ChoseUser
+        open={choseDialog.open}
+        targetUrl={choseDialog.targetUrl}
+        onClose={choseUserCloseHandler}
+        onSelectUser={choseUserSelectHandler}
+      />
     </AppBar>
   );
 }
@@ -182,6 +218,7 @@ function AppHeader(props) {
 AppHeader.propTypes = {
   appBarTitle: PropTypes.string,
   user: PropTypes.instanceOf(Object),
+  issueDialogHandler: PropTypes.func.isRequired,
 };
 
 AppHeader.defaultProps = {
