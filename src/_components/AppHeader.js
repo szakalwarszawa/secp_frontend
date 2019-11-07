@@ -21,13 +21,10 @@ import IconDoneAll from '@material-ui/icons/DoneAll';
 import IconList from '@material-ui/icons/List';
 import IconPeople from '@material-ui/icons/People';
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
-// import Badge from '@material-ui/core/Badge';
-// import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { ChoseUser } from '../Dialogs/User';
 import { userService } from '../_services';
-import { history } from '../_helpers';
 
 const useStyles = makeStyles(() => ({
   menuButton: {
@@ -95,7 +92,6 @@ function AppHeader(props) {
       open: false,
       userId,
     }));
-    history.push(`/${choseDialog.targetUrl}/${userId}`);
   };
 
   const renderUserMenu = (

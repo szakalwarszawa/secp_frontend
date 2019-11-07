@@ -327,7 +327,7 @@ function UserCalendarComp(props) {
               <FiberManualRecordIcon htmlColor="blue" />
             </Avatar>
           )}
-          label={`${currentUser.lastName} ${currentUser.firstName}`}
+          label={currentUser.fullName}
           variant="outlined"
           size="small"
         />

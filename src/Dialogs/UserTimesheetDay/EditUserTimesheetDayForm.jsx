@@ -51,7 +51,7 @@ function EditUserTimesheetDayFormComp(props) {
       dayDefinition: {},
     },
     presenceType: {
-      id: -1,
+      id: null,
     },
     absenceType: {},
     fullOwnerName: '',

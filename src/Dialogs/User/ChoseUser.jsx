@@ -10,10 +10,10 @@ import { ContentDialog } from '../Common';
 import getTableIcons from '../../_helpers/tableIcons';
 import getTableLocalization from '../../_helpers/tableLocalization';
 import { apiService, getQuery } from '../../_services';
+import { history } from '../../_helpers';
 
 function ChoseUser(props) {
   const {
-    classes,
     open,
     targetUrl,
     onClose,
@@ -21,15 +21,11 @@ function ChoseUser(props) {
   } = props;
 
   const tableRef = useRef();
-  const [state, setState] = useState({
-    loaderWorkerCount: 0,
-  });
   const [departments, setDepartments] = useState({});
   const [sections, setSections] = useState({});
 
   useEffect(
     () => {
-      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('departments')
         .then((result) => {
           const departmentList = {};
@@ -37,10 +33,8 @@ function ChoseUser(props) {
             departmentList[`_${department.id}_`] = department.name;
           });
           setDepartments(departmentList);
-          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
-      setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('sections')
         .then((result) => {
           const sectionList = {};
@@ -48,7 +42,6 @@ function ChoseUser(props) {
             sectionList[`_${section.id}_`] = section.name;
           });
           setSections(sectionList);
-          setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
     [],
@@ -56,7 +49,10 @@ function ChoseUser(props) {
 
   const closeDialogHandler = () => onClose(false);
 
-  const saveDialogHandler = (userId) => onSelectUser(userId);
+  const saveDialogHandler = (userId) => {
+    onSelectUser(userId);
+    history.push(`/${targetUrl}/${userId}`);
+  };
 
   return (
     <ContentDialog
@@ -68,66 +64,66 @@ function ChoseUser(props) {
       dialogTitle="Wybierz pracownika"
     >
       <div>
-      <MaterialTable
-        title={(
-          <Typography variant="inherit">
-            Lista użytkowników
-          </Typography>
-        )}
-        tableRef={tableRef}
-        icons={getTableIcons()}
-        columns={[
-          { title: 'Imię', field: 'firstName' },
-          { title: 'Nazwisko', field: 'lastName' },
-          {
-            title: 'Departament',
-            field: 'department.name',
-            searchField: 'department.id',
-            render: (rowData) => (
-              <span>
-                {rowData.department && rowData.department.name}
-              </span>
-            ),
-            customFilterAndSearch: () => true,
-            lookup: departments,
-          },
-          {
-            title: 'Sekcja',
-            field: 'section.name',
-            searchField: 'section.id',
-            render: (rowData) => (
-              <span>
-                {rowData.section && rowData.section.name}
-              </span>
-            ),
-            customFilterAndSearch: () => true,
-            lookup: sections,
-          },
-        ]}
-        data={(query) => getQuery(query, 'users')}
-        actions={[
-          {
-            icon: getTableIcons().Filter,
-            tooltip: 'Wybierz użytkownika',
-            onClick: (event, rowData) => {
-              saveDialogHandler(rowData.id);
+        <MaterialTable
+          title={(
+            <Typography variant="inherit">
+              Lista użytkowników
+            </Typography>
+          )}
+          tableRef={tableRef}
+          icons={getTableIcons()}
+          columns={[
+            { title: 'Imię', field: 'firstName' },
+            { title: 'Nazwisko', field: 'lastName' },
+            {
+              title: 'Departament',
+              field: 'department.name',
+              searchField: 'department.id',
+              render: (rowData) => (
+                <span>
+                  {rowData.department && rowData.department.name}
+                </span>
+              ),
+              customFilterAndSearch: () => true,
+              lookup: departments,
             },
-          },
-          {
-            tooltip: 'Odśwież',
-            isFreeAction: true,
-            icon: getTableIcons().Refresh,
-            onClick: () => tableRef.current && tableRef.current.onQueryChange(),
-          },
-        ]}
-        options={{
-          search: false,
-          filtering: true,
-          maxBodyHeight: '500px',
-          actionsColumnIndex: -1,
-        }}
-        localization={getTableLocalization}
-      />
+            {
+              title: 'Sekcja',
+              field: 'section.name',
+              searchField: 'section.id',
+              render: (rowData) => (
+                <span>
+                  {rowData.section && rowData.section.name}
+                </span>
+              ),
+              customFilterAndSearch: () => true,
+              lookup: sections,
+            },
+          ]}
+          data={(query) => getQuery(query, 'users')}
+          actions={[
+            {
+              icon: getTableIcons().Filter,
+              tooltip: 'Wybierz użytkownika',
+              onClick: (event, rowData) => {
+                saveDialogHandler(rowData.id);
+              },
+            },
+            {
+              tooltip: 'Odśwież',
+              isFreeAction: true,
+              icon: getTableIcons().Refresh,
+              onClick: () => tableRef.current && tableRef.current.onQueryChange(),
+            },
+          ]}
+          options={{
+            search: false,
+            filtering: true,
+            maxBodyHeight: '500px',
+            actionsColumnIndex: -1,
+          }}
+          localization={getTableLocalization}
+        />
       </div>
     </ContentDialog>
   );
@@ -167,11 +163,9 @@ ChoseUser.propTypes = {
   targetUrl: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   onSelectUser: PropTypes.func.isRequired,
-  classes: PropTypes.instanceOf(Object),
 };
 
 ChoseUser.defaultProps = {
-  classes: {},
 };
 
 const mapStateToProps = (state) => ({});
