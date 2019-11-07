@@ -141,7 +141,7 @@ function AppHeader(props) {
         </IconButton>
         <Drawer open={drawerOpened} onClose={() => setDrawerOpened(false)}>
           <List component="ul">
-            <ListItem button component="a" href="/userCalendar/">
+            <ListItem button component="a" href="/ownCalendar/">
               <ListItemIcon><IconAccessTime /></ListItemIcon>
               <ListItemText primary="Kalendarz" />
             </ListItem>

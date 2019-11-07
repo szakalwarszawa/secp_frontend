@@ -75,8 +75,15 @@ function getUserData() {
   return JSON.parse(sessionStorage.getItem('user'));
 }
 
+/**
+ * @returns {number}
+ */
 function getUserId() {
-  return getUserData().id || 0;
+  const userData = getUserData();
+  if (!userData) {
+    return 0;
+  }
+  return parseInt(userData.id || 0, 0);
 }
 
 function isAdmin() {

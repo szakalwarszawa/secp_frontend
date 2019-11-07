@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Calendar, Views, momentLocalizer } from 'react-big-calendar';
@@ -13,7 +14,7 @@ import { EditUserTimesheetDay, CreateUserTimesheetDay } from '../../Dialogs/User
 
 const flexibleHoursColor = lightGreen[200];
 const fixedHoursColor = amber[200];
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   mainCalendar: {
     width: '100%',
     marginRight: '45px',
@@ -27,6 +28,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function UserCalendarComp(props) {
+  let { userId } = useParams();
+  userId = parseInt(userId || userService.getUserId(), 0);
+
   const calculateViewRange = (currentDate, currentView) => {
     let start;
     let end;
@@ -89,13 +93,14 @@ function UserCalendarComp(props) {
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [userTimesheetDayId, setUserTimesheetDayId] = useState(0);
   const [createdSelection, setCreatedSelection] = useState({ start: null, end: null });
+  const [currentUser, setCurrentUser] = useState({});
 
   useEffect(
     () => {
       const viewFrom = moment(calendarState.viewFrom).format('YYYY-MM-DD');
       const viewTo = moment(calendarState.viewTo).format('YYYY-MM-DD');
 
-      apiService.get(`user_timesheet_days/own/${viewFrom}/${viewTo}`)
+      apiService.get(`user_timesheet_days/${userId}/${viewFrom}/${viewTo}`)
         .then((result) => {
           const userTimesheetDayList = [];
           result['hydra:member'].forEach((userTimesheetDay) => {
@@ -107,7 +112,12 @@ function UserCalendarComp(props) {
           setMyEventsList(userTimesheetDayList);
         });
 
-      apiService.get(`user_work_schedule_days/own/active/${viewFrom}/${viewTo}`)
+      apiService.get(`users/${userId}`)
+        .then((result) => {
+          setCurrentUser(result);
+        });
+
+      apiService.get(`user_work_schedule_days/${userId}/active/${viewFrom}/${viewTo}`)
         .then((result) => {
           const scheduleDays = {};
           result['hydra:member'].forEach((day) => {
@@ -133,7 +143,7 @@ function UserCalendarComp(props) {
           setActiveWorkScheduleDay(scheduleDays);
         });
     },
-    [calendarState],
+    [calendarState, userId],
   );
 
   const customDayPropGetter = (date) => {
@@ -310,6 +320,17 @@ function UserCalendarComp(props) {
         style={{ height: 'calc(100vh - 160px)' }}
       />
       <Grid container justify="center" style={{ marginTop: '5px' }}>
+        <Chip
+          className={classes.chip}
+          avatar={(
+            <Avatar className={classes.legendAvatar}>
+              <FiberManualRecordIcon htmlColor="blue" />
+            </Avatar>
+          )}
+          label={`${currentUser.lastName} ${currentUser.firstName}`}
+          variant="outlined"
+          size="small"
+        />
         {tableLegend.flexibleWorkingHours && (
           <Chip
             className={classes.chip}
@@ -346,7 +367,7 @@ function UserCalendarComp(props) {
       )}
       {openCreateDialog && (
         <CreateUserTimesheetDay
-          userId={userService.getUserId()}
+          userId={userId}
           timeFrom={createdSelection.start}
           timeTo={createdSelection.end}
           open={openCreateDialog}

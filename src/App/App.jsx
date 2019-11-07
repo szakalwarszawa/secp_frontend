@@ -76,7 +76,8 @@ class App extends React.Component {
             >
               <PrivateRoute exact path="/" component={Home} />
               <Route path="/login" component={Login} />
-              <PrivateRoute path="/userCalendar" component={UserCalendar} accessRight />
+              <PrivateRoute path="/ownCalendar" component={UserCalendar} accessRight />
+              <PrivateRoute path="/userCalendar/:userId" component={UserCalendar} accessRight />
               <PrivateRoute path="/timesheetList" component={TimesheetList} accessRight />
               <PrivateRoute
                 path="/userWorkSchedules"
