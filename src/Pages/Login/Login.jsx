@@ -12,6 +12,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
+import { Link } from '@material-ui/core';
 import { userActions } from '../../_actions';
 
 class Login extends React.Component {
@@ -107,13 +108,22 @@ class Login extends React.Component {
               {loggingIn && <LinearProgress />}
             </div>
           </form>
+
         </Paper>
+        <Link
+          target="_blank"
+          rel="noopener"
+          className={classes.manualLink}
+          href={process.env.REACT_APP_USER_MANUAL_URL}
+        >
+          Instrukcja użytkowania
+        </Link>
       </div>
     );
   }
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   main: {
     width: 'auto',
     display: 'block', // Fix IE 11 issue.
@@ -150,6 +160,12 @@ const styles = theme => ({
   },
   submit: {
     marginTop: theme.spacing(3),
+  },
+  manualLink: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: theme.spacing(2),
   },
 });
 

@@ -146,7 +146,7 @@ function EditUserTimesheetDayFormComp(props) {
         timeAdjust,
       };
 
-      apiService.get('presence_types?_order[name]=asc&active=true')
+      apiService.get('presence_types?_order[id]=asc&active=true')
         .then((result) => {
           let presenceTypes = result['hydra:member'];
           const isWorkingDay = userWorkScheduleDay.current.workingDay;
@@ -197,6 +197,18 @@ function EditUserTimesheetDayFormComp(props) {
         });
     },
     [userTimesheetDay, editRestrictions, workingDayRestrictions, createMode]
+  );
+
+  useEffect(
+    () => {
+      if (userTimesheetDayData.presenceTypeId === null) {
+        setUserTimesheetDayData((s) => ({
+          ...s,
+          presenceTypeId: presences[0].id,
+          presenceType: presences[0],
+        }));
+      }
+    }, [presences]
   );
 
   useEffect(
@@ -385,7 +397,7 @@ function EditUserTimesheetDayFormComp(props) {
         </DialogContentText>
 
         <FormControl component="div" className={classes.formControl} disabled={isLoading}>
-          <InputLabel htmlFor="presenceTypeId">Obecność</InputLabel>
+          <InputLabel htmlFor="presenceTypeId">Obecność/nieobecność</InputLabel>
           <Select
             value={presences.length === 0 ? '' : (userTimesheetDayData.presenceTypeId || '')}
             onChange={(event) => handlePresenceChange(event.target.name, event.target.value)}
@@ -402,7 +414,7 @@ function EditUserTimesheetDayFormComp(props) {
           </Select>
           {state.submitted && userTimesheetDayData.presenceTypeId <= 0 && (
             <FormHelperText error>
-              Podanie obecności jest wymagane
+              Podanie obecności/nieobecności jest wymagane
             </FormHelperText>
           )}
           {
