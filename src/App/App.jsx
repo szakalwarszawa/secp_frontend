@@ -81,7 +81,7 @@ class App extends React.Component {
               <PrivateRoute
                 path="/userWorkSchedules"
                 component={WorkScheduleList}
-                accessRight={userService.isManager()}
+                accessRight={userService.isDepartmentManager()}
               />
               <PrivateRoute
                 path="/timesheetListToAccept"

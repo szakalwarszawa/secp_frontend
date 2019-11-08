@@ -66,8 +66,16 @@ function EditUserTimesheetFormComp(props) {
       return rules[userConstants.ROLES.ROLE_HR] || null;
     }
 
-    if (userService.isManager() && actualUserTimesheet.owner.id !== userService.getUserId()) {
+    if (userService.isDepartmentManager()) {
       return rules[userConstants.ROLES.ROLE_DEPARTMENT_MANAGER] || null;
+    }
+
+    if (userService.isSectionManager()) {
+      return rules[userConstants.ROLES.ROLE_SECTION_MANAGER] || null;
+    }
+
+    if (userService.isSecretary()) {
+      return rules[userConstants.ROLES.ROLE_SECRETARY] || null;
     }
 
     return rules[userConstants.ROLES.ROLE_USER] || null;
@@ -80,6 +88,7 @@ function EditUserTimesheetFormComp(props) {
   const makeStatusList = useCallback((actualUserTimesheet, allStatuses) => {
     const actualStatus = actualUserTimesheet.status;
     const allowedStatusChange = getAllowedStatusChange(actualUserTimesheet);
+
     if (allowedStatusChange === null) {
       return [actualStatus];
     }
