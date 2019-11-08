@@ -26,11 +26,23 @@ export const userConstants = {
     'ROLE_SUPERVISOR',
     'ROLE_HR',
   ],
-  MANAGER_ROLES: [
+  DEPARTMENT_MANAGER_ROLES: [
     'ROLE_ADMIN',
     'ROLE_SUPERVISOR',
     'ROLE_HR',
     'ROLE_DEPARTMENT_MANAGER',
+  ],
+  SECTION_MANAGER_ROLES: [
+    'ROLE_ADMIN',
+    'ROLE_SUPERVISOR',
+    'ROLE_HR',
+    'ROLE_SECTION_MANAGER',
+  ],
+  SECRETARY_ROLES: [
+    'ROLE_ADMIN',
+    'ROLE_SUPERVISOR',
+    'ROLE_HR',
+    'ROLE_SECRETARY',
   ],
   STATIC_ROLES: [
     'ROLE_USER',

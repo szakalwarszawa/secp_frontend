@@ -1,4 +1,3 @@
-import { userService } from '.';
 import { history, authHeader } from '../_helpers';
 
 function handleResponse(response) {
@@ -14,7 +13,8 @@ function handleResponse(response) {
       if (!response.ok) {
         if (response.status === 401) {
           // auto logout if 401 response returned from api
-          userService.logout();
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('user');
           history.push('/login/');
         }
 
