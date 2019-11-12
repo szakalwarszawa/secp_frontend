@@ -40,10 +40,13 @@ function IssueReportDialog(props) {
   });
 
   const handleInputChange = (field, value) => {
-    setIssueData({ ...issueData, [field]: value });
+    setIssueData({ ...issueData, [field]: value.trim() });
   };
 
-  const validateForm = () => !!issueData.subject && !!issueData.description && !!issueData.reporterName;
+  const isEmptyValue = (value) => value === null || value.match(/^ *$/) !== null;
+  const validateForm = () => !isEmptyValue(issueData.subject)
+      && !isEmptyValue(issueData.description)
+      && !isEmptyValue(issueData.reporterName);
 
   const saveDialogHandler = () => {
     setState((s) => ({ ...s, submitted: true }));
@@ -119,7 +122,7 @@ function IssueReportDialog(props) {
             defaultValue={reporter ? reporter.fullName : ''}
             onChange={(event) => handleInputChange(event.target.id, event.target.value)}
           />
-          {state.submitted && !issueData.reporterName && (
+          {state.submitted && isEmptyValue(issueData.reporterName) && (
           <FormHelperText error>
                 Podanie swoich danych jest wymagane
           </FormHelperText>
@@ -134,7 +137,7 @@ function IssueReportDialog(props) {
             disabled={isLoading || state.lockForm}
             onChange={(event) => handleInputChange(event.target.id, event.target.value)}
           />
-          {state.submitted && !issueData.subject && (
+          {state.submitted && isEmptyValue(issueData.subject) && (
           <FormHelperText error>
                 Podanie tematu zgłoszenia jest wymagane
           </FormHelperText>
@@ -151,7 +154,7 @@ function IssueReportDialog(props) {
             disabled={isLoading || state.lockForm}
             onChange={(event) => handleInputChange(event.target.id, event.target.value)}
           />
-          {state.submitted && !issueData.description && (
+          {state.submitted && isEmptyValue(issueData.description) && (
           <FormHelperText error>
                 Podanie opisu zgłoszenia jest wymagane
           </FormHelperText>
