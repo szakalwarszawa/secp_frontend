@@ -86,34 +86,34 @@ function getUserId() {
   return parseInt(userData.id || 0, 0);
 }
 
-function isAdmin() {
+function hasRole(roleList) {
   if (!getUserData()) {
     return false;
   }
   const userRoles = getUserData().roles;
-  const ownedAdminRoles = userRoles.filter((value) => userConstants.ADMIN_ROLES.includes(value));
+  const ownedRoles = userRoles.filter((value) => roleList.includes(value));
 
-  return (ownedAdminRoles.length > 0);
+  return (ownedRoles.length > 0);
+}
+
+function isAdmin() {
+  return hasRole(userConstants.ADMIN_ROLES);
 }
 
 function isHR() {
-  if (!getUserData()) {
-    return false;
-  }
-  const userRoles = getUserData().roles;
-  const ownedAdminRoles = userRoles.filter((value) => userConstants.HR_ROLES.includes(value));
-
-  return (ownedAdminRoles.length > 0);
+  return hasRole(userConstants.HR_ROLES);
 }
 
-function isManager() {
-  if (!getUserData()) {
-    return false;
-  }
-  const userRoles = getUserData().roles;
-  const ownedAdminRoles = userRoles.filter((value) => userConstants.MANAGER_ROLES.includes(value));
+function isDepartmentManager() {
+  return hasRole(userConstants.DEPARTMENT_MANAGER_ROLES);
+}
 
-  return (ownedAdminRoles.length > 0);
+function isSectionManager() {
+  return hasRole(userConstants.SECTION_MANAGER_ROLES);
+}
+
+function isSecretary() {
+  return hasRole(userConstants.SECRETARY_ROLES);
 }
 
 export const userService = {
@@ -125,6 +125,8 @@ export const userService = {
   getUserId,
   isAdmin,
   isHR,
-  isManager,
+  isDepartmentManager,
+  isSectionManager,
+  isSecretary,
   refresh,
 };

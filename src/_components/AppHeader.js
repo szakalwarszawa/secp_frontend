@@ -163,7 +163,7 @@ function AppHeader(props) {
                 <ListItemText primary="Lista harmonogramów" />
               </ListItem>
             )}
-            {userService.isManager && (
+            {userService.isDepartmentManager && (
               <ListItem button component="a" href="/timesheetListToAccept/">
                 <ListItemIcon><IconDoneAll /></ListItemIcon>
                 <ListItemText primary="Lista obecności do akceptacji" />

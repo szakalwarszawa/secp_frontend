@@ -82,7 +82,7 @@ class App extends React.Component {
               <PrivateRoute
                 path="/userWorkSchedules"
                 component={WorkScheduleList}
-                accessRight={userService.isManager()}
+                accessRight={userService.isDepartmentManager()}
               />
               <PrivateRoute
                 path="/timesheetListToAccept"
@@ -124,18 +124,18 @@ class App extends React.Component {
           </Router>
         </MuiPickersUtilsProvider>
         {!loggedIn && (
-        <Tooltip title="Zgłoś błąd">
           <Fab
             size="small"
-            color="secondary"
+            variant="extended"
+            color="primary"
             aria-label="issue"
             className={classes.issueFab}
             onClick={handleDialogOpen}
             onClose={handleDialogOpen}
           >
             <ReportProblemIcon />
+           &nbsp;Zgłoś błąd
           </Fab>
-        </Tooltip>
         )}
 
         {openIssueReportDialog && (
