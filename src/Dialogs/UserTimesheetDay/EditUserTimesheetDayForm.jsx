@@ -201,7 +201,7 @@ function EditUserTimesheetDayFormComp(props) {
 
   useEffect(
     () => {
-      if (userTimesheetDayData.presenceTypeId === null) {
+      if (userTimesheetDayData.presenceTypeId === null && presences[0]) {
         setUserTimesheetDayData((s) => ({
           ...s,
           presenceTypeId: presences[0].id,
@@ -383,7 +383,7 @@ function EditUserTimesheetDayFormComp(props) {
       <DialogContent>
         <DialogContentText component="div">
           <div>
-            {userTimesheetDayData.fullOwnerName}
+            {userTimesheetDayData.userTimesheet.owner.fullName}
           </div>
           <div>
             {userTimesheetDayData.userTimesheet.owner.department
