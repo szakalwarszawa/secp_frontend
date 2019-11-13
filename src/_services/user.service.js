@@ -86,7 +86,11 @@ function getUserId() {
   return parseInt(userData.id || 0, 0);
 }
 
-function hasRole(roleList) {
+/**
+ * @param {string[]} roleList
+ * @returns {boolean}
+ */
+function userHasRole(roleList) {
   if (!getUserData()) {
     return false;
   }
@@ -96,24 +100,39 @@ function hasRole(roleList) {
   return (ownedRoles.length > 0);
 }
 
+/**
+ * @returns {boolean}
+ */
 function isAdmin() {
-  return hasRole(userConstants.ADMIN_ROLES);
+  return userHasRole(userConstants.ADMIN_ROLES);
 }
 
+/**
+ * @returns {boolean}
+ */
 function isHR() {
-  return hasRole(userConstants.HR_ROLES);
+  return userHasRole(userConstants.HR_ROLES);
 }
 
+/**
+ * @returns {boolean}
+ */
 function isDepartmentManager() {
-  return hasRole(userConstants.DEPARTMENT_MANAGER_ROLES);
+  return userHasRole(userConstants.DEPARTMENT_MANAGER_ROLES);
 }
 
+/**
+ * @returns {boolean}
+ */
 function isSectionManager() {
-  return hasRole(userConstants.SECTION_MANAGER_ROLES);
+  return userHasRole(userConstants.SECTION_MANAGER_ROLES);
 }
 
+/**
+ * @returns {boolean}
+ */
 function isSecretary() {
-  return hasRole(userConstants.SECRETARY_ROLES);
+  return userHasRole(userConstants.SECRETARY_ROLES);
 }
 
 export const userService = {
@@ -123,6 +142,7 @@ export const userService = {
   callForApiVersion,
   getUserData,
   getUserId,
+  userHasRole,
   isAdmin,
   isHR,
   isDepartmentManager,

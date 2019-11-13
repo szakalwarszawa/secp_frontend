@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 
 function UserCalendarComp(props) {
   let { userId } = useParams();
-  userId = parseInt(userId || userService.getUserId(), 0);
+  userId = userId ? parseInt(userId, 0) : userService.getUserId();
 
   const calculateViewRange = (currentDate, currentView) => {
     let start;
@@ -112,10 +112,12 @@ function UserCalendarComp(props) {
           setMyEventsList(userTimesheetDayList);
         });
 
-      apiService.get(`users/${userId}`)
-        .then((result) => {
-          setCurrentUser(result);
-        });
+      if (userId !== 0) {
+        apiService.get(`users/${userId}`)
+          .then((result) => {
+            setCurrentUser(result);
+          });
+      }
 
       apiService.get(`user_work_schedule_days/${userId}/active/${viewFrom}/${viewTo}`)
         .then((result) => {

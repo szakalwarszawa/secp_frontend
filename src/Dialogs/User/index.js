@@ -1,4 +1,4 @@
 import { EditUser } from './EditUser';
-import { ChoseUser } from './ChoseUser';
+import { ChooseUser } from './ChooseUser';
 
-export { EditUser, ChoseUser };
+export { EditUser, ChooseUser };

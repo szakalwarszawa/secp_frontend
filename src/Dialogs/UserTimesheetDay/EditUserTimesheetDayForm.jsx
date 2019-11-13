@@ -208,7 +208,7 @@ function EditUserTimesheetDayFormComp(props) {
           presenceType: presences[0],
         }));
       }
-    }, [presences]
+    }, [presences, userTimesheetDayData.presenceTypeId]
   );
 
   useEffect(

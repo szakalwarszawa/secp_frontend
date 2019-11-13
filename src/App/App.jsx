@@ -19,7 +19,7 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 
 
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
-import { Fab, Tooltip } from '@material-ui/core';
+import { Fab } from '@material-ui/core';
 import { alertActions } from '../_actions';
 import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';

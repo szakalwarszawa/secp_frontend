@@ -26,7 +26,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import LaunchIcon from '@material-ui/icons/Launch';
 import { grey } from '@material-ui/core/colors';
-import { ChoseUser } from '../Dialogs/User';
+import { ChooseUser } from '../Dialogs/User';
 import { userService } from '../_services';
 
 const useStyles = makeStyles(() => ({
@@ -57,7 +57,7 @@ function AppHeader(props) {
   const classes = useStyles();
   const [drawerOpened, setDrawerOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [choseDialog, setChoseDialog] = useState({
+  const [chooseDialog, setChooseDialog] = useState({
     open: false,
     targetUrl: '',
   });
@@ -77,23 +77,23 @@ function AppHeader(props) {
     setAnchorEl(null);
   };
 
-  const choseUserOpenHandler = (targetUrl) => {
+  const chooseUserOpenHandler = (targetUrl) => {
     setDrawerOpened(false);
-    setChoseDialog({
+    setChooseDialog({
       open: true,
       targetUrl,
     });
   };
 
-  const choseUserCloseHandler = () => {
-    setChoseDialog({
+  const chooseUserCloseHandler = () => {
+    setChooseDialog({
       open: false,
       targetUrl: '',
     });
   };
 
-  const choseUserSelectHandler = (userId) => {
-    setChoseDialog((s) => ({
+  const chooseUserSelectHandler = (userId) => {
+    setChooseDialog((s) => ({
       ...s,
       open: false,
       userId,
@@ -147,8 +147,8 @@ function AppHeader(props) {
               <ListItemIcon><IconAccessTime /></ListItemIcon>
               <ListItemText primary="Kalendarz" />
             </ListItem>
-            {userService.isManager && (
-              <ListItem button component="a" onClick={() => choseUserOpenHandler('userCalendar')}>
+            {userService.isSecretary() && (
+              <ListItem button component="a" onClick={() => chooseUserOpenHandler('userCalendar')}>
                 <ListItemIcon><IconAccessTime /></ListItemIcon>
                 <ListItemText primary="Kalendarz innych użytkowników" />
               </ListItem>
@@ -218,11 +218,11 @@ function AppHeader(props) {
         </div>
       </Toolbar>
       {renderUserMenu}
-      <ChoseUser
-        open={choseDialog.open}
-        targetUrl={choseDialog.targetUrl}
-        onClose={choseUserCloseHandler}
-        onSelectUser={choseUserSelectHandler}
+      <ChooseUser
+        open={chooseDialog.open}
+        targetUrl={chooseDialog.targetUrl}
+        onClose={chooseUserCloseHandler}
+        onSelectUser={chooseUserSelectHandler}
       />
     </AppBar>
   );

@@ -12,7 +12,7 @@ import getTableLocalization from '../../_helpers/tableLocalization';
 import { apiService, getQuery } from '../../_services';
 import { history } from '../../_helpers';
 
-function ChoseUser(props) {
+function ChooseUser(props) {
   const {
     open,
     targetUrl,
@@ -158,18 +158,18 @@ const styles = (theme) => ({
   },
 });
 
-ChoseUser.propTypes = {
+ChooseUser.propTypes = {
   open: PropTypes.bool.isRequired,
   targetUrl: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   onSelectUser: PropTypes.func.isRequired,
 };
 
-ChoseUser.defaultProps = {
+ChooseUser.defaultProps = {
 };
 
 const mapStateToProps = (state) => ({});
 
-const styledChoseUser = withStyles(styles)(ChoseUser);
-const connectedChoseUser = connect(mapStateToProps)(styledChoseUser);
-export { connectedChoseUser as ChoseUser };
+const styledChooseUser = withStyles(styles)(ChooseUser);
+const connectedChooseUser = connect(mapStateToProps)(styledChooseUser);
+export { connectedChooseUser as ChooseUser };
