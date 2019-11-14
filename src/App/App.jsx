@@ -19,7 +19,7 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 
 
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
-import { Fab, Tooltip } from '@material-ui/core';
+import { Fab } from '@material-ui/core';
 import { alertActions } from '../_actions';
 import { PrivateRoute } from '../_components';
 import { history } from '../_helpers';
@@ -76,7 +76,8 @@ class App extends React.Component {
             >
               <PrivateRoute exact path="/" component={Home} />
               <Route path="/login" component={Login} />
-              <PrivateRoute path="/userCalendar" component={UserCalendar} accessRight />
+              <PrivateRoute path="/ownCalendar" component={UserCalendar} accessRight />
+              <PrivateRoute path="/userCalendar/:userId" component={UserCalendar} accessRight />
               <PrivateRoute path="/timesheetList" component={TimesheetList} accessRight />
               <PrivateRoute
                 path="/userWorkSchedules"

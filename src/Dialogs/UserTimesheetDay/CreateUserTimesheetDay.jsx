@@ -54,6 +54,9 @@ function CreateUserTimesheetDayComp(props) {
             dayEndTime: timeTo,
             workingTime: 0,
             timesheetDayDate: moment(timeFrom).format('YYYY-MM-DD'),
+            userTimesheet: {
+              owner: result.userWorkSchedule.owner,
+            },
           }));
           setState((s) => ({ ...s, loaded: true }));
         });

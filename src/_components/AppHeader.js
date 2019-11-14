@@ -22,12 +22,11 @@ import IconDoneAll from '@material-ui/icons/DoneAll';
 import IconList from '@material-ui/icons/List';
 import IconPeople from '@material-ui/icons/People';
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
-// import Badge from '@material-ui/core/Badge';
-// import NotificationsIcon from '@material-ui/icons/Notifications';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import LaunchIcon from '@material-ui/icons/Launch';
 import { grey } from '@material-ui/core/colors';
+import { ChooseUser } from '../Dialogs/User';
 import { userService } from '../_services';
 
 const useStyles = makeStyles(() => ({
@@ -58,6 +57,10 @@ function AppHeader(props) {
   const classes = useStyles();
   const [drawerOpened, setDrawerOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [chooseDialog, setChooseDialog] = useState({
+    open: false,
+    targetUrl: '',
+  });
   const {
     appBarTitle,
     user,
@@ -72,6 +75,29 @@ function AppHeader(props) {
 
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const chooseUserOpenHandler = (targetUrl) => {
+    setDrawerOpened(false);
+    setChooseDialog({
+      open: true,
+      targetUrl,
+    });
+  };
+
+  const chooseUserCloseHandler = () => {
+    setChooseDialog({
+      open: false,
+      targetUrl: '',
+    });
+  };
+
+  const chooseUserSelectHandler = (userId) => {
+    setChooseDialog((s) => ({
+      ...s,
+      open: false,
+      userId,
+    }));
   };
 
   const renderUserMenu = (
@@ -117,10 +143,16 @@ function AppHeader(props) {
         </IconButton>
         <Drawer open={drawerOpened} onClose={() => setDrawerOpened(false)}>
           <List component="ul">
-            <ListItem button component="a" href="/userCalendar/">
+            <ListItem button component="a" href="/ownCalendar/">
               <ListItemIcon><IconAccessTime /></ListItemIcon>
               <ListItemText primary="Kalendarz" />
             </ListItem>
+            {userService.isSecretary() && (
+              <ListItem button component="a" onClick={() => chooseUserOpenHandler('userCalendar')}>
+                <ListItemIcon><IconAccessTime /></ListItemIcon>
+                <ListItemText primary="Kalendarz innych użytkowników" />
+              </ListItem>
+            )}
             <ListItem button component="a" href="/timesheetList/">
               <ListItemIcon><IconList /></ListItemIcon>
               <ListItemText primary="Lista obecności" />
@@ -186,6 +218,12 @@ function AppHeader(props) {
         </div>
       </Toolbar>
       {renderUserMenu}
+      <ChooseUser
+        open={chooseDialog.open}
+        targetUrl={chooseDialog.targetUrl}
+        onClose={chooseUserCloseHandler}
+        onSelectUser={chooseUserSelectHandler}
+      />
     </AppBar>
   );
 }
@@ -193,6 +231,7 @@ function AppHeader(props) {
 AppHeader.propTypes = {
   appBarTitle: PropTypes.string,
   user: PropTypes.instanceOf(Object),
+  issueDialogHandler: PropTypes.func.isRequired,
 };
 
 AppHeader.defaultProps = {

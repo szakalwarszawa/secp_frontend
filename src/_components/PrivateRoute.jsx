@@ -23,7 +23,7 @@ export const PrivateRoute = ({ component: Component, accessRight, ...rest }) => 
   return (
     <Route
       {...rest}
-      render={props => getRouteToRender(props)}
+      render={(props) => getRouteToRender(props)}
     />
   );
 };

@@ -51,7 +51,7 @@ function EditUserTimesheetDayFormComp(props) {
       dayDefinition: {},
     },
     presenceType: {
-      id: -1,
+      id: null,
     },
     absenceType: {},
     fullOwnerName: '',
@@ -201,14 +201,14 @@ function EditUserTimesheetDayFormComp(props) {
 
   useEffect(
     () => {
-      if (userTimesheetDayData.presenceTypeId === null) {
+      if (userTimesheetDayData.presenceTypeId === null && presences[0]) {
         setUserTimesheetDayData((s) => ({
           ...s,
           presenceTypeId: presences[0].id,
           presenceType: presences[0],
         }));
       }
-    }, [presences]
+    }, [presences, userTimesheetDayData.presenceTypeId]
   );
 
   useEffect(
@@ -383,7 +383,7 @@ function EditUserTimesheetDayFormComp(props) {
       <DialogContent>
         <DialogContentText component="div">
           <div>
-            {userTimesheetDayData.fullOwnerName}
+            {userTimesheetDayData.userTimesheet.owner.fullName}
           </div>
           <div>
             {userTimesheetDayData.userTimesheet.owner.department

@@ -36,12 +36,15 @@ export const userConstants = {
     'ROLE_ADMIN',
     'ROLE_SUPERVISOR',
     'ROLE_HR',
+    'ROLE_DEPARTMENT_MANAGER',
     'ROLE_SECTION_MANAGER',
   ],
   SECRETARY_ROLES: [
     'ROLE_ADMIN',
     'ROLE_SUPERVISOR',
     'ROLE_HR',
+    'ROLE_DEPARTMENT_MANAGER',
+    'ROLE_SECTION_MANAGER',
     'ROLE_SECRETARY',
   ],
   STATIC_ROLES: [
