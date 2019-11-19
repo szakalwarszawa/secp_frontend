@@ -17,7 +17,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import Paper from '@material-ui/core/Paper';
 import { KeyboardTimePicker } from '@material-ui/pickers';
 
-import { apiService } from '../../_services';
+import { apiService, userService } from '../../_services';
+import { userConstants } from '../../_constants';
 
 function EditUserTimesheetDayFormComp(props) {
   const {
@@ -58,20 +59,30 @@ function EditUserTimesheetDayFormComp(props) {
   });
   const [presences, setPresences] = useState([]);
   const [absences, setAbsences] = useState([]);
+  const [enabledAbsenceEdit, setEnabledAbsenceEdit] = useState(false);
   const userWorkScheduleDay = useRef({
     workingDay: false,
     timeAdjust: false,
   });
+
   const isLoading = Boolean(state.loaderWorkerCount > 0);
+
+  const presenceAbsenceId = parseInt(
+    userService.getAppConfigByKey(userConstants.APP_CONFIG.PRESENCE_ABSENCE_ID),
+    0,
+  );
+  const absenceToBeCompletedId = parseInt(
+    userService.getAppConfigByKey(userConstants.APP_CONFIG.ABSENCE_TO_BE_COMPLETED_ID),
+    0
+  );
+
   const workingTime = !!userTimesheetDayData.dayEndTime && !!userTimesheetDayData.dayStartTime
     ? ((userTimesheetDayData.dayEndTime - userTimesheetDayData.dayStartTime) / 3600000).toFixed(2)
     : 0;
+
   const isAbsence = Boolean(userTimesheetDayData.presenceType.isAbsence);
-  const unableToSetAbsenceType = Boolean(
-    userTimesheetDayData.presenceType.isAbsence
-    && !('absenceType' in userTimesheetDayData),
-  );
   const isTimed = Boolean(userTimesheetDayData.presenceType.isTimed);
+
   const editRestrictions = useCallback(() => ({
     EDIT_RESTRICTION_ALL: 0,
     EDIT_RESTRICTION_TODAY: 1,
@@ -88,14 +99,22 @@ function EditUserTimesheetDayFormComp(props) {
 
   useEffect(
     () => {
+      const userHasRightsToEditAbsenceType = userTimesheetDay.userTimesheet.owner.id === userService.getUserId()
+        || userService.isHR();
+      setEnabledAbsenceEdit(userHasRightsToEditAbsenceType);
+
+      const presenceTypeId = userTimesheetDay.presenceType !== null ? userTimesheetDay.presenceType.id : null;
+      let absenceTypeId = ('absenceType' in userTimesheetDay) && userTimesheetDay.absenceType !== null
+        ? userTimesheetDay.absenceType.id
+        : null;
+      if (!userHasRightsToEditAbsenceType && presenceTypeId === presenceAbsenceId) {
+        absenceTypeId = absenceToBeCompletedId;
+      }
+
       setUserTimesheetDayData({
         ...userTimesheetDay,
-        presenceTypeId: userTimesheetDay.presenceType !== null
-          ? userTimesheetDay.presenceType.id
-          : null,
-        absenceTypeId: ('absenceType' in userTimesheetDay) && userTimesheetDay.absenceType !== null
-          ? userTimesheetDay.absenceType.id
-          : null,
+        presenceTypeId,
+        absenceTypeId,
         fullOwnerName:
         `${userTimesheetDay.userTimesheet.owner.firstName} ${
           userTimesheetDay.userTimesheet.owner.lastName}`,
@@ -108,7 +127,9 @@ function EditUserTimesheetDayFormComp(props) {
       setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount + 1 }));
       apiService.get('absence_types?_order[name]=asc&active=true')
         .then((result) => {
-          setAbsences(result['hydra:member']);
+          const absenceTypes = result['hydra:member'];
+          setAbsences(absenceTypes.filter((absenceType) => absenceType.id !== absenceToBeCompletedId
+              || userTimesheetDay.absenceTypeId === absenceToBeCompletedId));
           setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
 
@@ -196,7 +217,7 @@ function EditUserTimesheetDayFormComp(props) {
           setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
         });
     },
-    [userTimesheetDay, editRestrictions, workingDayRestrictions, createMode]
+    [userTimesheetDay, editRestrictions, workingDayRestrictions, createMode, absenceToBeCompletedId, presenceAbsenceId]
   );
 
   useEffect(
@@ -218,20 +239,24 @@ function EditUserTimesheetDayFormComp(props) {
     [requestError],
   );
 
-  const handlePresenceChange = (field, date) => {
+  const handlePresenceChange = (field, data) => {
     const activePresence = presences.filter(
-      (presence) => presence.id === date,
+      (presence) => presence.id === data,
     );
 
     setUserTimesheetDayData({
       ...userTimesheetDayData,
-      [field]: date,
+      [field]: data,
       presenceType: activePresence[0],
     });
+
+    if (activePresence[0].isAbsence && !enabledAbsenceEdit && !userTimesheetDayData.absenceTypeId) {
+      setUserTimesheetDayData((s) => ({ ...s, absenceTypeId: absenceToBeCompletedId }));
+    }
   };
 
-  const handleInputChange = (field, date) => {
-    setUserTimesheetDayData({ ...userTimesheetDayData, [field]: date });
+  const handleInputChange = (field, data) => {
+    setUserTimesheetDayData({ ...userTimesheetDayData, [field]: data });
     setState({ ...state, wrongTimeOrder: false });
   };
 
@@ -253,16 +278,14 @@ function EditUserTimesheetDayFormComp(props) {
 
   const validateForm = () => {
     if ((userTimesheetDayData.presenceTypeId <= 0)
-      || (isAbsence && !userTimesheetDayData.absenceTypeId)
+      || (isAbsence && !userTimesheetDayData.absenceTypeId && enabledAbsenceEdit)
       || (
         !isAbsence
         && isTimed
         && (!userTimesheetDayData.dayStartTime || !userTimesheetDayData.dayEndTime)
       )
     ) {
-      if (!unableToSetAbsenceType) {
-        return false;
-      }
+      return false;
     }
 
     if (
@@ -426,7 +449,7 @@ function EditUserTimesheetDayFormComp(props) {
                 Opcja dostępna tylko dla dni pracujących
               </FormHelperText>
             )
-}
+          }
           {
             state.submitted
             && userTimesheetDayData.presenceType.workingDayRestriction === workingDayRestrictions.NON_WORKING_DAY
@@ -436,10 +459,10 @@ function EditUserTimesheetDayFormComp(props) {
                 Opcja dostępna tylko dla dni niepracujących
               </FormHelperText>
             )
-}
+          }
         </FormControl>
 
-        {isAbsence && !unableToSetAbsenceType && (
+        {isAbsence && enabledAbsenceEdit && (
           <FormControl component="div" className={classes.formControl} disabled={isLoading}>
             <InputLabel htmlFor="absenceTypeId">Przyczyna nieobecności</InputLabel>
             <Select

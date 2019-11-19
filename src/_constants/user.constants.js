@@ -60,4 +60,9 @@ export const userConstants = {
     ROLE_SECRETARY: 'ROLE_SECRETARY',
     ROLE_USER: 'ROLE_USER',
   },
+
+  APP_CONFIG: {
+    ABSENCE_TO_BE_COMPLETED_ID: 'absenceToBeCompletedId',
+    PRESENCE_ABSENCE_ID: 'presenceAbsenceId',
+  },
 };

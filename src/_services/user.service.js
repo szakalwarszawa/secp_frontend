@@ -45,6 +45,9 @@ function login(username, password) {
     });
 }
 
+/**
+ * @returns {Promise<T>}
+ */
 function callForApiVersion() {
   return apiService.get('application/info')
     .then((result) => {
@@ -57,11 +60,24 @@ function callForApiVersion() {
     });
 }
 
+/**
+ * @returns {Promise<T>}
+ */
+function callForSpecialIds() {
+  return apiService.get('app_config')
+    .then((result) => {
+      sessionStorage.setItem('applicationConfig', JSON.stringify(result['hydra:member']));
+
+      return result;
+    });
+}
+
 function callForOwnUserData() {
   return apiService.get('users/me')
     .then((result) => {
       sessionStorage.setItem('user', JSON.stringify(result));
       callForApiVersion();
+      callForSpecialIds();
 
       return result;
     });
@@ -135,6 +151,21 @@ function isSecretary() {
   return userHasRole(userConstants.SECRETARY_ROLES);
 }
 
+/**
+ * @param {string} configKey
+ * @returns {string|null}
+ */
+function getAppConfigByKey(configKey) {
+  const configurations = JSON.parse(sessionStorage.getItem('applicationConfig')) || [];
+  const config = configurations.filter((conf) => conf.configKey === configKey);
+
+  if (!config || !config[0] || !Object.prototype.hasOwnProperty.call(config[0], 'configValue')) {
+    return null;
+  }
+
+  return config[0].configValue || null;
+}
+
 export const userService = {
   login,
   logout,
@@ -149,4 +180,5 @@ export const userService = {
   isSectionManager,
   isSecretary,
   refresh,
+  getAppConfigByKey,
 };
