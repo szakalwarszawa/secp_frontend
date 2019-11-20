@@ -80,7 +80,7 @@ function EditUserTimesheetDayComp(props) {
 
     const payload = {
       presenceType: `/api/presence_types/${savedData.presenceTypeId}`,
-      absenceType: isAbsence && ('absenceType' in savedData) ? `/api/absence_types/${savedData.absenceTypeId}` : null,
+      absenceType: isAbsence ? `/api/absence_types/${savedData.absenceTypeId}` : null,
       dayStartTime: isTimed
         ? savedData.dayStartTime.toLocaleTimeString(
           'pl-PL',
