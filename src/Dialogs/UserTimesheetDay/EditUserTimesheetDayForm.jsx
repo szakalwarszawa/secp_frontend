@@ -19,6 +19,7 @@ import { KeyboardTimePicker } from '@material-ui/pickers';
 
 import { apiService, userService } from '../../_services';
 import { userConstants } from '../../_constants';
+import { messageTranslate } from '../../_helpers/messageTranslations';
 
 function EditUserTimesheetDayFormComp(props) {
   const {
@@ -503,15 +504,14 @@ function EditUserTimesheetDayFormComp(props) {
             </InputLabel>
           </FormControl>
         )}
-
-        <Paper
-          hidden={state.requestError === null || state.requestError === ''}
-          className={classes.errorBox}
-          elevation={5}
-        >
-          {state.requestError}
-        </Paper>
       </DialogContent>
+      <Paper
+        hidden={state.requestError === null || state.requestError === ''}
+        className={classes.errorBox}
+        elevation={5}
+      >
+        {messageTranslate(state.requestError)}
+      </Paper>
       <div className={classes.progressBarWrapper}>
         {isLoading && <LinearProgress />}
       </div>

@@ -108,7 +108,7 @@ function EditUserTimesheetDayComp(props) {
         },
         (error) => {
           setState((s) => ({ ...s, loaderWorkerCount: s.loaderWorkerCount - 1 }));
-          setState((s) => ({ ...s, requestError: error }));
+          setState((s) => ({ ...s, requestError: error, loaded: true }));
         },
       );
   };
